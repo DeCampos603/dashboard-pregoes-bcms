@@ -37,7 +37,8 @@ DATA = os.path.join(BASE, "data")
 DRIVE_FILE_ID_PADRAO = "1-YUgpCqh8N-fZO_rKzyAPQjjxnLFBJ1A"
 
 UASG_ALVO = os.environ.get("UASG_ALVO", "160329").strip()
-NOME_UNIDADE = "Batalhão Central de Manutenção e Suprimento"
+NOME_UNIDADE = os.environ.get("NOME_UNIDADE", "Batalhão Central de Manutenção e Suprimento")
+NOME_CURTO = os.environ.get("NOME_CURTO", "BCMS")
 
 AUSENTE = "Informação ausente"
 
@@ -279,18 +280,23 @@ def sparkline(hist: list[dict]) -> str:
 # ---------------------------------------------------------------- render
 _ST_LABEL = {"vig": "Vigente", "v30": "≤30 dias", "venc": "Vencida",
              "semata": "Sem ata", "semdados": "Sem dados"}
+# Ícone = 2º canal além da cor (exigido para daltonismo / impressão P&B).
+_ST_ICONE = {"vig": "●", "v30": "▲", "venc": "✕", "semata": "○", "semdados": "–"}
 
 
-def _barras(pares: list, cor="var(--primary)") -> str:
+def _barras(pares: list) -> str:
+    """Barras horizontais: série única (uma cor), ponta arredondada 4px,
+    base reta, trilho = passo claro do mesmo matiz."""
     if not pares:
-        return '<p class="muted">Sem dados.</p>'
+        return '<p class="vazio">Sem dados para este filtro.</p>'
     topo = pares[0][1] or 1
     out = []
     for rotulo, valor in pares:
         pct = max(valor / topo * 100, 1.5)
         out.append(
-            f'<div class="brow"><div class="blabel" title="{esc(rotulo)}">{esc(rotulo, 34)}</div>'
-            f'<div class="btrack"><div class="bfill" style="width:{pct:.1f}%;background:{cor}"></div></div>'
+            f'<div class="brow" tabindex="0" data-lab="{esc(rotulo)}" data-val="{fmt_brl(valor)}">'
+            f'<div class="blabel">{esc(rotulo, 30)}</div>'
+            f'<div class="btrack"><div class="bfill" style="width:{pct:.1f}%"></div></div>'
             f'<div class="bval">{fmt_short(valor)}</div></div>')
     return "".join(out)
 
@@ -326,7 +332,8 @@ def _tabela(itens: list[dict]) -> str:
             f'<td class="nd" title="{esc(i["sub"])}">{esc(i["nd"])}</td>'
             f'<td class="forn" title="{esc(i["forn"], 160)}">{esc(i["forn"], 34)}</td>'
             f'<td data-v="{ts}">{fim}</td>'
-            f'<td><span class="tag tag-{i["st"]}">{_ST_LABEL[i["st"]]}</span></td>'
+            f'<td><span class="tag tag-{i["st"]}">'
+            f'<span aria-hidden="true">{_ST_ICONE[i["st"]]}</span>{_ST_LABEL[i["st"]]}</span></td>'
             f'<td class="num" data-v="{i["saldo"] or 0}">{fmt_int(i["saldo"] or 0)}</td>'
             f'<td class="num" data-v="{i["vu"] or 0}">{fmt_brl(i["vu"])}</td>'
             f'<td class="num" data-v="{i["cap"] or 0}"><strong>{fmt_brl(i["cap"])}</strong></td>'
@@ -341,6 +348,7 @@ def render(m: dict, hist: list[dict]) -> str:
         "%%GERADO%%": m["hoje"].strftime("%d/%m/%Y %H:%M"),
         "%%UASG%%": UASG_ALVO,
         "%%UNIDADE%%": NOME_UNIDADE,
+        "%%UNIDADE_CURTA%%": NOME_CURTO,
         "%%CAP_TOTAL%%": fmt_brl(m["cap_total"]),
         "%%CAP_VIG%%": fmt_brl(m["cap_vig"]),
         "%%CAP_V30%%": fmt_brl(m["cap_v30"]),
@@ -349,7 +357,9 @@ def render(m: dict, hist: list[dict]) -> str:
         "%%N_PREGOES%%": fmt_int(m["n_pregoes"]),
         "%%PCT_V30%%": f"{(m['cap_v30'] / m['cap_total'] * 100 if m['cap_total'] else 0):.1f}%".replace(".", ","),
         "%%BARRAS_CAT%%": _barras(m["por_cat"]),
-        "%%BARRAS_PREGAO%%": _barras(m["por_pregao"], cor="var(--gold)"),
+        "%%BARRAS_PREGAO%%": _barras(m["por_pregao"]),
+        "%%PCT_VIG_M%%": f"{(m['cap_vig'] / m['cap_total'] * 100 if m['cap_total'] else 0):.2f}",
+        "%%PCT_V30_M%%": f"{(m['cap_v30'] / m['cap_total'] * 100 if m['cap_total'] else 0):.2f}",
         "%%SPARK%%": sparkline(hist),
         "%%TABELA%%": _tabela(m["itens"]),
         "%%SEL_CAT%%": _select("fCat", "Tipo de material / serviço", m["op_cat"],
@@ -375,174 +385,356 @@ _TEMPLATE = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Capacidade de Empenho — Atas BCMS</title>
+<meta name="color-scheme" content="light dark">
+<title>Capacidade de Empenho — Atas %%UNIDADE_CURTA%%</title>
 <style>
-:root{--bg:#EEF1F6;--surface:#FFF;--ink:#0F1B2A;--ink-muted:#566374;--border:#D8DEE7;
---primary:#1C4A73;--success:#0F7A5A;--warning:#B5822B;--danger:#B23A2E;--gold:#C8901E;
---track:#E4E8EF;--hero-soft:#E7F1EC;--shadow:0 1px 2px rgba(15,27,42,.06);
---serif:Georgia,"Times New Roman",serif;--sans:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-[data-theme="dark"]{--bg:#0C1420;--surface:#131E2E;--ink:#E7EDF4;--ink-muted:#97A6B8;
---border:#26374C;--primary:#4E86BD;--success:#35C08F;--warning:#D9A94A;--danger:#E06A5E;
---gold:#D9A94A;--track:#1D2B3F;--hero-soft:#14263A;--shadow:0 1px 2px rgba(0,0,0,.4)}
+/* ---------------------------------------------------------------- tokens
+   Cores MEDIDAS (não estimadas): marcas >= 3:1 e textos >= 4.5:1 contra a
+   superfície; trio de status com separação para daltonismo (OKLab dE >= 8). */
+:root{
+  --bg:#F1F4F8; --surface:#FFFFFF; --surface-2:#F7F9FC; --surface-3:#EDF1F6;
+  --ink:#0F1B2A; --ink-2:#42505F; --ink-muted:#566374;
+  --border:#DCE3EC; --border-2:#C6D0DC;
+  --primary:#1C4A73;            /* marca (9,22:1) */
+  --primary-ink:#164062;
+  --track:#D6E2EE;              /* trilho = passo claro do mesmo matiz */
+  --success:#0F7A5A; --success-fill:#0F7A5A;   /* texto 5,31:1 */
+  --warning:#8A631C; --warning-fill:#B5822B;   /* texto 5,41:1 */
+  --danger:#B23A2E;                            /* texto 5,94:1 */
+  --gold:#C8901E;               /* decorativo — NUNCA texto ou dado */
+  --focus:#1C4A73;
+  --shadow:0 1px 2px rgba(15,27,42,.05), 0 1px 3px rgba(15,27,42,.04);
+  --shadow-2:0 4px 14px rgba(15,27,42,.08);
+  --serif:Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:12px; --r-sm:8px;
+}
+[data-theme="dark"]{
+  --bg:#0B1219; --surface:#131E2E; --surface-2:#182636; --surface-3:#1C2B3D;
+  --ink:#E7EDF4; --ink-2:#C3CEDB; --ink-muted:#97A6B8;
+  --border:#26374C; --border-2:#35495F;
+  --primary:#4E86BD; --primary-ink:#8FB8DC; --track:#22405F;
+  --success:#35C08F; --success-fill:#1F8959;
+  --warning:#D9A94A; --warning-fill:#B98918;
+  --danger:#E06A5E; --gold:#D9A94A; --focus:#8FB8DC;
+  --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-2:0 6px 18px rgba(0,0,0,.45);
+}
 *{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans)}
-.bcms-bar{height:5px;background:linear-gradient(to bottom,#CE2B2B 50%,#1E6FD0 50%)}
-.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
-.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-h1{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.15}
-.subtitle{font-size:12.5px;color:var(--ink-muted);margin-top:2px}
-.muted{color:var(--ink-muted)}
-button.theme{background:var(--surface);border:1px solid var(--border);border-radius:8px;
-padding:6px 12px;cursor:pointer;color:var(--ink);font:inherit}
-.hero{background:var(--hero-soft);border:1px solid var(--border);border-radius:14px;
-padding:22px 24px;margin:18px 0;box-shadow:var(--shadow)}
-.hero .label{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted)}
-.hero .big{font-family:var(--serif);font-size:44px;font-weight:700;color:var(--success);margin:2px 0 8px}
-.eq{font-size:13.5px}.eq b{font-weight:600}
-.eq .vig{color:var(--success)}.eq .v30{color:var(--warning)}
-#ativo{margin-top:10px;font-size:12.5px;display:none}
-#ativo.on{display:block}
-.pill{display:inline-block;background:var(--primary);color:#fff;border-radius:999px;
-padding:2px 10px;margin:2px 4px 2px 0;font-size:11.5px}
-.filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.fl{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink-muted)}
-.fl select{background:var(--bg);color:var(--ink);border:1px solid var(--border);
-border-radius:8px;padding:8px 10px;font:13px var(--sans);max-width:100%}
-.frow2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
-.chip.clear{border-style:dashed}
-td.cat{white-space:nowrap;font-size:11.5px;color:var(--ink-muted)}
-td.nd{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11.5px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
-.kpi .v{font-family:var(--serif);font-size:24px;font-weight:700;margin-top:2px}
-.kpi .v.warn{color:var(--warning)}.kpi .v.bad{color:var(--danger)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
-padding:18px 20px;margin:16px 0;box-shadow:var(--shadow)}
-.card h2{font-family:var(--serif);font-size:18px;font-weight:600;margin-bottom:12px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:820px){.grid2{grid-template-columns:1fr}}
-.brow{display:grid;grid-template-columns:180px 1fr 86px;gap:10px;align-items:center;margin:7px 0}
-.blabel{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.btrack{background:var(--track);border-radius:6px;height:14px;overflow:hidden}
-.bfill{height:100%;border-radius:6px}
-.bval{font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
-.spark-leg{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-muted)}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.controls input{flex:1;min-width:220px;background:var(--bg);color:var(--ink);
-border:1px solid var(--border);border-radius:8px;padding:8px 12px;font:inherit}
-.chip{background:var(--surface);border:1px solid var(--border);border-radius:999px;
-padding:5px 14px;cursor:pointer;font:12.5px var(--sans);color:var(--ink)}
-.chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
-.tblwrap{overflow-x:auto}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto} *{transition:none!important;animation:none!important}
+}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+
+/* ---------------------------------------------------------------- topo */
+.bcms-bar{height:4px;background:linear-gradient(to bottom,#CE2B2B 50%,#1E6FD0 50%)}
+.hdr{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--surface) 88%,transparent);
+  backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--border)}
+.hdr-in{max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.sub{font-size:12.5px;color:var(--ink-muted);margin-top:1px}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.chip-pos{background:var(--surface-3);border:1px solid var(--border);border-radius:999px;
+  padding:5px 12px;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.chip-pos b{color:var(--ink);font-variant-numeric:tabular-nums}
+.btn{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-sm);
+  padding:7px 13px;cursor:pointer;color:var(--ink);font:13px var(--sans);
+  transition:background .15s,border-color .15s}
+.btn:hover{background:var(--surface-3);border-color:var(--ink-muted)}
+
+.wrap{max-width:1200px;margin:0 auto;padding:22px 20px 72px}
+
+/* ---------------------------------------------------------------- hero */
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:26px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--primary)}
+.hero-label{font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink-muted);font-weight:600}
+/* Figura-herói: MESMA sans do resto (serifada seria decoração fora de marca)
+   e figuras proporcionais (tabular deixa números grandes "soltos"). */
+.hero-big{font-size:clamp(38px,6vw,54px);font-weight:700;letter-spacing:-.025em;
+  line-height:1.05;margin:6px 0 4px;color:var(--ink);font-variant-numeric:proportional-nums}
+.hero-cap{font-size:13px;color:var(--ink-muted);margin-bottom:16px}
+/* Medidor de composição: 2px de superfície separando os segmentos (o branco
+   separa, não uma borda desenhada). */
+.meter{display:flex;gap:2px;height:12px;background:var(--track);
+  border-radius:6px;overflow:hidden;max-width:640px}
+.mseg{height:100%;transition:width .25s ease}
+.mseg-vig{background:var(--success-fill)}
+.mseg-v30{background:var(--warning-fill)}
+.mleg{list-style:none;display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;font-size:13px}
+.mleg li{display:flex;align-items:center;gap:7px;color:var(--ink-2)}
+.mleg b{color:var(--ink);font-variant-numeric:tabular-nums}
+.key{width:10px;height:10px;border-radius:3px;flex:none}
+.key-vig{background:var(--success-fill)} .key-v30{background:var(--warning-fill)}
+.pills{margin-top:14px;display:none;align-items:center;gap:6px;flex-wrap:wrap}
+.pills.on{display:flex}
+.pills .lbl{font-size:12px;color:var(--ink-muted)}
+.pill{background:var(--primary);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px}
+[data-theme="dark"] .pill{color:#0B1219}
+
+/* ---------------------------------------------------------------- filtros */
+.filtros{position:sticky;top:60px;z-index:30;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;
+  margin:16px 0;box-shadow:var(--shadow)}
+.filtros-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.fl{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fl>span{font-size:11.5px;font-weight:600;color:var(--ink-muted);
+  text-transform:uppercase;letter-spacing:.04em}
+.fl select,#busca{width:100%;background:var(--surface-2);color:var(--ink);
+  border:1px solid var(--border-2);border-radius:var(--r-sm);padding:9px 11px;
+  font:13.5px var(--sans);transition:border-color .15s}
+.fl select:hover,#busca:hover{border-color:var(--ink-muted)}
+.frow2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:13px}
+#busca{flex:1;min-width:200px}
+/* Controle segmentado (status) — visualmente distinto dos dropdowns */
+.seg{display:inline-flex;background:var(--surface-3);border:1px solid var(--border);
+  border-radius:999px;padding:3px;gap:2px}
+.seg button{background:none;border:0;border-radius:999px;padding:6px 14px;cursor:pointer;
+  font:12.5px var(--sans);color:var(--ink-2);transition:background .15s,color .15s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--primary);color:#fff;font-weight:600}
+[data-theme="dark"] .seg button[aria-pressed="true"]{color:#0B1219}
+
+/* ---------------------------------------------------------------- KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:16px 0}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px 18px;box-shadow:var(--shadow)}
+.kpi .lbl{font-size:12.5px;color:var(--ink-muted)}
+.kpi .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:3px;
+  font-variant-numeric:proportional-nums}
+.kpi .v.warn{color:var(--warning)} .kpi .v.bad{color:var(--danger)}
+.kpi .hint{font-size:11.5px;color:var(--ink-muted);margin-top:3px}
+
+/* ---------------------------------------------------------------- cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px 22px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:3px}
+.card .cap{font-size:12.5px;color:var(--ink-muted);margin-bottom:16px}
+/* min-width:0 nos itens: sem isso, o min-width:auto do grid impede o card de
+   encolher abaixo do conteúdo e a PÁGINA rola na horizontal (o certo é a
+   tabela rolar dentro do próprio container). */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.grid2>*{min-width:0}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+
+/* ---------------------------------------------------------------- barras
+   Série única (uma cor). Ponta de dado 4px arredondada, base reta. */
+.brow{display:grid;grid-template-columns:minmax(90px,150px) 1fr 84px;gap:12px;
+  align-items:center;padding:4px 6px;margin:0 -6px;border-radius:var(--r-sm);
+  cursor:default;transition:background .12s}
+.brow:hover,.brow:focus-visible{background:var(--surface-3)}
+.blabel{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.btrack{background:var(--track);border-radius:0 6px 6px 0;height:13px;overflow:hidden}
+.bfill{height:100%;background:var(--primary);border-radius:0 4px 4px 0;
+  transition:width .25s ease}
+.brow:hover .bfill{filter:brightness(1.12)}
+.bval{font-size:12px;text-align:right;color:var(--ink-2);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.vazio{color:var(--ink-muted);font-size:13px;padding:14px 0;text-align:center}
+
+/* ---------------------------------------------------------------- tabelas */
+.tblwrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
-th,td{padding:7px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
-th{cursor:pointer;user-select:none;white-space:nowrap;color:var(--ink-muted);font-weight:600}
-th:hover{color:var(--ink)}
+th,td{padding:8px 9px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+thead th{position:sticky;top:0;background:var(--surface);z-index:1;
+  color:var(--ink-muted);font-weight:600;white-space:nowrap;cursor:pointer;
+  user-select:none;border-bottom:1.5px solid var(--border-2)}
+thead th:hover{color:var(--ink)}
+tbody tr:hover{background:var(--surface-2)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-td.desc{max-width:330px}td.forn{max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tag{border-radius:999px;padding:2px 9px;font-size:11px;white-space:nowrap}
-.tag-vig{background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success)}
-.tag-v30{background:color-mix(in srgb,var(--warning) 18%,transparent);color:var(--warning)}
-.tag-venc{background:color-mix(in srgb,var(--danger) 15%,transparent);color:var(--danger)}
-.tag-semata{background:var(--track);color:var(--ink-muted)}
-a{color:var(--primary)}
-footer{margin-top:26px;font-size:12px;color:var(--ink-muted);text-align:center}
+td.desc{max-width:270px;color:var(--ink-2)}
+td.forn{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+td.cat{white-space:nowrap;font-size:11.5px;color:var(--ink-muted)}
+td.nd{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--ink-muted)}
+/* Status: cor + ÍCONE + rótulo (nunca cor sozinha) */
+.tag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;
+  padding:2px 9px;font-size:11px;white-space:nowrap;font-weight:500}
+.tag-vig{background:color-mix(in srgb,var(--success) 14%,transparent);color:var(--success)}
+.tag-v30{background:color-mix(in srgb,var(--warning) 16%,transparent);color:var(--warning)}
+.tag-venc{background:color-mix(in srgb,var(--danger) 14%,transparent);color:var(--danger)}
+.tag-semata{background:var(--surface-3);color:var(--ink-muted)}
+.tbl-foot{display:flex;justify-content:center;margin-top:14px}
+a{color:var(--primary-ink)} a:hover{text-decoration:underline}
+.spark-leg{display:flex;justify-content:space-between;font-size:11.5px;
+  color:var(--ink-muted);margin-top:4px;font-variant-numeric:tabular-nums}
+
+/* ---------------------------------------------------------------- tooltip */
+.tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
+  background:var(--ink);color:var(--bg);border-radius:var(--r-sm);padding:8px 11px;
+  font-size:12.5px;box-shadow:var(--shadow-2);max-width:280px}
+.tip.on{opacity:1}
+.tip .tv{font-weight:700;font-size:14px;display:block}
+.tip .tl{color:var(--ink-muted);display:block;margin-top:1px}
+[data-theme="dark"] .tip{background:#E7EDF4;color:#0B1219}
+[data-theme="dark"] .tip .tl{color:#42505F}
+
+footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;line-height:1.7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------------------------------------------------------------- impressão */
+@media print{
+  .hdr,.filtros,.tbl-foot,.btn,.seg,.tip{display:none!important}
+  body{background:#fff;color:#000;font-size:10pt}
+  .card,.hero,.kpi{box-shadow:none;border:1px solid #999;break-inside:avoid}
+  .grid2{grid-template-columns:1fr 1fr}
+  .tblwrap{overflow:visible} thead th{position:static}
+  a{text-decoration:none;color:#000}
+}
 </style>
 </head>
 <body>
 <div class="bcms-bar" aria-hidden="true"></div>
-<div class="wrap">
-  <div class="topbar">
+
+<header class="hdr">
+  <div class="hdr-in">
     <div>
-      <h1>Capacidade de Empenho — Atas de Registro de Preços</h1>
-      <div class="subtitle">%%UNIDADE%% · UASG %%UASG%% · Posição: <b>%%POSICAO%%</b></div>
+      <h1>Capacidade de Empenho</h1>
+      <p class="sub">Atas de Registro de Preços · %%UNIDADE%% · UASG %%UASG%%</p>
     </div>
-    <div><button class="theme" id="btTheme" aria-label="Alternar tema">◐ Tema</button></div>
+    <div class="hdr-r">
+      <span class="chip-pos">Posição <b>%%POSICAO%%</b></span>
+      <button class="btn" id="btTheme" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+    </div>
   </div>
+</header>
 
-  <div class="hero">
-    <div class="label" id="heroLabel">Capacidade de empenho em atas válidas</div>
-    <div class="big" id="heroBig">%%CAP_TOTAL%%</div>
-    <div class="eq"><b class="vig" id="heroVig">%%CAP_VIG%%</b> em atas vigentes
-      + <b class="v30" id="heroV30">%%CAP_V30%%</b> vencendo em ≤30 dias
-      (<span id="heroPct">%%PCT_V30%%</span> do total)</div>
-    <div id="ativo"><span class="muted">Filtros ativos:</span> <span id="ativoPills"></span></div>
-  </div>
+<main class="wrap">
+  <section class="hero" aria-labelledby="heroLabel">
+    <p class="hero-label" id="heroLabel">Capacidade de empenho disponível</p>
+    <p class="hero-big" id="heroBig">%%CAP_TOTAL%%</p>
+    <p class="hero-cap">Saldo das atas × valor unitário registrado — o quanto ainda
+      pode ser empenhado sem nova licitação.</p>
+    <div class="meter" role="img" id="meter"
+         aria-label="Composição: vigentes e vencendo em até 30 dias">
+      <div class="mseg mseg-vig" id="segVig" style="width:%%PCT_VIG_M%%%"></div>
+      <div class="mseg mseg-v30" id="segV30" style="width:%%PCT_V30_M%%%"></div>
+    </div>
+    <ul class="mleg">
+      <li><span class="key key-vig" aria-hidden="true"></span>Vigentes <b id="heroVig">%%CAP_VIG%%</b></li>
+      <li><span class="key key-v30" aria-hidden="true"></span>Vencem em ≤30 dias
+        <b id="heroV30">%%CAP_V30%%</b> <span class="muted">(<span id="heroPct">%%PCT_V30%%</span>)</span></li>
+    </ul>
+    <div class="pills" id="ativo"><span class="lbl">Filtros:</span><span id="ativoPills"></span></div>
+  </section>
 
-  <div class="card">
-    <h2>Filtrar</h2>
-    <div class="filtros">
+  <section class="filtros" aria-label="Filtros">
+    <div class="filtros-grid">
       %%SEL_CAT%%
       %%SEL_ND%%
       %%SEL_PG%%
       %%SEL_TP%%
     </div>
     <div class="frow2">
-      <input id="busca" type="search" placeholder="Buscar item, fornecedor, pregão…" aria-label="Buscar">
-      <button class="chip on" data-f="ativos">Válidas</button>
-      <button class="chip" data-f="v30">≤30 dias</button>
-      <button class="chip" data-f="venc">Vencidas</button>
-      <button class="chip" data-f="all">Todas</button>
-      <button class="chip clear" id="btLimpar">✕ Limpar</button>
+      <input id="busca" type="search" placeholder="Buscar item, fornecedor, pregão…"
+             aria-label="Buscar no texto dos itens">
+      <button class="btn" id="btLimpar">Limpar filtros</button>
     </div>
-  </div>
+    <p class="sr" id="vivo" role="status" aria-live="polite"></p>
+  </section>
 
-  <div class="kpis">
-    <div class="kpi"><div class="muted">Itens com saldo</div><div class="v" id="kItens">%%N_ITENS%%</div></div>
-    <div class="kpi"><div class="muted">Pregões com saldo</div><div class="v" id="kPregoes">%%N_PREGOES%%</div></div>
-    <div class="kpi"><div class="muted">Vence em ≤30 dias</div><div class="v warn" id="kV30">%%CAP_V30%%</div></div>
-    <div class="kpi"><div class="muted">Perdido em atas vencidas</div><div class="v bad" id="kVenc">%%CAP_VENC%%</div></div>
+  <section class="kpis">
+    <div class="kpi"><div class="lbl">Itens com saldo</div>
+      <div class="v" id="kItens">%%N_ITENS%%</div>
+      <div class="hint">linhas de ata disponíveis</div></div>
+    <div class="kpi"><div class="lbl">Pregões</div>
+      <div class="v" id="kPregoes">%%N_PREGOES%%</div>
+      <div class="hint">com saldo remanescente</div></div>
+    <div class="kpi"><div class="lbl">Vence em ≤30 dias</div>
+      <div class="v warn" id="kV30">%%CAP_V30%%</div>
+      <div class="hint">usar ou perder</div></div>
+    <div class="kpi"><div class="lbl">Já perdido</div>
+      <div class="v bad" id="kVenc">%%CAP_VENC%%</div>
+      <div class="hint">saldo em atas vencidas</div></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>Onde está a capacidade</h2>
+      <p class="cap">Por tipo de material ou serviço — 12 maiores</p>
+      <div id="barCat">%%BARRAS_CAT%%</div>
+    </section>
+    <section class="card">
+      <h2>Por pregão</h2>
+      <p class="cap">UASG gerenciadora · número — 12 maiores</p>
+      <div id="barPg">%%BARRAS_PREGAO%%</div>
+    </section>
   </div>
 
   <div class="grid2">
-    <div class="card"><h2>Por categoria de despesa</h2><div id="barCat">%%BARRAS_CAT%%</div></div>
-    <div class="card"><h2>Por pregão (UASG ger. · nº)</h2><div id="barPg">%%BARRAS_PREGAO%%</div></div>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <h2>⚠ Atas vencendo em até 60 dias</h2>
+    <section class="card">
+      <h2>Vencendo em até 60 dias</h2>
+      <p class="cap">Prioridade de empenho antes da perda do saldo</p>
       <div class="tblwrap"><table>
-        <thead><tr><th>Fim vigência</th><th>Pregão</th><th>Ger.</th>
-        <th class="num">Itens</th><th class="num">Capacidade</th></tr></thead>
+        <thead><tr><th>Fim vigência</th><th>Pregão</th><th class="num">Itens</th>
+        <th class="num">Capacidade</th></tr></thead>
         <tbody id="tbVenc">%%VENC60%%</tbody>
       </table></div>
-    </div>
-    <div class="card"><h2>Evolução da capacidade</h2>%%SPARK%%</div>
+    </section>
+    <section class="card">
+      <h2>Evolução</h2>
+      <p class="cap">Capacidade total a cada atualização</p>
+      %%SPARK%%
+    </section>
   </div>
 
-  <div class="card">
-    <h2>Itens <span class="muted" id="cont"></span> <span class="muted" style="font-weight:400;font-size:12px">— clique nos títulos para ordenar</span></h2>
+  <section class="card">
+    <h2>Itens <span class="cap" id="cont" style="font-family:var(--sans)"></span></h2>
+    <p class="cap">Clique nos títulos para ordenar · ↗ abre o item no Compras.gov.br</p>
+    <div class="frow2" style="margin:0 0 14px">
+      <div class="seg" role="group" aria-label="Situação da ata (filtra apenas esta lista)">
+        <button data-f="ativos" aria-pressed="true">Válidas</button>
+        <button data-f="v30" aria-pressed="false">≤30 dias</button>
+        <button data-f="venc" aria-pressed="false">Vencidas</button>
+        <button data-f="all" aria-pressed="false">Todas</button>
+      </div>
+      <span class="cap" style="margin:0">Os números acima consideram todas as situações.</span>
+    </div>
     <div class="tblwrap">
       <table id="tb">
         <thead><tr>
           <th>Pregão</th><th>Ger.</th><th class="num">Item</th><th>Descrição</th>
-          <th>Categoria</th><th>ND sug.</th><th>Fornecedor</th><th>Fim vig.</th><th>Status</th>
-          <th class="num">Saldo</th><th class="num">Vlr. unit.</th>
-          <th class="num">Capacidade</th><th></th>
+          <th>Categoria</th><th>ND sug.</th><th>Fornecedor</th><th>Fim vig.</th>
+          <th>Situação</th><th class="num">Saldo</th><th class="num">Vlr. unit.</th>
+          <th class="num">Capacidade</th><th><span class="sr">Link</span></th>
         </tr></thead>
         <tbody>
 %%TABELA%%
         </tbody>
       </table>
     </div>
-  </div>
+    <p class="vazio" id="semResultado" style="display:none">
+      Nenhum item para esta combinação de filtros.</p>
+    <div class="tbl-foot"><button class="btn" id="btMais" style="display:none"></button></div>
+  </section>
 
-  <footer>%%UNIDADE%% — dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
-  Gerado em %%GERADO%% · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
-  A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do item — confira antes de empenhar.</footer>
-</div>
+  <footer>
+    %%UNIDADE%% — dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
+    Gerado em %%GERADO%% · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
+    A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do item — confira antes de empenhar.
+  </footer>
+</main>
+
+<div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+
 <script>
 (function(){
+  "use strict";
   var root=document.documentElement, KEY='bcms-pregoes-theme';
-  try{var t=localStorage.getItem(KEY); if(t) root.dataset.theme=t;
+  try{var t=localStorage.getItem(KEY);
+      if(t) root.dataset.theme=t;
       else if(matchMedia('(prefers-color-scheme: dark)').matches) root.dataset.theme='dark';}catch(e){}
   document.getElementById('btTheme').onclick=function(){
     root.dataset.theme = root.dataset.theme==='dark'?'light':'dark';
     try{localStorage.setItem(KEY, root.dataset.theme);}catch(e){}
   };
+
+  var LOTE=120;                       // linhas renderizadas por vez
   var tb=document.getElementById('tb'), corpo=tb.tBodies[0];
-  // Lê os dados uma vez do próprio DOM (sem duplicar JSON na página).
   var dados=[].slice.call(corpo.rows).map(function(tr){
     return {tr:tr, st:tr.dataset.st, cat:tr.dataset.cat, nd:tr.dataset.nd,
             pg:tr.dataset.pg, tipo:tr.dataset.tipo, key:tr.dataset.key,
@@ -551,7 +743,8 @@ footer{margin-top:26px;font-size:12px;color:var(--ink-muted);text-align:center}
   });
   var fCat=document.getElementById('fCat'), fNd=document.getElementById('fNd'),
       fPg=document.getElementById('fPg'), fTp=document.getElementById('fTp'),
-      busca=document.getElementById('busca'), status='ativos';
+      busca=document.getElementById('busca'), btMais=document.getElementById('btMais'),
+      status='ativos', mostrando=LOTE, filtrados=[];
 
   function brl(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
   function curto(v){
@@ -560,37 +753,78 @@ footer{margin-top:26px;font-size:12px;color:var(--ink-muted);text-align:center}
     return brl(v);
   }
   function txt(id,v){document.getElementById(id).textContent=v;}
-  function barras(el,mapa,cor){
-    var arr=Object.keys(mapa).map(function(k){return [k,mapa[k]];})
-              .sort(function(a,b){return b[1]-a[1];}).slice(0,12);
-    if(!arr.length){el.innerHTML='<p class="muted">Sem dados para este filtro.</p>';return;}
-    var topo=arr[0][1]||1, h='';
-    arr.forEach(function(p){
-      var pct=Math.max(p[1]/topo*100,1.5), r=p[0].length>34?p[0].slice(0,33)+'…':p[0];
-      h+='<div class="brow"><div class="blabel" title="'+p[0]+'">'+r+'</div>'+
-         '<div class="btrack"><div class="bfill" style="width:'+pct.toFixed(1)+'%;background:'+cor+'"></div></div>'+
-         '<div class="bval">'+curto(p[1])+'</div></div>';
-    });
-    el.innerHTML=h;
+  function elem(tag,cls,texto){
+    var e=document.createElement(tag);
+    if(cls)e.className=cls;
+    if(texto!=null)e.textContent=texto;   // rótulos vêm da planilha: nunca innerHTML
+    return e;
   }
 
-  function aplica(){
+  // ---- tooltip das barras (o valor também está rotulado na ponta) ----
+  var tip=document.getElementById('tip');
+  function mostraTip(ev,lab,val){
+    tip.textContent='';
+    tip.appendChild(elem('span','tv',val));
+    tip.appendChild(elem('span','tl',lab));
+    tip.classList.add('on');
+    var r=(ev.currentTarget||ev.target).getBoundingClientRect();
+    var x=(ev.clientX||r.left+r.width/2), y=r.top;
+    tip.style.left=Math.min(Math.max(10,x-tip.offsetWidth/2),innerWidth-tip.offsetWidth-10)+'px';
+    tip.style.top=Math.max(8,y-tip.offsetHeight-10)+'px';
+  }
+  function escondeTip(){tip.classList.remove('on');}
+
+  function barras(el,mapa){
+    var arr=Object.keys(mapa).map(function(k){return [k,mapa[k]];})
+              .sort(function(a,b){return b[1]-a[1];}).slice(0,12);
+    el.textContent='';
+    if(!arr.length){el.appendChild(elem('p','vazio','Sem dados para este filtro.'));return;}
+    var topo=arr[0][1]||1;
+    arr.forEach(function(p){
+      var row=elem('div','brow'); row.tabIndex=0;
+      row.appendChild(elem('div','blabel',p[0]));
+      var tr=elem('div','btrack'), fl=elem('div','bfill');
+      fl.style.width=Math.max(p[1]/topo*100,1.5).toFixed(1)+'%';
+      tr.appendChild(fl); row.appendChild(tr);
+      row.appendChild(elem('div','bval',curto(p[1])));
+      var lab=p[0], val=brl(p[1]);
+      row.addEventListener('pointermove',function(e){mostraTip(e,lab,val);});
+      row.addEventListener('pointerleave',escondeTip);
+      row.addEventListener('focus',function(e){mostraTip(e,lab,val);});
+      row.addEventListener('blur',escondeTip);
+      el.appendChild(row);
+    });
+  }
+
+  function pinta(){
+    filtrados.forEach(function(d,i){d.tr.style.display = i<mostrando ? '' : 'none';});
+    var resta=filtrados.length-mostrando;
+    btMais.style.display = resta>0 ? '' : 'none';
+    if(resta>0) btMais.textContent='Mostrar mais '+Math.min(resta,LOTE)+
+      ' (de '+resta.toLocaleString('pt-BR')+' restantes)';
+    document.getElementById('semResultado').style.display=filtrados.length?'none':'';
+  }
+
+  function aplica(reset){
+    if(reset!==false) mostrando=LOTE;
     var vc=fCat.value, vn=fNd.value, vp=fPg.value, vt=fTp.value,
         termo=busca.value.trim().toLowerCase();
-    var listados=0, capV=0, capW=0, capVenc=0, cats={}, pgs={}, chaves={}, nItens=0;
+    var capV=0, capW=0, capVenc=0, cats={}, pgs={}, chaves={}, nItens=0;
     var lim=Date.now()/1000+60*86400, venc={};
+    filtrados=[];
 
     dados.forEach(function(d){
+      // DIMENSÃO (categoria/ND/pregão/tipo/busca) governa TODOS os números do
+      // resumo — inclusive "já perdido", que por definição olha as vencidas.
+      var okDim = (!vc||d.cat===vc) && (!vn||d.nd===vn) && (!vp||d.pg===vp)
+                && (!vt||d.tipo===vt) && (!termo||d.txt.indexOf(termo)>-1);
+      // SITUAÇÃO é só um seletor de visualização da LISTA abaixo.
       var okS = (status==='all') || (status==='ativos' && (d.st==='vig'||d.st==='v30'))
               || (status==='v30' && d.st==='v30') || (status==='venc' && d.st==='venc');
-      var ok = okS && (!vc||d.cat===vc) && (!vn||d.nd===vn) && (!vp||d.pg===vp)
-             && (!vt||d.tipo===vt) && (!termo||d.txt.indexOf(termo)>-1);
-      d.tr.style.display = ok ? '' : 'none';
-      if(!ok) return;
-      listados++;
-      // A capacidade só conta atas válidas (vigente / ≤30 dias), como no
-      // cálculo do servidor; vencidas entram só no KPI "perdido".
-      if(d.st==='venc'){capVenc+=d.cap; return;}
+      d.tr.style.display = (okDim && okS) ? '' : 'none';
+      if(okDim && okS) filtrados.push(d);
+      if(!okDim) return;
+      if(d.st==='venc'){capVenc+=d.cap;return;}
       if(d.st==='vig'){capV+=d.cap;} else if(d.st==='v30'){capW+=d.cap;} else {return;}
       nItens++; chaves[d.key]=1;
       cats[d.cat]=(cats[d.cat]||0)+d.cap;
@@ -600,53 +834,64 @@ footer{margin-top:26px;font-size:12px;color:var(--ink-muted);text-align:center}
         v.cap+=d.cap; v.n++;
       }
     });
+    pinta();
 
     var total=capV+capW;
     txt('heroBig',brl(total)); txt('heroVig',brl(capV)); txt('heroV30',brl(capW));
     txt('heroPct',(total?(capW/total*100).toFixed(1).replace('.',','):'0,0')+'%');
+    document.getElementById('segVig').style.width=(total?capV/total*100:0).toFixed(2)+'%';
+    document.getElementById('segV30').style.width=(total?capW/total*100:0).toFixed(2)+'%';
     txt('kItens',nItens.toLocaleString('pt-BR'));
     txt('kPregoes',Object.keys(chaves).length.toLocaleString('pt-BR'));
     txt('kV30',brl(capW)); txt('kVenc',brl(capVenc));
-    txt('cont','('+listados.toLocaleString('pt-BR')+' listados)');
+    txt('cont','· '+filtrados.length.toLocaleString('pt-BR')+' listados');
+    txt('vivo',filtrados.length.toLocaleString('pt-BR')+' itens; capacidade '+brl(total));
 
-    barras(document.getElementById('barCat'),cats,'var(--primary)');
-    barras(document.getElementById('barPg'),pgs,'var(--gold)');
+    barras(document.getElementById('barCat'),cats);
+    barras(document.getElementById('barPg'),pgs);
 
+    var alvo=document.getElementById('tbVenc'); alvo.textContent='';
     var vs=Object.keys(venc).map(function(k){return venc[k];})
-            .sort(function(a,b){return a.fim-b.fim;}).slice(0,12), hv='';
-    vs.forEach(function(v){
-      var d=new Date(v.fim*1000);
-      hv+='<tr><td>'+('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+
-          d.getFullYear()+'</td><td colspan="2">'+v.key+'</td><td class="num">'+v.n+
-          '</td><td class="num"><strong>'+brl(v.cap)+'</strong></td></tr>';
+            .sort(function(a,b){return a.fim-b.fim;}).slice(0,12);
+    if(!vs.length){
+      var tr0=document.createElement('tr'), td0=elem('td','vazio',
+        'Nenhuma ata vencendo nos próximos 60 dias.');
+      td0.colSpan=4; tr0.appendChild(td0); alvo.appendChild(tr0);
+    } else vs.forEach(function(v){
+      var d=new Date(v.fim*1000), tr=document.createElement('tr');
+      tr.appendChild(elem('td',null,('0'+d.getDate()).slice(-2)+'/'+
+        ('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear()));
+      tr.appendChild(elem('td',null,v.key));
+      tr.appendChild(elem('td','num',String(v.n)));
+      var tdc=elem('td','num'); tdc.appendChild(elem('strong',null,brl(v.cap)));
+      tr.appendChild(tdc); alvo.appendChild(tr);
     });
-    document.getElementById('tbVenc').innerHTML = hv ||
-      '<tr><td colspan="5" class="muted">Nenhuma ata vencendo nos próximos 60 dias.</td></tr>';
 
+    var box=document.getElementById('ativo'), alvoP=document.getElementById('ativoPills');
+    alvoP.textContent='';
     var pills=[];
     if(vc)pills.push(vc); if(vn)pills.push('ND '+vn);
     if(vp)pills.push('Pregão '+vp); if(vt)pills.push(vt);
-    if(termo)pills.push('"'+busca.value.trim()+'"');
-    var box=document.getElementById('ativo');
-    if(pills.length){
-      box.classList.add('on');
-      document.getElementById('ativoPills').innerHTML=
-        pills.map(function(p){return '<span class="pill">'+p+'</span>';}).join('');
-      txt('heroLabel','Capacidade de empenho (filtrada)');
-    }else{
-      box.classList.remove('on');
-      txt('heroLabel','Capacidade de empenho em atas válidas');
-    }
+    if(termo)pills.push('“'+busca.value.trim()+'”');
+    pills.forEach(function(p){alvoP.appendChild(elem('span','pill',p));});
+    box.classList.toggle('on',pills.length>0);
+    txt('heroLabel',pills.length?'Capacidade de empenho (filtrada)'
+                                :'Capacidade de empenho disponível');
   }
 
-  [fCat,fNd,fPg,fTp].forEach(function(s){s.addEventListener('change',aplica);});
-  busca.addEventListener('input',aplica);
-  [].forEach.call(document.querySelectorAll('.chip[data-f]'),function(c){
-    c.onclick=function(){
-      [].forEach.call(document.querySelectorAll('.chip[data-f]'),function(x){x.classList.remove('on')});
-      c.classList.add('on'); status=c.dataset.f; aplica();};});
+  [fCat,fNd,fPg,fTp].forEach(function(s){s.addEventListener('change',function(){aplica();});});
+  busca.addEventListener('input',function(){aplica();});
+  [].forEach.call(document.querySelectorAll('.seg button'),function(b){
+    b.onclick=function(){
+      [].forEach.call(document.querySelectorAll('.seg button'),function(x){
+        x.setAttribute('aria-pressed','false');});
+      b.setAttribute('aria-pressed','true'); status=b.dataset.f; aplica();};});
   document.getElementById('btLimpar').onclick=function(){
-    fCat.value=fNd.value=fPg.value=fTp.value=''; busca.value=''; aplica();};
+    fCat.value=fNd.value=fPg.value=fTp.value=''; busca.value='';
+    [].forEach.call(document.querySelectorAll('.seg button'),function(x){
+      x.setAttribute('aria-pressed', x.dataset.f==='ativos'?'true':'false');});
+    status='ativos'; aplica();};
+  btMais.onclick=function(){mostrando+=LOTE; pinta();};
 
   var ord={col:-1,asc:false};
   [].forEach.call(tb.tHead.rows[0].cells,function(th,i){
@@ -659,7 +904,10 @@ footer{margin-top:26px;font-size:12px;color:var(--ink-muted);text-align:center}
         else {va=ca.textContent.toLowerCase(); vb=cb.textContent.toLowerCase();}
         return (va<vb?-1:va>vb?1:0)*(ord.asc?1:-1);
       });
-      dados.forEach(function(d){corpo.appendChild(d.tr)});
+      var frag=document.createDocumentFragment();
+      dados.forEach(function(d){frag.appendChild(d.tr);});
+      corpo.appendChild(frag);
+      aplica(false);
     };});
 
   aplica();
