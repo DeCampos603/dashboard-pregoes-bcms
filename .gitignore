@@ -1,0 +1,12 @@
+# Lixo do Windows / Google Drive (injeta desktop.ini e corrompe o .git)
+desktop.ini
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Planilhas baixadas para teste local (a fonte viva é o Drive)
+*.xlsx
