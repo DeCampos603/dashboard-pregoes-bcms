@@ -619,8 +619,9 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
    Série única (uma cor). Ponta de dado 4px arredondada, base reta. */
 .brow{display:grid;grid-template-columns:minmax(90px,150px) 1fr 84px;gap:12px;
   align-items:center;padding:4px 6px;margin:0 -6px;border-radius:var(--r-sm);
-  cursor:default;transition:background .12s}
+  cursor:pointer;transition:background .12s}
 .brow:hover,.brow:focus-visible{background:var(--surface-3)}
+.brow:active{background:var(--track)}
 .blabel{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
 .btrack{background:var(--track);border-radius:0 6px 6px 0;height:13px;overflow:hidden}
@@ -767,12 +768,12 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   <div class="grid2">
     <section class="card">
       <h2>Onde está a capacidade</h2>
-      <p class="cap">Por tipo de material ou serviço — 12 maiores</p>
+      <p class="cap">Por tipo de material ou serviço — 12 maiores · <b>clique para filtrar</b></p>
       <div id="barCat">%%BARRAS_CAT%%</div>
     </section>
     <section class="card">
       <h2>Por pregão</h2>
-      <p class="cap">UASG gerenciadora · número — 12 maiores</p>
+      <p class="cap">UASG gerenciadora · número — 12 maiores · <b>clique para filtrar</b></p>
       <div id="barPg">%%BARRAS_PREGAO%%</div>
     </section>
   </div>
@@ -812,7 +813,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
           <th>Pregão</th><th>Ger.</th><th class="num">Item</th><th>Descrição</th>
           <th>Categoria</th><th>ND sug.</th><th>Fornecedor</th><th>Fim vig.</th>
           <th>Situação</th><th class="num">Saldo</th><th class="num">Vlr. unit.</th>
-          <th class="num">Capacidade</th><th><span class="sr">Link</span></th>
+          <th class="num">Valor total</th><th><span class="sr">Link</span></th>
         </tr></thead>
         <tbody>
 %%TABELA%%
@@ -925,26 +926,42 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   }
   function escondeTip(){tip.classList.remove('on');}
 
-  function barras(el,mapa){
-    var arr=Object.keys(mapa).map(function(k){return [k,mapa[k]];})
+  function barras(el,mapa,tipoFiltro){
+    var arr=Object.keys(mapa).map(function(k){return [k,mapa[k].cap,mapa[k].val];})
               .sort(function(a,b){return b[1]-a[1];}).slice(0,12);
     el.textContent='';
     if(!arr.length){el.appendChild(elem('p','vazio','Sem dados para este filtro.'));return;}
     var topo=arr[0][1]||1;
     arr.forEach(function(p){
-      var row=elem('div','brow'); row.tabIndex=0;
+      var row=elem('div','brow'); row.tabIndex=0; row.setAttribute('role','button');
+      row.setAttribute('aria-label','Filtrar por '+p[0]); row.title='Filtrar por '+p[0];
       row.appendChild(elem('div','blabel',p[0]));
       var tr=elem('div','btrack'), fl=elem('div','bfill');
       fl.style.width=Math.max(p[1]/topo*100,1.5).toFixed(1)+'%';
       tr.appendChild(fl); row.appendChild(tr);
       row.appendChild(elem('div','bval',curto(p[1])));
-      var lab=p[0], val=brl(p[1]);
+      var lab=p[0], val=brl(p[1]), fval=p[2];
       row.addEventListener('pointermove',function(e){mostraTip(e,lab,val);});
       row.addEventListener('pointerleave',escondeTip);
       row.addEventListener('focus',function(e){mostraTip(e,lab,val);});
       row.addEventListener('blur',escondeTip);
+      // clicar na barra aplica o filtro correspondente na lista abaixo
+      row.addEventListener('click',function(){escondeTip(); aplicaFiltro(tipoFiltro,fval);});
+      row.addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.key===' '){e.preventDefault(); escondeTip(); aplicaFiltro(tipoFiltro,fval);}});
       el.appendChild(row);
     });
+  }
+
+  // Clique numa barra → aplica o filtro de categoria ou de pregão e rola até a
+  // lista, para o usuário ver os itens daquele grupo.
+  function aplicaFiltro(tipo, val){
+    if(tipo==='cat'){ fCat.value=val; }
+    else if(tipo==='pg'){ fPg.value=val; }
+    aplica();
+    var tbl=document.getElementById('tb');
+    var card=tbl.closest ? tbl.closest('.card') : null;
+    (card||tbl).scrollIntoView({behavior:'smooth', block:'start'});
   }
 
   function pinta(){
@@ -978,8 +995,9 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       if(d.st==='venc'){capVenc+=d.cap;return;}
       if(d.st==='vig'){capV+=d.cap;} else if(d.st==='v30'){capW+=d.cap;} else {return;}
       nItens++; chaves[d.key]=1;
-      cats[d.cat]=(cats[d.cat]||0)+d.cap;
-      pgs[d.key]=(pgs[d.key]||0)+d.cap;
+      // guarda {cap, val}: val é o que o filtro recebe ao clicar na barra
+      (cats[d.cat]=cats[d.cat]||{cap:0,val:d.cat}).cap+=d.cap;
+      (pgs[d.key]=pgs[d.key]||{cap:0,val:d.pg}).cap+=d.cap;
       if(d.fim && d.fim<lim){
         var k=d.fim+'|'+d.key, v=venc[k]||(venc[k]={cap:0,n:0,fim:d.fim,key:d.key});
         v.cap+=d.cap; v.n++;
@@ -998,8 +1016,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     txt('cont','· '+filtrados.length.toLocaleString('pt-BR')+' listados');
     txt('vivo',filtrados.length.toLocaleString('pt-BR')+' itens; capacidade '+brl(total));
 
-    barras(document.getElementById('barCat'),cats);
-    barras(document.getElementById('barPg'),pgs);
+    barras(document.getElementById('barCat'),cats,'cat');
+    barras(document.getElementById('barPg'),pgs,'pg');
 
     var alvo=document.getElementById('tbVenc'); alvo.textContent='';
     var vs=Object.keys(venc).map(function(k){return venc[k];})
