@@ -4,6 +4,27 @@ Documento de planejamento para evoluir o painel de **uma unidade (BCMS, UASG
 160329)** para **todas as unidades da Base**. Escrito a partir dos dados reais
 do consolidado de 20/07/2026 (43.680 linhas), não de suposições.
 
+## ✅ Já implementado (2026-07-21) — o SELETOR de OMDS
+
+O painel já tem o **framework multi-OMDS**: uma barra de botões no topo com o
+**brasão de cada OM** (7 unidades: BCMS, 1º D Sup, BMSA, D C Mun, ECT, Cia C,
+H Cmp). Ao clicar, o painel troca o **emblema do cabeçalho**, a **cor-tema**
+(acento derivado do brasão, validado p/ contraste) e o **título**.
+
+- **Só o BCMS tem dados** (é a UASG_ALVO coletada). As demais mostram o painel
+  **"Aguardando coleta"** com o brasão e a cor da unidade — prontas para receber
+  os dados quando forem coletadas.
+- Manifesto em `gerar_dashboard.py` → `UNIDADES` (sigla, nome, UASG, logo,
+  accent). Logos em `site/assets/logos/`. Cor de cada uma extraída do brasão
+  com Pillow e escurecida até passar 4,5:1.
+- Decisão de design: o **acento tinge só o "cromo"** (barra de topo, chip ativo,
+  régua do herói, moldura). Gráficos e status ficam na paleta medida — os
+  brasões são quase todos vermelhos, e vermelho já significa "Vencida".
+
+**Falta para popular uma 2ª unidade:** coletá-la no robô (ver Fase 3) **e**
+migrar os dados embutidos para `data/<uasg>.json` (Fase 2) — hoje o HTML embute
+só o BCMS; com N unidades populadas, o embutido não escala.
+
 ---
 
 ## 1. A distinção que decide tudo

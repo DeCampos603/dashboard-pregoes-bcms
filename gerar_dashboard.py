@@ -42,6 +42,63 @@ NOME_CURTO = os.environ.get("NOME_CURTO", "BCMS")
 
 AUSENTE = "Informação ausente"
 
+# ---------------------------------------------------------------- OMDS (unidades)
+# Manifesto das OM Diretamente Subordinadas. O brasão (logo) é a identidade que
+# troca ao clicar; o `accent` (cor derivada do logo, já validada p/ contraste)
+# tinge apenas o "cromo" (barra de topo, chip ativo, moldura) — gráficos e
+# status permanecem na paleta medida, para não colidir com o vermelho de
+# "Vencida". Uma unidade só é considerada COLETADA se for a UASG_ALVO desta
+# geração (é a única com dados reais); as demais mostram "Aguardando coleta".
+#
+# ⚠️ Confirme os nomes oficiais e as UASGs de Cia C e H Cmp (ainda não coletadas).
+UNIDADES = [
+    {"sigla": "BCMS",    "nome": "Batalhão Central de Manutenção e Suprimento",
+     "uasg": "160329", "logo": "BCMS.png",  "accent": "#DB2819"},
+    {"sigla": "1º D Sup", "nome": "1º Depósito de Suprimento",
+     "uasg": "160307", "logo": "1DSUP.png", "accent": "#DE2B30"},
+    {"sigla": "BMSA",    "nome": "BMSA",
+     "uasg": "160304", "logo": "BMSA.png",  "accent": "#DB2819"},
+    {"sigla": "D C Mun", "nome": "Depósito Central de Munição",
+     "uasg": "160246", "logo": "DCMUN.png", "accent": "#047CC0"},
+    {"sigla": "ECT",     "nome": "ECT",
+     "uasg": "160321", "logo": "Ect.png",   "accent": "#B33338"},
+    {"sigla": "Cia C",   "nome": "Cia C — Ba Ap Log Ex",
+     "uasg": "",       "logo": "CiaC.jpg",  "accent": "#EC042A"},
+    {"sigla": "H Cmp",   "nome": "Hospital de Campanha",
+     "uasg": "",       "logo": "HCMP.png",  "accent": "#D72C1E"},
+]
+
+
+def unidade_ativa() -> dict:
+    """A unidade cujos dados esta geração contém (a UASG_ALVO)."""
+    for u in UNIDADES:
+        if u["uasg"] == UASG_ALVO:
+            return u
+    return {"sigla": NOME_CURTO, "nome": NOME_UNIDADE, "uasg": UASG_ALVO,
+            "logo": "BCMS.png", "accent": "#DB2819"}
+
+
+def unidades_json() -> str:
+    """Manifesto para o JS, marcando qual está coletada (a UASG_ALVO)."""
+    saida = [dict(u, coletado=(u["uasg"] == UASG_ALVO)) for u in UNIDADES]
+    return json.dumps(saida, ensure_ascii=False)
+
+
+def omds_nav_html() -> str:
+    """Barra de troca de OMDS (renderizada no servidor; JS só trata cliques)."""
+    chips = []
+    for u in UNIDADES:
+        coletado = u["uasg"] == UASG_ALVO
+        atual = "true" if coletado else "false"
+        selo = "" if coletado else '<span class="omds-selo" title="Aguardando coleta">•</span>'
+        chips.append(
+            f'<button class="omds" data-sigla="{esc(u["sigla"])}" '
+            f'aria-current="{atual}" '
+            f'title="{esc(u["nome"])}{"" if coletado else " — aguardando coleta"}">'
+            f'<img src="assets/logos/{esc(u["logo"])}" alt="" loading="lazy">'
+            f'<span>{esc(u["sigla"])}</span>{selo}</button>')
+    return "".join(chips)
+
 
 # ---------------------------------------------------------------- utilidades
 def num(v):
@@ -343,12 +400,17 @@ def _tabela(itens: list[dict]) -> str:
 
 def render(m: dict, hist: list[dict]) -> str:
     tpl = _TEMPLATE
+    ativa = unidade_ativa()
     subs = {
         "%%POSICAO%%": m["posicao"],
         "%%GERADO%%": m["hoje"].strftime("%d/%m/%Y %H:%M"),
-        "%%UASG%%": UASG_ALVO,
-        "%%UNIDADE%%": NOME_UNIDADE,
-        "%%UNIDADE_CURTA%%": NOME_CURTO,
+        "%%UASG%%": ativa["uasg"],
+        "%%UNIDADE%%": ativa["nome"],
+        "%%UNIDADE_CURTA%%": ativa["sigla"],
+        "%%EMBLEMA%%": f'assets/logos/{ativa["logo"]}',
+        "%%ACCENT%%": ativa["accent"],
+        "%%OMDS_NAV%%": omds_nav_html(),
+        "%%UNIDADES_JSON%%": unidades_json(),
         "%%CAP_TOTAL%%": fmt_brl(m["cap_total"]),
         "%%CAP_VIG%%": fmt_brl(m["cap_vig"]),
         "%%CAP_V30%%": fmt_brl(m["cap_v30"]),
@@ -381,7 +443,7 @@ def render(m: dict, hist: list[dict]) -> str:
 
 
 _TEMPLATE = r"""<!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="light" style="--accent:%%ACCENT%%">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -397,6 +459,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
   --border:#DCE3EC; --border-2:#C6D0DC;
   --primary:#1C4A73;            /* marca (9,22:1) */
   --primary-ink:#164062;
+  --accent:#DB2819;             /* cor da OMDS ativa (só no cromo); sobrescrita inline */
   --track:#D6E2EE;              /* trilho = passo claro do mesmo matiz */
   --success:#0F7A5A; --success-fill:#0F7A5A;   /* texto 5,31:1 */
   --warning:#8A631C; --warning-fill:#B5822B;   /* texto 5,41:1 */
@@ -429,14 +492,46 @@ body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
 
 /* ---------------------------------------------------------------- topo */
-.bcms-bar{height:4px;background:linear-gradient(to bottom,#CE2B2B 50%,#1E6FD0 50%)}
+.bcms-bar{height:4px;background:var(--accent);transition:background .2s}
 .hdr{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--surface) 88%,transparent);
   backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--border)}
-.hdr-in{max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;
+.hdr-in{max-width:1200px;margin:0 auto;padding:10px 20px;display:flex;
   justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-h1{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.hdr-l{display:flex;align-items:center;gap:12px;min-width:0}
+.emblema{height:46px;width:46px;object-fit:contain;flex:none;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.18))}
+h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.15}
 .sub{font-size:12.5px;color:var(--ink-muted);margin-top:1px}
 .hdr-r{display:flex;align-items:center;gap:10px}
+
+/* barra de troca de OMDS */
+.omds-nav{position:sticky;top:66px;z-index:35;background:var(--surface);
+  border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:thin}
+@media(max-width:560px){.omds-nav{top:60px}}
+.omds-nav-in{max-width:1200px;margin:0 auto;padding:8px 20px;display:flex;gap:8px}
+.omds{display:inline-flex;align-items:center;gap:7px;flex:none;cursor:pointer;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:999px;
+  padding:5px 13px 5px 6px;font:12.5px var(--sans);color:var(--ink-2);
+  transition:background .15s,border-color .15s,color .15s}
+.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
+.omds img{height:24px;width:24px;object-fit:contain;border-radius:50%;
+  background:#fff;padding:1px}
+.omds[aria-current="true"]{background:var(--accent);border-color:var(--accent);
+  color:#fff;font-weight:600}
+.omds-selo{color:var(--ink-muted);font-size:16px;line-height:1;margin-left:-2px}
+.omds[aria-current="true"] .omds-selo{color:rgba(255,255,255,.85)}
+
+/* painel "aguardando coleta" */
+.aguardando{display:none;text-align:center;padding:56px 24px}
+.aguardando img{height:130px;width:130px;object-fit:contain;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,.16));margin-bottom:18px}
+.aguardando h2{font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:4px}
+.aguardando .u-uasg{font-size:13px;color:var(--ink-muted);margin-bottom:18px}
+.aguardando .u-badge{display:inline-block;background:var(--surface-3);
+  border:1px solid var(--border);border-radius:999px;padding:8px 18px;
+  font-size:13.5px;color:var(--ink-2)}
+.aguardando .u-hint{margin-top:14px;font-size:12.5px;color:var(--ink-muted);max-width:440px;
+  margin-left:auto;margin-right:auto}
 .chip-pos{background:var(--surface-3);border:1px solid var(--border);border-radius:999px;
   padding:5px 12px;font-size:12px;color:var(--ink-2);white-space:nowrap}
 .chip-pos b{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -450,7 +545,7 @@ h1{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em
 /* ---------------------------------------------------------------- hero */
 .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
   padding:26px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--primary)}
+.hero::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent);transition:background .2s}
 .hero-label{font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;
   color:var(--ink-muted);font-weight:600}
 /* Figura-herói: MESMA sans do resto (serifada seria decoração fora de marca)
@@ -477,7 +572,7 @@ h1{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em
 [data-theme="dark"] .pill{color:#0B1219}
 
 /* ---------------------------------------------------------------- filtros */
-.filtros{position:sticky;top:60px;z-index:30;background:var(--surface);
+.filtros{background:var(--surface);
   border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;
   margin:16px 0;box-shadow:var(--shadow)}
 .filtros-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
@@ -592,9 +687,12 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
 <header class="hdr">
   <div class="hdr-in">
-    <div>
-      <h1>Capacidade de Empenho</h1>
-      <p class="sub">Atas de Registro de Preços · %%UNIDADE%% · UASG %%UASG%%</p>
+    <div class="hdr-l">
+      <img class="emblema" id="emblema" src="%%EMBLEMA%%" alt="Brasão %%UNIDADE_CURTA%%">
+      <div>
+        <h1>Capacidade de Empenho</h1>
+        <p class="sub"><span id="uNome">%%UNIDADE%%</span> · <span id="uUasg">UASG %%UASG%%</span></p>
+      </div>
     </div>
     <div class="hdr-r">
       <span class="chip-pos">Posição <b>%%POSICAO%%</b></span>
@@ -603,7 +701,21 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   </div>
 </header>
 
+<nav class="omds-nav" aria-label="Trocar de organização militar">
+  <div class="omds-nav-in">%%OMDS_NAV%%</div>
+</nav>
+
 <main class="wrap">
+  <section class="aguardando" id="semColeta" aria-live="polite">
+    <img id="scEmblema" src="" alt="">
+    <h2 id="scNome"></h2>
+    <p class="u-uasg" id="scUasg"></p>
+    <span class="u-badge">⏳ Pregões desta OM ainda não coletados</span>
+    <p class="u-hint">Assim que o robô extrator coletar as atas desta unidade,
+      o painel de capacidade de empenho aparecerá aqui automaticamente.</p>
+  </section>
+
+  <div id="painel">
   <section class="hero" aria-labelledby="heroLabel">
     <p class="hero-label" id="heroLabel">Capacidade de empenho disponível</p>
     <p class="hero-big" id="heroBig">%%CAP_TOTAL%%</p>
@@ -712,8 +824,10 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     <div class="tbl-foot"><button class="btn" id="btMais" style="display:none"></button></div>
   </section>
 
+  </div><!-- /painel -->
+
   <footer>
-    %%UNIDADE%% — dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
+    Dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
     Gerado em %%GERADO%% · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
     A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do item — confira antes de empenhar.
   </footer>
@@ -732,6 +846,42 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     root.dataset.theme = root.dataset.theme==='dark'?'light':'dark';
     try{localStorage.setItem(KEY, root.dataset.theme);}catch(e){}
   };
+
+  // -------------------------------------------------- troca de OMDS
+  // Só a UASG_ALVO desta geração tem dados (#painel). As demais mostram o
+  // painel "aguardando coleta" com o brasão e o acento da unidade.
+  var UNIDADES = %%UNIDADES_JSON%%;
+  var UKEY='bcms-omds', porSigla={};
+  UNIDADES.forEach(function(u){porSigla[u.sigla]=u;});
+  var emblema=document.getElementById('emblema');
+  var painel=document.getElementById('painel'), semColeta=document.getElementById('semColeta');
+
+  function trocaOMDS(sigla){
+    var u=porSigla[sigla]; if(!u) return;
+    root.style.setProperty('--accent', u.accent);
+    emblema.src='assets/logos/'+u.logo; emblema.alt='Brasão '+u.sigla;
+    document.getElementById('uNome').textContent=u.nome;
+    document.getElementById('uUasg').textContent=u.uasg?('UASG '+u.uasg):'UASG a definir';
+    document.title='Capacidade de Empenho — Atas '+u.sigla;
+    [].forEach.call(document.querySelectorAll('.omds'),function(c){
+      c.setAttribute('aria-current', c.dataset.sigla===sigla?'true':'false');});
+    if(u.coletado){
+      painel.style.display=''; semColeta.style.display='none';
+    }else{
+      painel.style.display='none'; semColeta.style.display='block';
+      document.getElementById('scEmblema').src='assets/logos/'+u.logo;
+      document.getElementById('scEmblema').alt='Brasão '+u.sigla;
+      document.getElementById('scNome').textContent=u.nome;
+      document.getElementById('scUasg').textContent=u.uasg?('UASG '+u.uasg):'';
+      window.scrollTo(0,0);
+    }
+    try{localStorage.setItem(UKEY, sigla);}catch(e){}
+  }
+  [].forEach.call(document.querySelectorAll('.omds'),function(c){
+    c.addEventListener('click',function(){trocaOMDS(c.dataset.sigla);});});
+  // restaura a última OM escolhida (se ainda existir no manifesto)
+  try{var ult=localStorage.getItem(UKEY);
+      if(ult && porSigla[ult]) trocaOMDS(ult);}catch(e){}
 
   var LOTE=120;                       // linhas renderizadas por vez
   var tb=document.getElementById('tb'), corpo=tb.tBodies[0];
