@@ -244,7 +244,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 <header class="hdr">
   <div class="hdr-in">
     <div class="hdr-l">
-      <img class="emblema" id="emblema" src="assets/logos/BCMS.png" alt="Brasão BCMS">
+      <img class="emblema" id="emblema" src="assets/logos/BCMS.png" alt="Brasão BCMS"
+           onerror="this.style.visibility='hidden'">
       <div>
         <h1>Capacidade de Empenho</h1>
         <p class="sub"><span id="uNome">Batalhão Central de Manutenção e Suprimento</span> · <span id="uUasg">UASG 160329</span></p>
@@ -258,12 +259,12 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 </header>
 
 <nav class="omds-nav" aria-label="Trocar de organização militar">
-  <div class="omds-nav-in"><button class="omds" data-sigla="BCMS" aria-current="true" title="Batalhão Central de Manutenção e Suprimento"><img src="assets/logos/BCMS.png" alt="" loading="lazy"><span>BCMS</span></button><button class="omds" data-sigla="1º D Sup" aria-current="false" title="1º Depósito de Suprimento — aguardando coleta"><img src="assets/logos/1DSUP.png" alt="" loading="lazy"><span>1º D Sup</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="BMSA" aria-current="false" title="BMSA — aguardando coleta"><img src="assets/logos/BMSA.png" alt="" loading="lazy"><span>BMSA</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="D C Mun" aria-current="false" title="Depósito Central de Munição — aguardando coleta"><img src="assets/logos/DCMUN.png" alt="" loading="lazy"><span>D C Mun</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="ECT" aria-current="false" title="ECT — aguardando coleta"><img src="assets/logos/Ect.png" alt="" loading="lazy"><span>ECT</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="Cia C" aria-current="false" title="Cia C — Ba Ap Log Ex — aguardando coleta"><img src="assets/logos/CiaC.jpg" alt="" loading="lazy"><span>Cia C</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="H Cmp" aria-current="false" title="Hospital de Campanha — aguardando coleta"><img src="assets/logos/HCMP.png" alt="" loading="lazy"><span>H Cmp</span><span class="omds-selo" title="Aguardando coleta">•</span></button></div>
+  <div class="omds-nav-in"><button class="omds" data-sigla="BCMS" aria-current="true" title="Batalhão Central de Manutenção e Suprimento"><img src="assets/logos/BCMS.png" alt="" loading="lazy" onerror="this.style.display='none'"><span>BCMS</span></button><button class="omds" data-sigla="Ba Ap Log" aria-current="false" title="Base de Apoio Logístico do Exército — aguardando coleta"><img src="assets/logos/BaApLog.png" alt="" loading="lazy" onerror="this.style.display='none'"><span>Ba Ap Log</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="1º D Sup" aria-current="false" title="1º Depósito de Suprimento — aguardando coleta"><img src="assets/logos/1DSUP.png" alt="" loading="lazy" onerror="this.style.display='none'"><span>1º D Sup</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="BMSA" aria-current="false" title="BMSA — aguardando coleta"><img src="assets/logos/BMSA.png" alt="" loading="lazy" onerror="this.style.display='none'"><span>BMSA</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="D C Mun" aria-current="false" title="Depósito Central de Munição — aguardando coleta"><img src="assets/logos/DCMUN.png" alt="" loading="lazy" onerror="this.style.display='none'"><span>D C Mun</span><span class="omds-selo" title="Aguardando coleta">•</span></button><button class="omds" data-sigla="ECT" aria-current="false" title="ECT — aguardando coleta"><img src="assets/logos/Ect.png" alt="" loading="lazy" onerror="this.style.display='none'"><span>ECT</span><span class="omds-selo" title="Aguardando coleta">•</span></button></div>
 </nav>
 
 <main class="wrap">
   <section class="aguardando" id="semColeta" aria-live="polite">
-    <img id="scEmblema" src="" alt="">
+    <img id="scEmblema" src="" alt="" onerror="this.style.display='none'">
     <h2 id="scNome"></h2>
     <p class="u-uasg" id="scUasg"></p>
     <span class="u-badge">⏳ Pregões desta OM ainda não coletados</span>
@@ -2135,7 +2136,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
   <footer>
     Dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
-    Gerado em 21/07/2026 20:59 · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
+    Gerado em 21/07/2026 21:13 · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
     A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do item — confira antes de empenhar.
   </footer>
 </main>
@@ -2157,7 +2158,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   // -------------------------------------------------- troca de OMDS
   // Só a UASG_ALVO desta geração tem dados (#painel). As demais mostram o
   // painel "aguardando coleta" com o brasão e o acento da unidade.
-  var UNIDADES = [{"sigla": "BCMS", "nome": "Batalhão Central de Manutenção e Suprimento", "uasg": "160329", "logo": "BCMS.png", "accent": "#DB2819", "coletado": true}, {"sigla": "1º D Sup", "nome": "1º Depósito de Suprimento", "uasg": "160307", "logo": "1DSUP.png", "accent": "#DE2B30", "coletado": false}, {"sigla": "BMSA", "nome": "BMSA", "uasg": "160304", "logo": "BMSA.png", "accent": "#DB2819", "coletado": false}, {"sigla": "D C Mun", "nome": "Depósito Central de Munição", "uasg": "160246", "logo": "DCMUN.png", "accent": "#047CC0", "coletado": false}, {"sigla": "ECT", "nome": "ECT", "uasg": "160321", "logo": "Ect.png", "accent": "#B33338", "coletado": false}, {"sigla": "Cia C", "nome": "Cia C — Ba Ap Log Ex", "uasg": "", "logo": "CiaC.jpg", "accent": "#EC042A", "coletado": false}, {"sigla": "H Cmp", "nome": "Hospital de Campanha", "uasg": "", "logo": "HCMP.png", "accent": "#D72C1E", "coletado": false}];
+  var UNIDADES = [{"sigla": "BCMS", "nome": "Batalhão Central de Manutenção e Suprimento", "uasg": "160329", "logo": "BCMS.png", "accent": "#DB2819", "coletado": true}, {"sigla": "Ba Ap Log", "nome": "Base de Apoio Logístico do Exército", "uasg": "160238", "logo": "BaApLog.png", "accent": "#D83030", "coletado": false}, {"sigla": "1º D Sup", "nome": "1º Depósito de Suprimento", "uasg": "160307", "logo": "1DSUP.png", "accent": "#DE2B30", "coletado": false}, {"sigla": "BMSA", "nome": "BMSA", "uasg": "160304", "logo": "BMSA.png", "accent": "#DB2819", "coletado": false}, {"sigla": "D C Mun", "nome": "Depósito Central de Munição", "uasg": "160246", "logo": "DCMUN.png", "accent": "#047CC0", "coletado": false}, {"sigla": "ECT", "nome": "ECT", "uasg": "160321", "logo": "Ect.png", "accent": "#B33338", "coletado": false}];
   var UKEY='bcms-omds', porSigla={};
   UNIDADES.forEach(function(u){porSigla[u.sigla]=u;});
   var emblema=document.getElementById('emblema');
@@ -2166,6 +2167,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   function trocaOMDS(sigla){
     var u=porSigla[sigla]; if(!u) return;
     root.style.setProperty('--accent', u.accent);
+    emblema.style.visibility='visible';          // reset (onerror pode ter escondido)
     emblema.src='assets/logos/'+u.logo; emblema.alt='Brasão '+u.sigla;
     document.getElementById('uNome').textContent=u.nome;
     document.getElementById('uUasg').textContent=u.uasg?('UASG '+u.uasg):'UASG a definir';

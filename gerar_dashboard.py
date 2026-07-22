@@ -50,10 +50,12 @@ AUSENTE = "Informação ausente"
 # "Vencida". Uma unidade só é considerada COLETADA se for a UASG_ALVO desta
 # geração (é a única com dados reais); as demais mostram "Aguardando coleta".
 #
-# ⚠️ Confirme os nomes oficiais e as UASGs de Cia C e H Cmp (ainda não coletadas).
+# ⚠️ Confirme os nomes oficiais de BMSA e ECT.
 UNIDADES = [
     {"sigla": "BCMS",    "nome": "Batalhão Central de Manutenção e Suprimento",
      "uasg": "160329", "logo": "BCMS.png",  "accent": "#DB2819"},
+    {"sigla": "Ba Ap Log", "nome": "Base de Apoio Logístico do Exército",
+     "uasg": "160238", "logo": "BaApLog.png", "accent": "#D83030"},
     {"sigla": "1º D Sup", "nome": "1º Depósito de Suprimento",
      "uasg": "160307", "logo": "1DSUP.png", "accent": "#DE2B30"},
     {"sigla": "BMSA",    "nome": "BMSA",
@@ -62,10 +64,6 @@ UNIDADES = [
      "uasg": "160246", "logo": "DCMUN.png", "accent": "#047CC0"},
     {"sigla": "ECT",     "nome": "ECT",
      "uasg": "160321", "logo": "Ect.png",   "accent": "#B33338"},
-    {"sigla": "Cia C",   "nome": "Cia C — Ba Ap Log Ex",
-     "uasg": "",       "logo": "CiaC.jpg",  "accent": "#EC042A"},
-    {"sigla": "H Cmp",   "nome": "Hospital de Campanha",
-     "uasg": "",       "logo": "HCMP.png",  "accent": "#D72C1E"},
 ]
 
 
@@ -95,7 +93,8 @@ def omds_nav_html() -> str:
             f'<button class="omds" data-sigla="{esc(u["sigla"])}" '
             f'aria-current="{atual}" '
             f'title="{esc(u["nome"])}{"" if coletado else " — aguardando coleta"}">'
-            f'<img src="assets/logos/{esc(u["logo"])}" alt="" loading="lazy">'
+            f'<img src="assets/logos/{esc(u["logo"])}" alt="" loading="lazy" '
+            f'onerror="this.style.display=\'none\'">'
             f'<span>{esc(u["sigla"])}</span>{selo}</button>')
     return "".join(chips)
 
@@ -688,7 +687,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 <header class="hdr">
   <div class="hdr-in">
     <div class="hdr-l">
-      <img class="emblema" id="emblema" src="%%EMBLEMA%%" alt="Brasão %%UNIDADE_CURTA%%">
+      <img class="emblema" id="emblema" src="%%EMBLEMA%%" alt="Brasão %%UNIDADE_CURTA%%"
+           onerror="this.style.visibility='hidden'">
       <div>
         <h1>Capacidade de Empenho</h1>
         <p class="sub"><span id="uNome">%%UNIDADE%%</span> · <span id="uUasg">UASG %%UASG%%</span></p>
@@ -707,7 +707,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
 <main class="wrap">
   <section class="aguardando" id="semColeta" aria-live="polite">
-    <img id="scEmblema" src="" alt="">
+    <img id="scEmblema" src="" alt="" onerror="this.style.display='none'">
     <h2 id="scNome"></h2>
     <p class="u-uasg" id="scUasg"></p>
     <span class="u-badge">⏳ Pregões desta OM ainda não coletados</span>
@@ -859,6 +859,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   function trocaOMDS(sigla){
     var u=porSigla[sigla]; if(!u) return;
     root.style.setProperty('--accent', u.accent);
+    emblema.style.visibility='visible';          // reset (onerror pode ter escondido)
     emblema.src='assets/logos/'+u.logo; emblema.alt='Brasão '+u.sigla;
     document.getElementById('uNome').textContent=u.nome;
     document.getElementById('uUasg').textContent=u.uasg?('UASG '+u.uasg):'UASG a definir';
