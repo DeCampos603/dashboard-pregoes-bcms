@@ -289,6 +289,10 @@ def etl(linhas: list[dict]) -> dict:
                                          if i["sub"] else i["nd"])),
         "op_pregao": opcoes("pregao", lambda i: f"{i['ger']} · {i['pregao']}"),
         "op_tipo": opcoes("tipo"),
+        # Fornecedor (empresa): valor = string completa "CNPJ - NOME" (dá pra
+        # buscar por CNPJ ou nome). Descarta ausentes.
+        "op_forn": [o for o in opcoes("forn")
+                    if str(o[0]).strip() not in ("", AUSENTE)],
     }
 
 
@@ -379,6 +383,7 @@ def _tabela(itens: list[dict]) -> str:
         linhas.append(
             f'<tr data-st="{i["st"]}" data-cat="{esc(i["cat"])}" data-nd="{esc(i["nd"])}"'
             f' data-pg="{esc(i["pregao"])}" data-tipo="{esc(i["tipo"])}"'
+            f' data-forn="{esc(i["forn"])}"'
             f' data-cap="{i["cap"] or 0}" data-fimts="{ts}"'
             f' data-key="{esc(i["ger"])} · {esc(i["pregao"])}">'
             f'<td>{esc(i["pregao"])}</td><td>{esc(i["ger"])}</td>'
@@ -428,6 +433,8 @@ def render(m: dict, hist: list[dict]) -> str:
         "%%SEL_ND%%": _select("fNd", "Natureza de despesa (sugerida)", m["op_nd"],
                               "Todas as ND"),
         "%%SEL_PG%%": _select("fPg", "Pregão", m["op_pregao"], "Todos os pregões"),
+        "%%SEL_FORN%%": _select("fForn", "Empresa / fornecedor", m["op_forn"],
+                                "Todas as empresas"),
         "%%SEL_TP%%": _select("fTp", "Material ou serviço", m["op_tipo"], "Ambos"),
         "%%VENC60%%": "".join(
             f'<tr><td>{fim.strftime("%d/%m/%Y")}</td><td>{esc(pregao)}</td>'
@@ -578,10 +585,28 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
 .fl{display:flex;flex-direction:column;gap:5px;min-width:0}
 .fl>span{font-size:11.5px;font-weight:600;color:var(--ink-muted);
   text-transform:uppercase;letter-spacing:.04em}
-.fl select,#busca{width:100%;background:var(--surface-2);color:var(--ink);
+.fl select,#busca,.cb-in{width:100%;background:var(--surface-2);color:var(--ink);
   border:1px solid var(--border-2);border-radius:var(--r-sm);padding:9px 11px;
   font:13.5px var(--sans);transition:border-color .15s}
-.fl select:hover,#busca:hover{border-color:var(--ink-muted)}
+.fl select:hover,#busca:hover,.cb-in:hover{border-color:var(--ink-muted)}
+/* combobox pesquisável (input + lista filtrada) */
+.cb{position:relative}
+.cb-in{padding-right:30px;cursor:text;text-overflow:ellipsis}
+.cb-in::placeholder{color:var(--ink-muted)}
+.cb-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;border:0;background:none;color:var(--ink-muted);
+  font-size:18px;line-height:1;cursor:pointer;border-radius:50%}
+.cb-clear:hover{background:var(--surface-3);color:var(--ink)}
+.cb-list{position:absolute;z-index:50;top:calc(100% + 4px);left:0;right:0;margin:0;
+  padding:4px;list-style:none;max-height:280px;overflow-y:auto;
+  background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-sm);
+  box-shadow:var(--shadow-2)}
+.cb-opt{padding:7px 9px;border-radius:6px;font-size:13px;cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.cb-opt:hover{background:var(--surface-3)}
+.cb-opt[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 16%,transparent);
+  font-weight:600}
+.cb-vazio{padding:8px 9px;font-size:12.5px;color:var(--ink-muted)}
 .frow2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:13px}
 #busca{flex:1;min-width:200px}
 /* Controle segmentado (status) — visualmente distinto dos dropdowns */
@@ -740,6 +765,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       %%SEL_CAT%%
       %%SEL_ND%%
       %%SEL_PG%%
+      %%SEL_FORN%%
       %%SEL_TP%%
     </div>
     <div class="frow2">
@@ -889,12 +915,14 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   var tb=document.getElementById('tb'), corpo=tb.tBodies[0];
   var dados=[].slice.call(corpo.rows).map(function(tr){
     return {tr:tr, st:tr.dataset.st, cat:tr.dataset.cat, nd:tr.dataset.nd,
-            pg:tr.dataset.pg, tipo:tr.dataset.tipo, key:tr.dataset.key,
+            pg:tr.dataset.pg, tipo:tr.dataset.tipo, forn:tr.dataset.forn||'',
+            key:tr.dataset.key,
             cap:parseFloat(tr.dataset.cap)||0, fim:parseFloat(tr.dataset.fimts)||0,
             txt:tr.textContent.toLowerCase()};
   });
   var fCat=document.getElementById('fCat'), fNd=document.getElementById('fNd'),
       fPg=document.getElementById('fPg'), fTp=document.getElementById('fTp'),
+      fForn=document.getElementById('fForn'),
       busca=document.getElementById('busca'), btMais=document.getElementById('btMais'),
       status='ativos', mostrando=LOTE, filtrados=[];
 
@@ -956,12 +984,73 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   // Clique numa barra → aplica o filtro de categoria ou de pregão e rola até a
   // lista, para o usuário ver os itens daquele grupo.
   function aplicaFiltro(tipo, val){
-    if(tipo==='cat'){ fCat.value=val; }
-    else if(tipo==='pg'){ fPg.value=val; }
+    var sel = (tipo==='cat') ? fCat : (tipo==='pg') ? fPg : null;
+    if(sel){ sel.value=val; if(sel._refletirCombo) sel._refletirCombo(); }
     aplica();
     var tbl=document.getElementById('tb');
     var card=tbl.closest ? tbl.closest('.card') : null;
     (card||tbl).scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  // ---- combobox pesquisável: transforma um <select> num campo com busca ----
+  function montarCombo(sel){
+    var wrap=document.createElement('div'); wrap.className='cb';
+    var inp=document.createElement('input'); inp.type='text'; inp.className='cb-in';
+    inp.setAttribute('role','combobox'); inp.setAttribute('aria-autocomplete','list');
+    inp.setAttribute('aria-expanded','false'); inp.autocomplete='off';
+    var lista=document.createElement('ul'); lista.className='cb-list'; lista.hidden=true;
+    lista.setAttribute('role','listbox');
+    var clr=document.createElement('button'); clr.type='button'; clr.className='cb-clear';
+    clr.setAttribute('aria-label','Limpar'); clr.textContent='×'; clr.hidden=true;
+    var opts=[].slice.call(sel.options).map(function(o){return {val:o.value, txt:o.text};});
+    var placeholder=opts.length?opts[0].txt:'';
+    inp.placeholder=placeholder;
+
+    function textoDe(val){
+      for(var i=0;i<opts.length;i++) if(opts[i].val===val) return opts[i].txt;
+      return '';
+    }
+    function refletir(){                       // sincroniza input ↔ select
+      inp.value = sel.value==='' ? '' : textoDe(sel.value);
+      clr.hidden = sel.value==='';
+    }
+    function render(filtro){
+      lista.textContent='';
+      var f=(filtro||'').toLowerCase();
+      var achou=0;
+      opts.forEach(function(o){
+        // busca no texto E no valor (o valor do fornecedor tem CNPJ+nome completos)
+        if(f && (o.txt+' '+o.val).toLowerCase().indexOf(f)===-1) return;
+        achou++;
+        var li=document.createElement('li'); li.className='cb-opt'; li.setAttribute('role','option');
+        li.textContent=o.txt; li.dataset.val=o.val;
+        if(o.val===sel.value) li.setAttribute('aria-selected','true');
+        li.addEventListener('mousedown',function(e){e.preventDefault(); escolher(o.val);});
+        lista.appendChild(li);
+      });
+      if(!achou){var li=document.createElement('li'); li.className='cb-vazio';
+                 li.textContent='Nada encontrado'; lista.appendChild(li);}
+    }
+    function abrir(){ render(''); lista.hidden=false; inp.setAttribute('aria-expanded','true'); }
+    function fechar(){ lista.hidden=true; inp.setAttribute('aria-expanded','false'); refletir(); }
+    function escolher(val){ sel.value=val;
+      sel.dispatchEvent(new Event('change')); refletir(); fechar(); }
+
+    inp.addEventListener('focus',function(){ inp.select(); abrir(); });
+    inp.addEventListener('input',function(){ lista.hidden=false; clr.hidden=inp.value===''; render(inp.value); });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){ fechar(); inp.blur(); }
+      else if(e.key==='Enter'){ var o=lista.querySelector('.cb-opt');
+        if(o){ e.preventDefault(); escolher(o.dataset.val); } }
+    });
+    inp.addEventListener('blur',function(){ setTimeout(fechar,140); }); // deixa o mousedown rodar
+    clr.addEventListener('click',function(){ escolher(''); inp.focus(); });
+
+    sel._refletirCombo=refletir;               // p/ cliques nas barras e "Limpar"
+    sel.style.display='none';
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(inp); wrap.appendChild(clr); wrap.appendChild(lista); wrap.appendChild(sel);
+    refletir();
   }
 
   function pinta(){
@@ -975,17 +1064,17 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
   function aplica(reset){
     if(reset!==false) mostrando=LOTE;
-    var vc=fCat.value, vn=fNd.value, vp=fPg.value, vt=fTp.value,
+    var vc=fCat.value, vn=fNd.value, vp=fPg.value, vt=fTp.value, vf=fForn.value,
         termo=busca.value.trim().toLowerCase();
     var capV=0, capW=0, capVenc=0, cats={}, pgs={}, chaves={}, nItens=0;
     var lim=Date.now()/1000+60*86400, venc={};
     filtrados=[];
 
     dados.forEach(function(d){
-      // DIMENSÃO (categoria/ND/pregão/tipo/busca) governa TODOS os números do
-      // resumo — inclusive "já perdido", que por definição olha as vencidas.
+      // DIMENSÃO (categoria/ND/pregão/empresa/tipo/busca) governa TODOS os
+      // números do resumo — inclusive "já perdido", que olha as vencidas.
       var okDim = (!vc||d.cat===vc) && (!vn||d.nd===vn) && (!vp||d.pg===vp)
-                && (!vt||d.tipo===vt) && (!termo||d.txt.indexOf(termo)>-1);
+                && (!vt||d.tipo===vt) && (!vf||d.forn===vf) && (!termo||d.txt.indexOf(termo)>-1);
       // SITUAÇÃO é só um seletor de visualização da LISTA abaixo.
       var okS = (status==='all') || (status==='ativos' && (d.st==='vig'||d.st==='v30'))
               || (status==='v30' && d.st==='v30') || (status==='venc' && d.st==='venc');
@@ -1041,6 +1130,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     var pills=[];
     if(vc)pills.push(vc); if(vn)pills.push('ND '+vn);
     if(vp)pills.push('Pregão '+vp); if(vt)pills.push(vt);
+    if(vf){var nomeF=vf.indexOf(' - ')>-1?vf.split(' - ').slice(1).join(' - '):vf;
+           pills.push('Empresa: '+(nomeF.length>34?nomeF.slice(0,33)+'…':nomeF));}
     if(termo)pills.push('“'+busca.value.trim()+'”');
     pills.forEach(function(p){alvoP.appendChild(elem('span','pill',p));});
     box.classList.toggle('on',pills.length>0);
@@ -1048,15 +1139,19 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
                                 :'Capacidade de empenho disponível');
   }
 
-  [fCat,fNd,fPg,fTp].forEach(function(s){s.addEventListener('change',function(){aplica();});});
+  [fCat,fNd,fPg,fForn,fTp].forEach(function(s){s.addEventListener('change',function(){aplica();});});
   busca.addEventListener('input',function(){aplica();});
+  // Torna os selects longos pesquisáveis (digite para achar). Aprimoramento
+  // progressivo: se o JS falhar, o <select> puro continua funcionando.
+  [fCat,fNd,fPg,fForn].forEach(montarCombo);
   [].forEach.call(document.querySelectorAll('.seg button'),function(b){
     b.onclick=function(){
       [].forEach.call(document.querySelectorAll('.seg button'),function(x){
         x.setAttribute('aria-pressed','false');});
       b.setAttribute('aria-pressed','true'); status=b.dataset.f; aplica();};});
   document.getElementById('btLimpar').onclick=function(){
-    fCat.value=fNd.value=fPg.value=fTp.value=''; busca.value='';
+    fCat.value=fNd.value=fPg.value=fForn.value=fTp.value=''; busca.value='';
+    [fCat,fNd,fPg,fForn].forEach(function(s){if(s._refletirCombo)s._refletirCombo();});
     [].forEach.call(document.querySelectorAll('.seg button'),function(x){
       x.setAttribute('aria-pressed', x.dataset.f==='ativos'?'true':'false');});
     status='ativos'; aplica();};
