@@ -457,11 +457,18 @@ def _tabela_planejamento(planejamento: list) -> str:
                     forns[0].split(" - ", 1)[-1] if len(forns) == 1 else
                     f"{len(forns)} fornecedores")
         forn_tt = "; ".join(f.split(" - ", 1)[-1] for f in forns[:8])
+        # papel do BCMS: gerenciador quando a UASG gerenciadora é a própria
+        # UASG alvo; senão é participante (carona) de pregão de outra OM.
+        gerenc = str(p["ger"]).startswith(UASG_ALVO)
+        papel = "ger" if gerenc else "part"
+        papel_lbl = "gerencia" if gerenc else "participa"
         linhas.append(
-            f'<tr data-fimts="{ts}" data-key="{esc(p["key"])}">'
+            f'<tr data-fimts="{ts}" data-key="{esc(p["key"])}" data-papel="{papel}">'
             f'<td data-v="{ts}" class="pl-fim"><b>{fim}</b><span class="pl-dias" '
             f'data-fimts="{ts}"></span></td>'
-            f'<td>{esc(p["pregao"])}</td><td>{esc(p["ger"])}</td>'
+            f'<td>{esc(p["pregao"])}</td>'
+            f'<td class="pl-ger"><b>{esc(p["ger"])}</b>'
+            f'<span class="pl-papel p-{papel}">{papel_lbl}</span></td>'
             f'<td class="pl-obj" title="{esc(objeto, 120)}">{esc(objeto, 46)}</td>'
             f'<td class="num" data-v="{p["n"]}">{fmt_int(p["n"])}</td>'
             f'<td class="num" data-v="{p["cap"]:.0f}"><strong>{fmt_brl(p["cap"])}</strong></td>'
@@ -636,6 +643,10 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
 .pl-dias.d-30{color:var(--warning)}
 .pl-dias.d-ok{color:var(--ink-muted)}
 .pl-obj{max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.pl-ger{white-space:nowrap}
+.pl-papel{display:block;font-size:11px;font-weight:600;margin-top:1px}
+.pl-papel.p-ger{color:var(--accent)}
+.pl-papel.p-part{color:var(--ink-muted);font-weight:500}
 
 /* ---------------------------------------------------------------- hero */
 .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
@@ -922,7 +933,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     <h2>Itens <span class="cap" id="cont" style="font-family:var(--sans)"></span></h2>
     <p class="cap">Clique nos títulos para ordenar · ↗ abre o item no Compras.gov.br</p>
     <div class="frow2" style="margin:0 0 14px">
-      <div class="seg" role="group" aria-label="Situação da ata (filtra apenas esta lista)">
+      <div class="seg" id="segSit" role="group" aria-label="Situação da ata (filtra apenas esta lista)">
         <button data-f="ativos" aria-pressed="true">Válidas</button>
         <button data-f="v30" aria-pressed="false">≤30 dias</button>
         <button data-f="venc" aria-pressed="false">Vencidas</button>
@@ -971,8 +982,19 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         </div>
         <span class="cap" style="margin:0" id="planResumo"></span>
       </div>
-      <p class="cap">O "objeto" é resumido pelas categorias dos itens (o Compras.gov
-        não traz o objeto do pregão). Clique nos títulos para ordenar.</p>
+      <div class="frow2" style="margin:0 0 8px;align-items:center">
+        <div class="seg" id="planPapel" role="group" aria-label="Papel do BCMS no pregão">
+          <button data-p="all" aria-pressed="true">Todos</button>
+          <button data-p="ger" aria-pressed="false">Gerenciador</button>
+          <button data-p="part" aria-pressed="false">Participante</button>
+        </div>
+        <button type="button" class="btn" id="btPlanCsv"
+                title="Baixar a lista visível em CSV (abre no Excel)">⬇ Exportar CSV</button>
+      </div>
+      <p class="cap"><b>Gerenciador</b> = o BCMS conduz o pregão (precisa abrir a nova
+        licitação); <b>Participante</b> = carona de pregão de outra OM. O "objeto" é
+        resumido pelas categorias dos itens (o Compras.gov não traz o objeto do
+        pregão). Clique nos títulos para ordenar.</p>
       <div class="tblwrap">
         <table id="tbPlan">
           <thead><tr>
@@ -1296,12 +1318,12 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         ? '✓ Mostrando o pregão completo — voltar aos itens com saldo'
         : 'Mostrar todos os itens do pregão';
       // Em modo "pregão completo", os chips de situação não se aplicam.
-      document.querySelector('.seg').style.opacity = verTudo ? '.45' : '';
-      document.querySelector('.seg').style.pointerEvents = verTudo ? 'none' : '';
+      document.getElementById('segSit').style.opacity = verTudo ? '.45' : '';
+      document.getElementById('segSit').style.pointerEvents = verTudo ? 'none' : '';
     } else {
       btPregao.hidden=true;
-      document.querySelector('.seg').style.opacity='';
-      document.querySelector('.seg').style.pointerEvents='';
+      document.getElementById('segSit').style.opacity='';
+      document.getElementById('segSit').style.pointerEvents='';
     }
   }
 
@@ -1310,9 +1332,9 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   // Torna os selects longos pesquisáveis (digite para achar). Aprimoramento
   // progressivo: se o JS falhar, o <select> puro continua funcionando.
   [fCat,fNd,fPg,fForn].forEach(montarCombo);
-  [].forEach.call(document.querySelectorAll('.seg button'),function(b){
+  [].forEach.call(document.querySelectorAll('#segSit button'),function(b){
     b.onclick=function(){
-      [].forEach.call(document.querySelectorAll('.seg button'),function(x){
+      [].forEach.call(document.querySelectorAll('#segSit button'),function(x){
         x.setAttribute('aria-pressed','false');});
       b.setAttribute('aria-pressed','true'); status=b.dataset.f;
       verTudo=false; aplica();};});   // escolher situação sai do "pregão completo"
@@ -1323,7 +1345,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   document.getElementById('btLimpar').onclick=function(){
     fCat.value=fNd.value=fPg.value=fForn.value=fTp.value=''; busca.value='';
     [fCat,fNd,fPg,fForn].forEach(function(s){if(s._refletirCombo)s._refletirCombo();});
-    [].forEach.call(document.querySelectorAll('.seg button'),function(x){
+    [].forEach.call(document.querySelectorAll('#segSit button'),function(x){
       x.setAttribute('aria-pressed', x.dataset.f==='ativos'?'true':'false');});
     status='ativos'; aplica();};
   btMais.onclick=function(){mostrando+=LOTE; pinta();};
@@ -1363,10 +1385,10 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   tabPlan.onclick=function(){trocaAba(true);};
 
   var planTb=document.getElementById('tbPlan'), planCorpo=planTb.tBodies[0];
-  var planLinhas=[].slice.call(planCorpo.rows), planH='90';
+  var planLinhas=[].slice.call(planCorpo.rows), planH='90', planP='all';
   function diasDe(ts){ return Math.ceil((ts*1000 - Date.now())/86400000); }
   function aplicaPlanej(){
-    var n=0, cap=0;
+    var n=0, cap=0, nGer=0, nPart=0;
     planLinhas.forEach(function(tr){
       var ts=parseFloat(tr.dataset.fimts)||0, dias=diasDe(ts);
       var span=tr.querySelector('.pl-dias');
@@ -1376,17 +1398,23 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         else if(dias<=30){span.textContent='em '+dias+' dias'; span.className='pl-dias d-30';}
         else {span.textContent='em '+dias+' dias'; span.className='pl-dias d-ok';}
       }
-      var ok = planH==='all' ? true
+      var okH = planH==='all' ? true
              : planH==='venc' ? dias<0
              : (dias>=0 && dias<=parseInt(planH,10));
+      var okP = planP==='all' || tr.dataset.papel===planP;
+      var ok = okH && okP;
       tr.style.display = ok?'':'none';
-      if(ok){ n++; cap += parseFloat(tr.cells[5].dataset.v)||0; }
+      if(ok){ n++; cap += parseFloat(tr.cells[5].dataset.v)||0;
+              if(tr.dataset.papel==='ger') nGer++; else nPart++; }
     });
     document.getElementById('planVazio').style.display = n?'none':'';
     var lbl = planH==='all'?'no total' : planH==='venc'?'já vencidas'
             : ('nos próximos '+planH+' dias');
+    var papelTxt = planP==='ger'?' · só gerenciados pelo BCMS'
+                 : planP==='part'?' · só participações (carona)'
+                 : (' · '+nGer+' geren. + '+nPart+' partic.');
     document.getElementById('planResumo').textContent =
-      n.toLocaleString('pt-BR')+' pregões · '+brl(cap)+' em capacidade';
+      n.toLocaleString('pt-BR')+' pregões · '+brl(cap)+' em capacidade'+papelTxt;
     document.getElementById('planTitulo').textContent =
       n.toLocaleString('pt-BR')+' pregões vencendo '+lbl;
   }
@@ -1395,6 +1423,39 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       [].forEach.call(document.querySelectorAll('#planHorizonte button'),function(x){
         x.setAttribute('aria-pressed','false');});
       b.setAttribute('aria-pressed','true'); planH=b.dataset.h; aplicaPlanej();};});
+  [].forEach.call(document.querySelectorAll('#planPapel button'),function(b){
+    b.onclick=function(){
+      [].forEach.call(document.querySelectorAll('#planPapel button'),function(x){
+        x.setAttribute('aria-pressed','false');});
+      b.setAttribute('aria-pressed','true'); planP=b.dataset.p; aplicaPlanej();};});
+  // Exporta a lista VISÍVEL (respeita horizonte + papel) em CSV pt-BR (; e BOM,
+  // abre direto no Excel). Usa os dados completos das linhas, não o texto cortado.
+  document.getElementById('btPlanCsv').onclick=function(){
+    var sep=';';
+    function c(v){ v=(v==null?'':''+v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+    var cab=['Vencimento','Situacao','Pregao','UASG_Gerenciadora','Papel','Objeto',
+             'Itens','Capacidade_saldo_R$','Fornecedores'];
+    var out=[cab.map(c).join(sep)];
+    planLinhas.forEach(function(tr){
+      if(tr.style.display==='none') return;
+      var venc=(tr.cells[0].querySelector('b')||{}).textContent||'';
+      var sit=(tr.querySelector('.pl-dias')||{}).textContent||'';
+      var pg=tr.cells[1].textContent.trim();
+      var ger=(tr.cells[2].querySelector('b')||tr.cells[2]).textContent.trim();
+      var papel=tr.dataset.papel==='ger'?'Gerenciador':'Participante';
+      var obj=(tr.cells[3].getAttribute('title')||tr.cells[3].textContent).trim();
+      var itens=tr.cells[4].dataset.v||tr.cells[4].textContent.trim();
+      var capv=tr.cells[5].dataset.v||'0';
+      var forn=(tr.cells[6].getAttribute('title')||tr.cells[6].textContent).trim();
+      out.push([venc,sit,pg,ger,papel,obj,itens,capv,forn].map(c).join(sep));
+    });
+    var blob=new Blob(['﻿'+out.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    var hoje=new Date().toISOString().slice(0,10);
+    a.href=url; a.download='planejamento_atas_%%UNIDADE_CURTA%%_'+hoje+'.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  };
   var pord={col:-1,asc:false};
   [].forEach.call(planTb.tHead.rows[0].cells,function(th,i){
     th.style.cursor='pointer';
