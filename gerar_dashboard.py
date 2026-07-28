@@ -66,6 +66,11 @@ UNIDADES = [
      "uasg": "160321", "logo": "Ect.png",   "accent": "#B33338"},
 ]
 
+# UASG → sigla das OMDS que conhecemos (o consolidado só traz o número da UASG
+# gerenciadora, sem nome). Só nomeamos as unidades do manifesto; as demais
+# gerenciadoras (dezenas de UASGs externas) aparecem só com o número.
+NOME_POR_UASG = {u["uasg"]: u["sigla"] for u in UNIDADES}
+
 
 def unidade_ativa() -> dict:
     """A unidade cujos dados esta geração contém (a UASG_ALVO)."""
@@ -276,13 +281,19 @@ def etl(linhas: list[dict]) -> dict:
             v["cap"] += i["cap"]
             v["n"] += 1
 
-    # PLANEJAMENTO: pregões cujas atas estão vencendo (para o setor programar
-    # novas licitações). Agrupa por pregão (ger · nº); o "objeto" é derivado das
-    # categorias dos itens (a coluna Objeto do consolidado é só "x"). Inclui
-    # vigentes, ≤30 dias e vencidas — a aba filtra por horizonte.
+    # PLANEJAMENTO: pregões cujas atas ainda VALEM (vigentes ou vencendo ≤30d),
+    # para o setor programar novas licitações antes de expirarem. Agrupa por
+    # pregão (ger · nº); o "objeto" é derivado das categorias dos itens (a coluna
+    # Objeto do consolidado é só "x"). Atas JÁ VENCIDAS ficam de fora — não há o
+    # que planejar nelas, já expiraram.
     planej = {}
     for i in itens:
+        # só atas com data de fim e que AINDA não venceram (pela data real, não
+        # pelo Status_Ata que o robô congelou na coleta — entre a coleta e a
+        # geração alguma pode ter expirado). Vencidas ficam totalmente de fora.
         if i["st"] not in ("vig", "v30", "venc") or not i["fim"]:
+            continue
+        if i["fim"].date() < hoje.date():
             continue
         p = planej.get(i["key"])
         if p is None:
@@ -462,12 +473,16 @@ def _tabela_planejamento(planejamento: list) -> str:
         gerenc = str(p["ger"]).startswith(UASG_ALVO)
         papel = "ger" if gerenc else "part"
         papel_lbl = "gerencia" if gerenc else "participa"
+        # nome da unidade gerenciadora (só as OMDS conhecidas; demais só o nº)
+        sigla = NOME_POR_UASG.get(str(p["ger"]).strip())
+        om = f'<span class="pl-om">{esc(sigla)}</span>' if sigla else ""
+        ger_full = f'{p["ger"]} · {sigla}' if sigla else str(p["ger"])
         linhas.append(
             f'<tr data-fimts="{ts}" data-key="{esc(p["key"])}" data-papel="{papel}">'
             f'<td data-v="{ts}" class="pl-fim"><b>{fim}</b><span class="pl-dias" '
             f'data-fimts="{ts}"></span></td>'
             f'<td>{esc(p["pregao"])}</td>'
-            f'<td class="pl-ger"><b>{esc(p["ger"])}</b>'
+            f'<td class="pl-ger" data-ger="{esc(ger_full)}"><b>{esc(p["ger"])}</b>{om}'
             f'<span class="pl-papel p-{papel}">{papel_lbl}</span></td>'
             f'<td class="pl-obj" title="{esc(objeto, 120)}">{esc(objeto, 46)}</td>'
             f'<td class="num" data-v="{p["n"]}">{fmt_int(p["n"])}</td>'
@@ -643,7 +658,24 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
 .pl-dias.d-30{color:var(--warning)}
 .pl-dias.d-ok{color:var(--ink-muted)}
 .pl-obj{max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.pl-bandas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 10px}
+@media(max-width:640px){.pl-bandas{grid-template-columns:repeat(2,1fr)}}
+.pl-card{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;
+  background:var(--surface);border:1px solid var(--border-2);
+  border-left:4px solid var(--bc,var(--ink-muted));border-radius:var(--r-sm);
+  padding:11px 13px;cursor:pointer;transition:background .12s,box-shadow .12s;min-width:0;width:100%}
+.pl-card:hover{background:var(--surface-3)}
+.pl-card[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--bc,var(--accent))}
+.pl-card.b-30{--bc:var(--danger)}
+.pl-card.b-90{--bc:var(--warning)}
+.pl-card.b-180{--bc:color-mix(in srgb,var(--warning) 45%,var(--success))}
+.pl-card.b-max{--bc:var(--success)}
+.pl-card-n{font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--bc,var(--ink))}
+.pl-card-lb{font-size:12px;color:var(--ink-muted);line-height:1.2}
+.pl-card-cap{font-size:12.5px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pl-bandas.tem-sel .pl-card:not([aria-pressed="true"]){opacity:.55}
 .pl-ger{white-space:nowrap}
+.pl-om{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-top:1px}
 .pl-papel{display:block;font-size:11px;font-weight:600;margin-top:1px}
 .pl-papel.p-ger{color:var(--accent)}
 .pl-papel.p-part{color:var(--ink-muted);font-weight:500}
@@ -971,16 +1003,24 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     </section>
 
     <section class="card">
-      <div class="frow2" style="margin:0 0 6px">
-        <div class="seg" id="planHorizonte" role="group" aria-label="Horizonte de vencimento">
-          <button data-h="30" aria-pressed="false">≤30 dias</button>
-          <button data-h="60" aria-pressed="false">≤60 dias</button>
-          <button data-h="90" aria-pressed="true">≤90 dias</button>
-          <button data-h="180" aria-pressed="false">≤180 dias</button>
-          <button data-h="venc" aria-pressed="false">Vencidas</button>
-          <button data-h="all" aria-pressed="false">Todas</button>
-        </div>
-        <span class="cap" style="margin:0" id="planResumo"></span>
+      <div class="pl-bandas" id="planBandas" role="group"
+           aria-label="Resumo por prazo — clique para filtrar a lista">
+        <button type="button" class="pl-card b-30" data-band="b30" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vencendo em ≤30 dias</span>
+          <span class="pl-card-cap" data-cap>—</span></button>
+        <button type="button" class="pl-card b-90" data-band="b90" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vencem em 31–90 dias</span>
+          <span class="pl-card-cap" data-cap>—</span></button>
+        <button type="button" class="pl-card b-180" data-band="b180" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vencem em 91–180 dias</span>
+          <span class="pl-card-cap" data-cap>—</span></button>
+        <button type="button" class="pl-card b-max" data-band="bmax" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vigentes &gt; 180 dias</span>
+          <span class="pl-card-cap" data-cap>—</span></button>
       </div>
       <div class="frow2" style="margin:0 0 8px;align-items:center">
         <div class="seg" id="planPapel" role="group" aria-label="Papel do BCMS no pregão">
@@ -988,13 +1028,15 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
           <button data-p="ger" aria-pressed="false">Gerenciador</button>
           <button data-p="part" aria-pressed="false">Participante</button>
         </div>
-        <button type="button" class="btn" id="btPlanCsv"
+        <span class="cap" style="margin:0" id="planResumo"></span>
+        <button type="button" class="btn" id="btPlanCsv" style="margin-left:auto"
                 title="Baixar a lista visível em CSV (abre no Excel)">⬇ Exportar CSV</button>
       </div>
-      <p class="cap"><b>Gerenciador</b> = o BCMS conduz o pregão (precisa abrir a nova
-        licitação); <b>Participante</b> = carona de pregão de outra OM. O "objeto" é
-        resumido pelas categorias dos itens (o Compras.gov não traz o objeto do
-        pregão). Clique nos títulos para ordenar.</p>
+      <p class="cap">Cartões acima resumem os pregões por prazo — <b>clique</b> em um
+        para filtrar a lista (clique de novo para ver todos). <b>Gerencia</b> = o BCMS
+        conduz o pregão (precisa abrir a nova licitação); <b>participa</b> = carona de
+        pregão de outra OM. O "objeto" é resumido pelas categorias dos itens (o
+        Compras.gov não traz o objeto do pregão). Clique nos títulos para ordenar.</p>
       <div class="tblwrap">
         <table id="tbPlan">
           <thead><tr>
@@ -1385,9 +1427,13 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   tabPlan.onclick=function(){trocaAba(true);};
 
   var planTb=document.getElementById('tbPlan'), planCorpo=planTb.tBodies[0];
-  var planLinhas=[].slice.call(planCorpo.rows), planH='90', planP='all';
+  var planLinhas=[].slice.call(planCorpo.rows), planP='all', planBand=null;
   function diasDe(ts){ return Math.ceil((ts*1000 - Date.now())/86400000); }
+  function bandaDe(d){ return d<=30?'b30':d<=90?'b90':d<=180?'b180':'bmax'; }
+  var BANDA_LB={b30:'vencendo em ≤30 dias', b90:'vencendo em 31–90 dias',
+                b180:'vencendo em 91–180 dias', bmax:'vigentes (mais de 180 dias)'};
   function aplicaPlanej(){
+    var tot={b30:{n:0,c:0},b90:{n:0,c:0},b180:{n:0,c:0},bmax:{n:0,c:0}};
     var n=0, cap=0, nGer=0, nPart=0;
     planLinhas.forEach(function(tr){
       var ts=parseFloat(tr.dataset.fimts)||0, dias=diasDe(ts);
@@ -1398,37 +1444,43 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         else if(dias<=30){span.textContent='em '+dias+' dias'; span.className='pl-dias d-30';}
         else {span.textContent='em '+dias+' dias'; span.className='pl-dias d-ok';}
       }
-      var okH = planH==='all' ? true
-             : planH==='venc' ? dias<0
-             : (dias>=0 && dias<=parseInt(planH,10));
+      var band=bandaDe(dias), capv=parseFloat(tr.cells[5].dataset.v)||0;
       var okP = planP==='all' || tr.dataset.papel===planP;
-      var ok = okH && okP;
+      if(okP){ tot[band].n++; tot[band].c+=capv; }   // cartões seguem o papel
+      var ok = okP && (planBand===null || band===planBand);
       tr.style.display = ok?'':'none';
-      if(ok){ n++; cap += parseFloat(tr.cells[5].dataset.v)||0;
-              if(tr.dataset.papel==='ger') nGer++; else nPart++; }
+      if(ok){ n++; cap+=capv; if(tr.dataset.papel==='ger') nGer++; else nPart++; }
     });
+    [].forEach.call(document.querySelectorAll('#planBandas .pl-card'),function(c){
+      var b=c.dataset.band;
+      c.querySelector('[data-n]').textContent=tot[b].n.toLocaleString('pt-BR');
+      c.querySelector('[data-cap]').textContent=tot[b].c>0?brl(tot[b].c):'sem saldo';
+    });
+    document.getElementById('planBandas').classList.toggle('tem-sel', planBand!==null);
     document.getElementById('planVazio').style.display = n?'none':'';
-    var lbl = planH==='all'?'no total' : planH==='venc'?'já vencidas'
-            : ('nos próximos '+planH+' dias');
     var papelTxt = planP==='ger'?' · só gerenciados pelo BCMS'
                  : planP==='part'?' · só participações (carona)'
                  : (' · '+nGer+' geren. + '+nPart+' partic.');
     document.getElementById('planResumo').textContent =
       n.toLocaleString('pt-BR')+' pregões · '+brl(cap)+' em capacidade'+papelTxt;
-    document.getElementById('planTitulo').textContent =
-      n.toLocaleString('pt-BR')+' pregões vencendo '+lbl;
+    document.getElementById('planTitulo').textContent = planBand===null
+      ? n.toLocaleString('pt-BR')+' pregões com atas a renovar'
+      : n.toLocaleString('pt-BR')+' pregões '+BANDA_LB[planBand];
   }
-  [].forEach.call(document.querySelectorAll('#planHorizonte button'),function(b){
+  [].forEach.call(document.querySelectorAll('#planBandas .pl-card'),function(b){
     b.onclick=function(){
-      [].forEach.call(document.querySelectorAll('#planHorizonte button'),function(x){
+      var jaSel=b.getAttribute('aria-pressed')==='true';
+      [].forEach.call(document.querySelectorAll('#planBandas .pl-card'),function(x){
         x.setAttribute('aria-pressed','false');});
-      b.setAttribute('aria-pressed','true'); planH=b.dataset.h; aplicaPlanej();};});
+      if(jaSel){ planBand=null; }
+      else { b.setAttribute('aria-pressed','true'); planBand=b.dataset.band; }
+      aplicaPlanej();};});
   [].forEach.call(document.querySelectorAll('#planPapel button'),function(b){
     b.onclick=function(){
       [].forEach.call(document.querySelectorAll('#planPapel button'),function(x){
         x.setAttribute('aria-pressed','false');});
       b.setAttribute('aria-pressed','true'); planP=b.dataset.p; aplicaPlanej();};});
-  // Exporta a lista VISÍVEL (respeita horizonte + papel) em CSV pt-BR (; e BOM,
+  // Exporta a lista VISÍVEL (respeita banda + papel) em CSV pt-BR (; e BOM,
   // abre direto no Excel). Usa os dados completos das linhas, não o texto cortado.
   document.getElementById('btPlanCsv').onclick=function(){
     var sep=';';
@@ -1441,7 +1493,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       var venc=(tr.cells[0].querySelector('b')||{}).textContent||'';
       var sit=(tr.querySelector('.pl-dias')||{}).textContent||'';
       var pg=tr.cells[1].textContent.trim();
-      var ger=(tr.cells[2].querySelector('b')||tr.cells[2]).textContent.trim();
+      var ger=tr.cells[2].dataset.ger||(tr.cells[2].querySelector('b')||tr.cells[2]).textContent.trim();
       var papel=tr.dataset.papel==='ger'?'Gerenciador':'Participante';
       var obj=(tr.cells[3].getAttribute('title')||tr.cells[3].textContent).trim();
       var itens=tr.cells[4].dataset.v||tr.cells[4].textContent.trim();
