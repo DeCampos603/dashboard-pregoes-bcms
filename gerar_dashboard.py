@@ -226,9 +226,12 @@ def etl(linhas: list[dict]) -> dict:
             datas_coleta.append(d)
         saldo, vu = num(r.get("Qtd. Saldo")), num(r.get("Val. Unitário"))
         cap = round(saldo * vu, 2) if (saldo is not None and vu is not None) else None
+        pregao = str(r.get("Pregão") or "").replace("_", "/")
+        ger = str(r.get("UASG_Gerenciadora") or "")
         itens.append({
-            "pregao": str(r.get("Pregão") or "").replace("_", "/"),
-            "ger": str(r.get("UASG_Gerenciadora") or ""),
+            "pregao": pregao,
+            "ger": ger,
+            "key": f"{ger} · {pregao}",   # identifica o pregão de forma única (ger+nº)
             "nr": r.get("Nr Item"),
             "desc": str(r.get("Descrição detalhada") or ""),
             "forn": str(r.get("Fornecedor") or ""),
@@ -287,7 +290,7 @@ def etl(linhas: list[dict]) -> dict:
         "op_cat": opcoes("cat"),
         "op_nd": opcoes("nd", lambda i: (f"{i['nd']} · {i['sub'].split(' - ', 1)[-1].title()}"
                                          if i["sub"] else i["nd"])),
-        "op_pregao": opcoes("pregao", lambda i: f"{i['ger']} · {i['pregao']}"),
+        "op_pregao": opcoes("key"),   # valor = "ger · nº" (pregão preciso, com a UASG)
         "op_tipo": opcoes("tipo"),
         # Fornecedor (empresa): valor = string completa "CNPJ - NOME" (dá pra
         # buscar por CNPJ ou nome). Descarta ausentes.
@@ -373,8 +376,10 @@ def _select(id_, rotulo, opcoes, todos_label) -> str:
 
 def _tabela(itens: list[dict]) -> str:
     linhas = []
-    visiveis = [i for i in itens if (i["saldo"] or 0) > 0 and i["st"] != "semdados"]
-    visiveis.sort(key=lambda i: -(i["cap"] or 0))
+    # Renderiza TODOS os itens (inclui saldo 0 / sem dados) para que o botão
+    # "Mostrar todos os itens do pregão" possa exibir o pregão completo. O JS
+    # esconde os itens sem saldo na visão de capacidade (padrão).
+    visiveis = sorted(itens, key=lambda i: -(i["cap"] or 0))
     for i in visiveis:
         fim = i["fim"].strftime("%d/%m/%Y") if i["fim"] else "—"
         ts = f'{i["fim"].timestamp():.0f}' if i["fim"] else "0"
@@ -384,8 +389,8 @@ def _tabela(itens: list[dict]) -> str:
             f'<tr data-st="{i["st"]}" data-cat="{esc(i["cat"])}" data-nd="{esc(i["nd"])}"'
             f' data-pg="{esc(i["pregao"])}" data-tipo="{esc(i["tipo"])}"'
             f' data-forn="{esc(i["forn"])}"'
-            f' data-cap="{i["cap"] or 0}" data-fimts="{ts}"'
-            f' data-key="{esc(i["ger"])} · {esc(i["pregao"])}">'
+            f' data-cap="{i["cap"] or 0}" data-saldo="{i["saldo"] or 0}" data-fimts="{ts}"'
+            f' data-key="{esc(i["key"])}">'
             f'<td>{esc(i["pregao"])}</td><td>{esc(i["ger"])}</td>'
             f'<td class="num">{esc(i["nr"])}</td>'
             f'<td class="desc" title="{esc(i["desc"], 300)}">{esc(i["desc"], 90)}</td>'
@@ -545,6 +550,9 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
   padding:7px 13px;cursor:pointer;color:var(--ink);font:13px var(--sans);
   transition:background .15s,border-color .15s}
 .btn:hover{background:var(--surface-3);border-color:var(--ink-muted)}
+.btn-pregao{border-color:var(--accent);color:var(--accent);font-weight:600}
+.btn-pregao[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="dark"] .btn-pregao[aria-pressed="true"]{color:#0B1219}
 
 .wrap{max-width:1200px;margin:0 auto;padding:22px 20px 72px}
 
@@ -831,6 +839,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         <button data-f="venc" aria-pressed="false">Vencidas</button>
         <button data-f="all" aria-pressed="false">Todas</button>
       </div>
+      <button class="btn btn-pregao" id="btPregao" aria-pressed="false" hidden></button>
       <span class="cap" style="margin:0">Os números acima consideram todas as situações.</span>
     </div>
     <div class="tblwrap">
@@ -917,14 +926,15 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     return {tr:tr, st:tr.dataset.st, cat:tr.dataset.cat, nd:tr.dataset.nd,
             pg:tr.dataset.pg, tipo:tr.dataset.tipo, forn:tr.dataset.forn||'',
             key:tr.dataset.key,
-            cap:parseFloat(tr.dataset.cap)||0, fim:parseFloat(tr.dataset.fimts)||0,
-            txt:tr.textContent.toLowerCase()};
+            cap:parseFloat(tr.dataset.cap)||0, saldo:parseFloat(tr.dataset.saldo)||0,
+            fim:parseFloat(tr.dataset.fimts)||0, txt:tr.textContent.toLowerCase()};
   });
   var fCat=document.getElementById('fCat'), fNd=document.getElementById('fNd'),
       fPg=document.getElementById('fPg'), fTp=document.getElementById('fTp'),
       fForn=document.getElementById('fForn'),
       busca=document.getElementById('busca'), btMais=document.getElementById('btMais'),
-      status='ativos', mostrando=LOTE, filtrados=[];
+      btPregao=document.getElementById('btPregao'),
+      status='ativos', verTudo=false, verTudoKey='', mostrando=LOTE, filtrados=[];
 
   function brl(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
   function curto(v){
@@ -1066,6 +1076,9 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     if(reset!==false) mostrando=LOTE;
     var vc=fCat.value, vn=fNd.value, vp=fPg.value, vt=fTp.value, vf=fForn.value,
         termo=busca.value.trim().toLowerCase();
+    // "Ver pregão completo" só vale para o pregão em que foi ligado; ao trocar
+    // ou limpar o pregão, volta à visão de capacidade.
+    if(vp!==verTudoKey) verTudo=false;
     var capV=0, capW=0, capVenc=0, cats={}, pgs={}, chaves={}, nItens=0;
     var lim=Date.now()/1000+60*86400, venc={};
     filtrados=[];
@@ -1073,20 +1086,28 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     dados.forEach(function(d){
       // DIMENSÃO (categoria/ND/pregão/empresa/tipo/busca) governa TODOS os
       // números do resumo — inclusive "já perdido", que olha as vencidas.
-      var okDim = (!vc||d.cat===vc) && (!vn||d.nd===vn) && (!vp||d.pg===vp)
+      // O pregão é casado pela CHAVE (ger · nº) — pregão preciso, com a UASG.
+      var okDim = (!vc||d.cat===vc) && (!vn||d.nd===vn) && (!vp||d.key===vp)
                 && (!vt||d.tipo===vt) && (!vf||d.forn===vf) && (!termo||d.txt.indexOf(termo)>-1);
-      // SITUAÇÃO é só um seletor de visualização da LISTA abaixo.
+      // "Item de capacidade" = tem saldo E não é "sem dados" (era o que a lista
+      // mostrava antes). SITUAÇÃO é só um seletor de visualização da lista.
+      var temItem = d.saldo>0 && d.st!=='semdados';
       var okS = (status==='all') || (status==='ativos' && (d.st==='vig'||d.st==='v30'))
               || (status==='v30' && d.st==='v30') || (status==='venc' && d.st==='venc');
-      d.tr.style.display = (okDim && okS) ? '' : 'none';
-      if(okDim && okS) filtrados.push(d);
-      if(!okDim) return;
+      // No modo "todos do pregão", a lista mostra TODO item do pregão (todos os
+      // status e saldos); na visão normal, só itens com saldo e da situação.
+      var naLista = verTudo ? okDim : (okDim && temItem && okS);
+      d.tr.style.display = naLista ? '' : 'none';
+      if(naLista) filtrados.push(d);
+      // Os NÚMEROS do resumo só contam itens com capacidade (saldo × vu > 0),
+      // independentemente do modo de exibição da lista.
+      if(!okDim || !(d.cap>0)) return;
       if(d.st==='venc'){capVenc+=d.cap;return;}
       if(d.st==='vig'){capV+=d.cap;} else if(d.st==='v30'){capW+=d.cap;} else {return;}
       nItens++; chaves[d.key]=1;
       // guarda {cap, val}: val é o que o filtro recebe ao clicar na barra
       (cats[d.cat]=cats[d.cat]||{cap:0,val:d.cat}).cap+=d.cap;
-      (pgs[d.key]=pgs[d.key]||{cap:0,val:d.pg}).cap+=d.cap;
+      (pgs[d.key]=pgs[d.key]||{cap:0,val:d.key}).cap+=d.cap;
       if(d.fim && d.fim<lim){
         var k=d.fim+'|'+d.key, v=venc[k]||(venc[k]={cap:0,n:0,fim:d.fim,key:d.key});
         v.cap+=d.cap; v.n++;
@@ -1137,6 +1158,22 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     box.classList.toggle('on',pills.length>0);
     txt('heroLabel',pills.length?'Capacidade de empenho (filtrada)'
                                 :'Capacidade de empenho disponível');
+
+    // Botão "todos os itens do pregão": só quando 1 pregão está selecionado.
+    if(vp){
+      btPregao.hidden=false;
+      btPregao.setAttribute('aria-pressed', verTudo?'true':'false');
+      btPregao.textContent = verTudo
+        ? '✓ Mostrando o pregão completo — voltar aos itens com saldo'
+        : 'Mostrar todos os itens do pregão';
+      // Em modo "pregão completo", os chips de situação não se aplicam.
+      document.querySelector('.seg').style.opacity = verTudo ? '.45' : '';
+      document.querySelector('.seg').style.pointerEvents = verTudo ? 'none' : '';
+    } else {
+      btPregao.hidden=true;
+      document.querySelector('.seg').style.opacity='';
+      document.querySelector('.seg').style.pointerEvents='';
+    }
   }
 
   [fCat,fNd,fPg,fForn,fTp].forEach(function(s){s.addEventListener('change',function(){aplica();});});
@@ -1148,7 +1185,12 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     b.onclick=function(){
       [].forEach.call(document.querySelectorAll('.seg button'),function(x){
         x.setAttribute('aria-pressed','false');});
-      b.setAttribute('aria-pressed','true'); status=b.dataset.f; aplica();};});
+      b.setAttribute('aria-pressed','true'); status=b.dataset.f;
+      verTudo=false; aplica();};});   // escolher situação sai do "pregão completo"
+  btPregao.onclick=function(){
+    verTudo=!verTudo; verTudoKey=fPg.value; aplica();
+    document.getElementById('tb').scrollIntoView({behavior:'smooth', block:'start'});
+  };
   document.getElementById('btLimpar').onclick=function(){
     fCat.value=fNd.value=fPg.value=fForn.value=fTp.value=''; busca.value='';
     [fCat,fNd,fPg,fForn].forEach(function(s){if(s._refletirCombo)s._refletirCombo();});
