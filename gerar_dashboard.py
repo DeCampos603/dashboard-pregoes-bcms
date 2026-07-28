@@ -276,6 +276,30 @@ def etl(linhas: list[dict]) -> dict:
             v["cap"] += i["cap"]
             v["n"] += 1
 
+    # PLANEJAMENTO: pregões cujas atas estão vencendo (para o setor programar
+    # novas licitações). Agrupa por pregão (ger · nº); o "objeto" é derivado das
+    # categorias dos itens (a coluna Objeto do consolidado é só "x"). Inclui
+    # vigentes, ≤30 dias e vencidas — a aba filtra por horizonte.
+    planej = {}
+    for i in itens:
+        if i["st"] not in ("vig", "v30", "venc") or not i["fim"]:
+            continue
+        p = planej.get(i["key"])
+        if p is None:
+            p = planej[i["key"]] = {"key": i["key"], "ger": i["ger"], "pregao": i["pregao"],
+                                    "fim": i["fim"], "cap": 0.0, "n": 0, "cats": {}, "forns": set()}
+        if i["fim"] < p["fim"]:
+            p["fim"] = i["fim"]          # o vencimento mais próximo do pregão
+        c = i["cap"] if isinstance(i["cap"], (int, float)) else 0
+        p["cap"] += c
+        p["n"] += 1
+        # objeto = categorias por CONTAGEM de itens (sempre disponível, mesmo
+        # quando a ata já foi 100% consumida — que é justo a que mais urge renovar)
+        p["cats"][i["cat"]] = p["cats"].get(i["cat"], 0) + 1
+        if str(i["forn"]).strip() not in ("", AUSENTE):
+            p["forns"].add(i["forn"])
+    planejamento = sorted(planej.values(), key=lambda p: p["fim"])
+
     return {
         "hoje": hoje,
         "posicao": max(datas_coleta).strftime("%d/%m/%Y") if datas_coleta else hoje.strftime("%d/%m/%Y"),
@@ -296,6 +320,7 @@ def etl(linhas: list[dict]) -> dict:
         # buscar por CNPJ ou nome). Descarta ausentes.
         "op_forn": [o for o in opcoes("forn")
                     if str(o[0]).strip() not in ("", AUSENTE)],
+        "planejamento": planejamento,
     }
 
 
@@ -407,6 +432,44 @@ def _tabela(itens: list[dict]) -> str:
     return "\n".join(linhas)
 
 
+def _objeto_do_pregao(p: dict) -> str:
+    """'Objeto' derivado das categorias dos itens (a coluna Objeto é só 'x').
+    Categoria ausente vai para o fim, para nunca roubar a vez de uma real."""
+    cats = sorted(p["cats"].items(), key=lambda x: (x[0] == AUSENTE, -x[1]))
+    if not cats:
+        return "—"
+    nomes = [c[0] for c in cats[:2]]
+    if len(cats) > 2:
+        nomes.append(f"+{len(cats) - 2}")
+    return " · ".join(nomes)
+
+
+def _tabela_planejamento(planejamento: list) -> str:
+    """Linhas da aba de planejamento: um pregão por linha, ordenado por
+    vencimento. data-fimts alimenta o cálculo de dias no cliente."""
+    linhas = []
+    for p in planejamento:
+        ts = f'{p["fim"].timestamp():.0f}'
+        fim = p["fim"].strftime("%d/%m/%Y")
+        objeto = _objeto_do_pregao(p)
+        forns = sorted(p["forns"])
+        forn_lbl = ("—" if not forns else
+                    forns[0].split(" - ", 1)[-1] if len(forns) == 1 else
+                    f"{len(forns)} fornecedores")
+        forn_tt = "; ".join(f.split(" - ", 1)[-1] for f in forns[:8])
+        linhas.append(
+            f'<tr data-fimts="{ts}" data-key="{esc(p["key"])}">'
+            f'<td data-v="{ts}" class="pl-fim"><b>{fim}</b><span class="pl-dias" '
+            f'data-fimts="{ts}"></span></td>'
+            f'<td>{esc(p["pregao"])}</td><td>{esc(p["ger"])}</td>'
+            f'<td class="pl-obj" title="{esc(objeto, 120)}">{esc(objeto, 46)}</td>'
+            f'<td class="num" data-v="{p["n"]}">{fmt_int(p["n"])}</td>'
+            f'<td class="num" data-v="{p["cap"]:.0f}"><strong>{fmt_brl(p["cap"])}</strong></td>'
+            f'<td class="forn" title="{esc(forn_tt, 240)}">{esc(forn_lbl, 34)}</td>'
+            f'</tr>')
+    return "\n".join(linhas)
+
+
 def render(m: dict, hist: list[dict]) -> str:
     tpl = _TEMPLATE
     ativa = unidade_ativa()
@@ -420,6 +483,8 @@ def render(m: dict, hist: list[dict]) -> str:
         "%%ACCENT%%": ativa["accent"],
         "%%OMDS_NAV%%": omds_nav_html(),
         "%%UNIDADES_JSON%%": unidades_json(),
+        "%%TABELA_PLANEJ%%": _tabela_planejamento(m["planejamento"]),
+        "%%N_PLANEJ%%": fmt_int(len(m["planejamento"])),
         "%%CAP_TOTAL%%": fmt_brl(m["cap_total"]),
         "%%CAP_VIG%%": fmt_brl(m["cap_vig"]),
         "%%CAP_V30%%": fmt_brl(m["cap_v30"]),
@@ -555,6 +620,22 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
 [data-theme="dark"] .btn-pregao[aria-pressed="true"]{color:#0B1219}
 
 .wrap{max-width:1200px;margin:0 auto;padding:22px 20px 72px}
+
+/* abas (Capacidade / Planejamento) */
+.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 16px 12px;
+  cursor:pointer;font:14px var(--sans);color:var(--ink-muted);font-weight:600;
+  white-space:nowrap;border-radius:8px 8px 0 0;transition:color .15s,border-color .15s,background .15s}
+.tab:hover{color:var(--ink);background:var(--surface-2)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+/* aba de planejamento */
+.pl-fim{white-space:nowrap}
+.pl-dias{display:block;font-size:11px;font-weight:600;margin-top:1px}
+.pl-dias.d-venc{color:var(--danger)}
+.pl-dias.d-30{color:var(--warning)}
+.pl-dias.d-ok{color:var(--ink-muted)}
+.pl-obj{max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
 
 /* ---------------------------------------------------------------- hero */
 .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
@@ -750,6 +831,14 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   </section>
 
   <div id="painel">
+  <nav class="tabs" role="tablist" aria-label="Seções">
+    <button class="tab" id="tabCap" role="tab" aria-selected="true"
+            aria-controls="tab-capacidade">Capacidade de empenho</button>
+    <button class="tab" id="tabPlan" role="tab" aria-selected="false"
+            aria-controls="tab-planejamento">📅 Planejamento · atas vencendo</button>
+  </nav>
+
+  <div id="tab-capacidade" role="tabpanel">
   <section class="hero" aria-labelledby="heroLabel">
     <p class="hero-label" id="heroLabel">Capacidade de empenho disponível</p>
     <p class="hero-big" id="heroBig">%%CAP_TOTAL%%</p>
@@ -859,6 +948,46 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       Nenhum item para esta combinação de filtros.</p>
     <div class="tbl-foot"><button class="btn" id="btMais" style="display:none"></button></div>
   </section>
+  </div><!-- /tab-capacidade -->
+
+  <div id="tab-planejamento" role="tabpanel" hidden>
+    <section class="hero" style="--accent:var(--warning-fill)">
+      <p class="hero-label">Planejamento de novas licitações</p>
+      <p class="hero-big" id="planTitulo" style="font-size:clamp(26px,4vw,34px)">—</p>
+      <p class="hero-cap">Atas vencendo, agrupadas por pregão e ordenadas pelo
+        vencimento mais próximo. Use para o setor se antecipar e abrir novos
+        pregões antes que o registro de preços expire.</p>
+    </section>
+
+    <section class="card">
+      <div class="frow2" style="margin:0 0 6px">
+        <div class="seg" id="planHorizonte" role="group" aria-label="Horizonte de vencimento">
+          <button data-h="30" aria-pressed="false">≤30 dias</button>
+          <button data-h="60" aria-pressed="false">≤60 dias</button>
+          <button data-h="90" aria-pressed="true">≤90 dias</button>
+          <button data-h="180" aria-pressed="false">≤180 dias</button>
+          <button data-h="venc" aria-pressed="false">Vencidas</button>
+          <button data-h="all" aria-pressed="false">Todas</button>
+        </div>
+        <span class="cap" style="margin:0" id="planResumo"></span>
+      </div>
+      <p class="cap">O "objeto" é resumido pelas categorias dos itens (o Compras.gov
+        não traz o objeto do pregão). Clique nos títulos para ordenar.</p>
+      <div class="tblwrap">
+        <table id="tbPlan">
+          <thead><tr>
+            <th>Vencimento</th><th>Pregão</th><th>Ger.</th><th>Objeto (categorias)</th>
+            <th class="num">Itens</th><th class="num">Capacidade</th><th>Fornecedor</th>
+          </tr></thead>
+          <tbody>
+%%TABELA_PLANEJ%%
+          </tbody>
+        </table>
+      </div>
+      <p class="vazio" id="planVazio" style="display:none">
+        Nenhuma ata vencendo neste horizonte.</p>
+    </section>
+  </div><!-- /tab-planejamento -->
 
   </div><!-- /painel -->
 
@@ -1217,6 +1346,74 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     };});
 
   aplica();
+
+  // ==================== ABAS + PLANEJAMENTO ====================
+  var tabCap=document.getElementById('tabCap'), tabPlan=document.getElementById('tabPlan'),
+      painelCap=document.getElementById('tab-capacidade'),
+      painelPlan=document.getElementById('tab-planejamento');
+  function trocaAba(ehPlan){
+    tabPlan.setAttribute('aria-selected', ehPlan?'true':'false');
+    tabCap.setAttribute('aria-selected', ehPlan?'false':'true');
+    painelPlan.hidden=!ehPlan; painelCap.hidden=ehPlan;
+    if(ehPlan) aplicaPlanej();
+    window.scrollTo(0,0);
+    try{localStorage.setItem('bcms-aba', ehPlan?'plan':'cap');}catch(e){}
+  }
+  tabCap.onclick=function(){trocaAba(false);};
+  tabPlan.onclick=function(){trocaAba(true);};
+
+  var planTb=document.getElementById('tbPlan'), planCorpo=planTb.tBodies[0];
+  var planLinhas=[].slice.call(planCorpo.rows), planH='90';
+  function diasDe(ts){ return Math.ceil((ts*1000 - Date.now())/86400000); }
+  function aplicaPlanej(){
+    var n=0, cap=0;
+    planLinhas.forEach(function(tr){
+      var ts=parseFloat(tr.dataset.fimts)||0, dias=diasDe(ts);
+      var span=tr.querySelector('.pl-dias');
+      if(span){
+        if(dias<0){span.textContent='venceu há '+(-dias)+' d'; span.className='pl-dias d-venc';}
+        else if(dias===0){span.textContent='vence hoje'; span.className='pl-dias d-venc';}
+        else if(dias<=30){span.textContent='em '+dias+' dias'; span.className='pl-dias d-30';}
+        else {span.textContent='em '+dias+' dias'; span.className='pl-dias d-ok';}
+      }
+      var ok = planH==='all' ? true
+             : planH==='venc' ? dias<0
+             : (dias>=0 && dias<=parseInt(planH,10));
+      tr.style.display = ok?'':'none';
+      if(ok){ n++; cap += parseFloat(tr.cells[5].dataset.v)||0; }
+    });
+    document.getElementById('planVazio').style.display = n?'none':'';
+    var lbl = planH==='all'?'no total' : planH==='venc'?'já vencidas'
+            : ('nos próximos '+planH+' dias');
+    document.getElementById('planResumo').textContent =
+      n.toLocaleString('pt-BR')+' pregões · '+brl(cap)+' em capacidade';
+    document.getElementById('planTitulo').textContent =
+      n.toLocaleString('pt-BR')+' pregões vencendo '+lbl;
+  }
+  [].forEach.call(document.querySelectorAll('#planHorizonte button'),function(b){
+    b.onclick=function(){
+      [].forEach.call(document.querySelectorAll('#planHorizonte button'),function(x){
+        x.setAttribute('aria-pressed','false');});
+      b.setAttribute('aria-pressed','true'); planH=b.dataset.h; aplicaPlanej();};});
+  var pord={col:-1,asc:false};
+  [].forEach.call(planTb.tHead.rows[0].cells,function(th,i){
+    th.style.cursor='pointer';
+    th.onclick=function(){
+      pord.asc = pord.col===i ? !pord.asc : false; pord.col=i;
+      var isNum = th.classList.contains('num');
+      planLinhas.sort(function(a,b){
+        var va,vb;
+        if(i===0){va=parseFloat(a.dataset.fimts)||0; vb=parseFloat(b.dataset.fimts)||0;}
+        else if(isNum){va=parseFloat(a.cells[i].dataset.v||0)||0; vb=parseFloat(b.cells[i].dataset.v||0)||0;}
+        else {va=a.cells[i].textContent.toLowerCase(); vb=b.cells[i].textContent.toLowerCase();}
+        return (va<vb?-1:va>vb?1:0)*(pord.asc?1:-1);
+      });
+      var frag=document.createDocumentFragment();
+      planLinhas.forEach(function(tr){frag.appendChild(tr);});
+      planCorpo.appendChild(frag);
+    };});
+  aplicaPlanej();                         // calcula os números já no carregamento
+  try{ if(localStorage.getItem('bcms-aba')==='plan') trocaAba(true); }catch(e){}
 })();
 </script>
 </body>
