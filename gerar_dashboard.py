@@ -70,6 +70,7 @@ UNIDADES = [
 # gerenciadora, sem nome). Só nomeamos as unidades do manifesto; as demais
 # gerenciadoras (dezenas de UASGs externas) aparecem só com o número.
 NOME_POR_UASG = {u["uasg"]: u["sigla"] for u in UNIDADES}
+OM_POR_UASG = {u["uasg"]: u for u in UNIDADES}
 
 
 def unidade_ativa() -> dict:
@@ -248,6 +249,16 @@ def etl(linhas: list[dict]) -> dict:
             "st": classificar_status(r, hoje),
             "saldo": saldo, "vu": vu, "cap": cap,
             "link": str(r.get("Link_Item") or ""),
+            # campos extras usados só no detalhamento (modal ao clicar)
+            "nrata": str(r.get("Nr Ata") or "").strip(),
+            "catmat": str(r.get("CATMAT_CATSER_Nome") or "").strip(),
+            "cod": str(r.get("CATMAT_CATSER_Codigo") or "").strip(),
+            "conf": str(r.get("Confianca_ND") or "").strip(),
+            "ini": data_br(r.get("Início Vig Ata")),
+            "vtot": num(r.get("Valor_Total_Homologado")),
+            "qhom": num(r.get("Qtd Homologada")),
+            "qaut": num(r.get("Qtd. Autorizada")),
+            "stlabel": str(r.get("Status_Ata") or "").strip(),
         })
 
     ativos = [i for i in itens if i["st"] in ("vig", "v30") and (i["cap"] or 0) > 0]
@@ -419,6 +430,7 @@ def _tabela(itens: list[dict]) -> str:
     for i in visiveis:
         fim = i["fim"].strftime("%d/%m/%Y") if i["fim"] else "—"
         ts = f'{i["fim"].timestamp():.0f}' if i["fim"] else "0"
+        ini = i["ini"].strftime("%d/%m/%Y") if i.get("ini") else ""
         link = (f'<a href="{esc(i["link"])}" target="_blank" rel="noopener" '
                 f'aria-label="Abrir item no Compras.gov">↗</a>') if i["link"].startswith("http") else ""
         linhas.append(
@@ -426,7 +438,15 @@ def _tabela(itens: list[dict]) -> str:
             f' data-pg="{esc(i["pregao"])}" data-tipo="{esc(i["tipo"])}"'
             f' data-forn="{esc(i["forn"])}"'
             f' data-cap="{i["cap"] or 0}" data-saldo="{i["saldo"] or 0}" data-fimts="{ts}"'
-            f' data-key="{esc(i["key"])}">'
+            f' data-key="{esc(i["key"])}"'
+            f' data-desc="{esc(i["desc"], 400)}" data-catmat="{esc(i["catmat"], 200)}"'
+            f' data-cod="{esc(i["cod"])}" data-sub="{esc(i["sub"], 120)}"'
+            f' data-conf="{esc(i["conf"])}" data-ini="{ini}" data-fim="{fim}"'
+            f' data-vu="{i["vu"] or 0}" data-vtot="{i["vtot"] or 0}"'
+            f' data-qhom="{i["qhom"] or 0}" data-qaut="{i["qaut"] or 0}"'
+            f' data-nrata="{esc(i["nrata"])}" data-stlabel="{esc(i["stlabel"])}"'
+            f' data-link="{esc(i["link"])}" tabindex="0"'
+            f' aria-label="Ver detalhes do item {esc(str(i["nr"]))}">'
             f'<td>{esc(i["pregao"])}</td><td>{esc(i["ger"])}</td>'
             f'<td class="num">{esc(i["nr"])}</td>'
             f'<td class="desc" title="{esc(i["desc"], 300)}">{esc(i["desc"], 90)}</td>'
@@ -474,15 +494,23 @@ def _tabela_planejamento(planejamento: list) -> str:
         papel = "ger" if gerenc else "part"
         papel_lbl = "gerencia" if gerenc else "participa"
         # nome da unidade gerenciadora (só as OMDS conhecidas; demais só o nº)
-        sigla = NOME_POR_UASG.get(str(p["ger"]).strip())
-        om = f'<span class="pl-om">{esc(sigla)}</span>' if sigla else ""
+        omd = OM_POR_UASG.get(str(p["ger"]).strip())
+        sigla = omd["sigla"] if omd else ""
+        nome_om = omd["nome"] if omd else ""
+        om = f'<span class="pl-om" title="{esc(nome_om)}">{esc(sigla)}</span>' if sigla else ""
         ger_full = f'{p["ger"]} · {sigla}' if sigla else str(p["ger"])
+        forns_all = "; ".join(f.split(" - ", 1)[-1] for f in forns)
         linhas.append(
-            f'<tr data-fimts="{ts}" data-key="{esc(p["key"])}" data-papel="{papel}">'
+            f'<tr data-fimts="{ts}" data-key="{esc(p["key"])}" data-papel="{papel}"'
+            f' data-ger="{esc(str(p["ger"]))}" data-om="{esc(sigla)}"'
+            f' data-omnome="{esc(nome_om)}" data-obj="{esc(objeto, 120)}"'
+            f' data-forns="{esc(forns_all, 600)}" tabindex="0"'
+            f' aria-label="Ver detalhes do pregão {esc(p["pregao"])}">'
             f'<td data-v="{ts}" class="pl-fim"><b>{fim}</b><span class="pl-dias" '
             f'data-fimts="{ts}"></span></td>'
             f'<td>{esc(p["pregao"])}</td>'
-            f'<td class="pl-ger" data-ger="{esc(ger_full)}"><b>{esc(p["ger"])}</b>{om}'
+            f'<td class="pl-ger" data-ger="{esc(ger_full)}" title="{esc(nome_om)}">'
+            f'<b>{esc(p["ger"])}</b>{om}'
             f'<span class="pl-papel p-{papel}">{papel_lbl}</span></td>'
             f'<td class="pl-obj" title="{esc(objeto, 120)}">{esc(objeto, 46)}</td>'
             f'<td class="num" data-v="{p["n"]}">{fmt_int(p["n"])}</td>'
@@ -520,6 +548,9 @@ def render(m: dict, hist: list[dict]) -> str:
         "%%PCT_V30_M%%": f"{(m['cap_v30'] / m['cap_total'] * 100 if m['cap_total'] else 0):.2f}",
         "%%SPARK%%": sparkline(hist),
         "%%TABELA%%": _tabela(m["itens"]),
+        "%%OMNOMES%%": json.dumps(
+            {u["uasg"]: {"s": u["sigla"], "n": u["nome"]} for u in UNIDADES},
+            ensure_ascii=False),
         "%%SEL_CAT%%": _select("fCat", "Tipo de material / serviço", m["op_cat"],
                                "Todas as categorias"),
         "%%SEL_ND%%": _select("fNd", "Natureza de despesa (sugerida)", m["op_nd"],
@@ -798,7 +829,38 @@ thead th{position:sticky;top:0;background:var(--surface);z-index:1;
   user-select:none;border-bottom:1.5px solid var(--border-2)}
 thead th:hover{color:var(--ink)}
 tbody tr:hover{background:var(--surface-2)}
+#tb tbody tr,#tbPlan tbody tr{cursor:pointer}
+#tb tbody tr:focus-visible,#tbPlan tbody tr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* ---- modal de detalhes (clique na linha) ---- */
+.modal-bg{position:fixed;inset:0;z-index:80;background:rgba(8,14,22,.55);
+  display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;
+  overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-bg[hidden]{display:none}
+.modal{position:relative;background:var(--surface);color:var(--ink);
+  border:1px solid var(--border-2);border-radius:14px;max-width:760px;width:100%;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);padding:22px 24px 26px}
+.modal-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:9px;
+  border:1px solid var(--border-2);background:var(--surface-3);color:var(--ink-muted);
+  font-size:15px;cursor:pointer;line-height:1}
+.modal-x:hover{color:var(--ink);background:var(--surface)}
+.modal h3{font-family:var(--sans);font-size:19px;margin:0 34px 3px 0;line-height:1.25}
+.modal .m-sub{color:var(--ink-muted);font-size:13px;margin:0 0 16px}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;margin:0 0 6px}
+@media(max-width:560px){.m-grid{grid-template-columns:1fr}}
+.m-f{min-width:0}
+.m-f .k{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.03em;
+  color:var(--ink-muted);font-weight:600;margin-bottom:2px}
+.m-f .v{display:block;font-size:14px;color:var(--ink);overflow-wrap:anywhere}
+.m-f.wide{grid-column:1/-1}
+.m-sec{margin:18px 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--ink-muted);border-top:1px solid var(--border);padding-top:14px}
+.modal .tblwrap{max-height:44vh;overflow:auto}
+.modal table{font-size:12px}
+.m-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.m-badge.p-ger{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.m-badge.p-part{background:var(--surface-3);color:var(--ink-muted)}
+.m-link{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-weight:600;color:var(--accent)}
 td.desc{max-width:270px;color:var(--ink-2)}
 td.forn{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
 td.cat{white-space:nowrap;font-size:11.5px;color:var(--ink-muted)}
@@ -963,16 +1025,17 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
   <section class="card">
     <h2>Itens <span class="cap" id="cont" style="font-family:var(--sans)"></span></h2>
-    <p class="cap">Clique nos títulos para ordenar · ↗ abre o item no Compras.gov.br</p>
+    <p class="cap"><b>Clique numa linha</b> para ver todos os detalhes do item ·
+      clique nos títulos para ordenar · ↗ abre o item no Compras.gov.br. Atas já
+      vencidas não são listadas.</p>
     <div class="frow2" style="margin:0 0 14px">
       <div class="seg" id="segSit" role="group" aria-label="Situação da ata (filtra apenas esta lista)">
         <button data-f="ativos" aria-pressed="true">Válidas</button>
         <button data-f="v30" aria-pressed="false">≤30 dias</button>
-        <button data-f="venc" aria-pressed="false">Vencidas</button>
         <button data-f="all" aria-pressed="false">Todas</button>
       </div>
       <button class="btn btn-pregao" id="btPregao" aria-pressed="false" hidden></button>
-      <span class="cap" style="margin:0">Os números acima consideram todas as situações.</span>
+      <span class="cap" style="margin:0">Vigentes e vencendo — sem as vencidas.</span>
     </div>
     <div class="tblwrap">
       <table id="tb">
@@ -1063,6 +1126,13 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 </main>
 
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTit">
+    <button class="modal-x" id="modalX" aria-label="Fechar detalhes">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -1285,11 +1355,13 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       // "Item de capacidade" = tem saldo E não é "sem dados" (era o que a lista
       // mostrava antes). SITUAÇÃO é só um seletor de visualização da lista.
       var temItem = d.saldo>0 && d.st!=='semdados';
-      var okS = (status==='all') || (status==='ativos' && (d.st==='vig'||d.st==='v30'))
-              || (status==='v30' && d.st==='v30') || (status==='venc' && d.st==='venc');
-      // No modo "todos do pregão", a lista mostra TODO item do pregão (todos os
-      // status e saldos); na visão normal, só itens com saldo e da situação.
-      var naLista = verTudo ? okDim : (okDim && temItem && okS);
+      // Itens VENCIDOS nunca entram na lista (o usuário não quer vê-los); seguem
+      // no DOM só para alimentar o KPI "Já perdido".
+      var okS = d.st!=='venc' && ((status==='all') || (status==='ativos' && (d.st==='vig'||d.st==='v30'))
+              || (status==='v30' && d.st==='v30'));
+      // No modo "todos do pregão", a lista mostra TODO item do pregão (menos as
+      // vencidas); na visão normal, só itens com saldo e da situação.
+      var naLista = verTudo ? (okDim && d.st!=='venc') : (okDim && temItem && okS);
       d.tr.style.display = naLista ? '' : 'none';
       if(naLista) filtrados.push(d);
       // Os NÚMEROS do resumo só contam itens com capacidade (saldo × vu > 0),
@@ -1527,6 +1599,143 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     };});
   aplicaPlanej();                         // calcula os números já no carregamento
   try{ if(localStorage.getItem('bcms-aba')==='plan') trocaAba(true); }catch(e){}
+
+  // ==================== DETALHAMENTO (modal ao clicar) ====================
+  var OMNOMES=%%OMNOMES%%;
+  var modal=document.getElementById('modal'), modalBody=document.getElementById('modalBody'),
+      ultimoFoco=null;
+  function mk(tag,cls,txt){var e=document.createElement(tag); if(cls)e.className=cls;
+    if(txt!=null)e.textContent=txt; return e;}
+  function campo(k,v,wide){var f=mk('div','m-f'+(wide?' wide':''));
+    f.appendChild(mk('span','k',k));
+    f.appendChild(mk('span','v',(v==null||v==='')?'—':v)); return f;}
+  function money(x){var n=parseFloat(x); return isFinite(n)?brl(n):'—';}
+  function qtd(x){var n=parseFloat(x); return isFinite(n)?n.toLocaleString('pt-BR'):'—';}
+  function abrirModal(){ ultimoFoco=document.activeElement; modal.hidden=false;
+    document.body.style.overflow='hidden'; document.getElementById('modalX').focus(); }
+  function fecharModal(){ modal.hidden=true; document.body.style.overflow='';
+    if(ultimoFoco&&ultimoFoco.focus)ultimoFoco.focus(); }
+  document.getElementById('modalX').onclick=fecharModal;
+  modal.addEventListener('click',function(e){ if(e.target===modal) fecharModal(); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&!modal.hidden) fecharModal(); });
+
+  // TODO valor dinâmico vem de textContent (nunca innerHTML) p/ evitar XSS.
+  function detalheItem(tr){
+    var d=tr.dataset;
+    modalBody.textContent='';
+    var h=mk('h3',null,'Item '+(tr.cells[2].textContent.trim()||'—')); h.id='modalTit';
+    modalBody.appendChild(h);
+    modalBody.appendChild(mk('p','m-sub',
+      (d.catmat||'sem CATMAT')+(d.cod?(' · código '+d.cod):'')));
+    var om=OMNOMES[tr.cells[1].textContent.trim()];
+    var ger=tr.cells[1].textContent.trim()+(om?(' · '+om.n):'');
+    var g=mk('div','m-grid');
+    g.appendChild(campo('Descrição', d.desc, true));
+    g.appendChild(campo('Pregão', tr.cells[0].textContent.trim()));
+    g.appendChild(campo('UASG gerenciadora', ger));
+    g.appendChild(campo('Categoria', d.cat));
+    g.appendChild(campo('Material ou serviço', d.tipo));
+    g.appendChild(campo('ND sugerida', d.nd));
+    g.appendChild(campo('Subitem sugerido', d.sub));
+    g.appendChild(campo('Confiança da ND', d.conf));
+    g.appendChild(campo('Fornecedor', d.forn, true));
+    modalBody.appendChild(g);
+    modalBody.appendChild(mk('div','m-sec','Ata e vigência'));
+    var g2=mk('div','m-grid');
+    g2.appendChild(campo('Nº da ata', d.nrata));
+    g2.appendChild(campo('Situação', d.stlabel));
+    g2.appendChild(campo('Início da vigência', d.ini));
+    g2.appendChild(campo('Fim da vigência', d.fim));
+    modalBody.appendChild(g2);
+    modalBody.appendChild(mk('div','m-sec','Quantidades e valores'));
+    var g3=mk('div','m-grid');
+    g3.appendChild(campo('Qtd. homologada', qtd(d.qhom)));
+    g3.appendChild(campo('Qtd. autorizada', qtd(d.qaut)));
+    g3.appendChild(campo('Saldo', qtd(d.saldo)));
+    g3.appendChild(campo('Valor unitário', money(d.vu)));
+    g3.appendChild(campo('Valor total homologado', money(d.vtot)));
+    g3.appendChild(campo('Capacidade (saldo × unit.)', money(d.cap)));
+    modalBody.appendChild(g3);
+    if((d.link||'').indexOf('http')===0){
+      var a=mk('a','m-link','Abrir item no Compras.gov.br ↗');
+      a.href=d.link; a.target='_blank'; a.rel='noopener';
+      modalBody.appendChild(a);
+    }
+  }
+
+  function detalhePregao(tr){
+    var d=tr.dataset;
+    modalBody.textContent='';
+    var pg=tr.cells[1].textContent.trim();
+    var h=mk('h3',null,'Pregão '+pg); h.id='modalTit'; modalBody.appendChild(h);
+    var om=OMNOMES[d.ger], nomeOm=om?om.n:(d.omnome||'');
+    var sub=mk('p','m-sub'); sub.appendChild(document.createTextNode(
+      'Gerenciadora: UASG '+d.ger+(nomeOm?(' · '+nomeOm):'')+' · '));
+    sub.appendChild(mk('span','m-badge '+(d.papel==='ger'?'p-ger':'p-part'),
+      d.papel==='ger'?'BCMS é o gerenciador':'BCMS é participante'));
+    modalBody.appendChild(sub);
+    var venc=(tr.cells[0].querySelector('b')||{}).textContent||'';
+    var dias=(tr.querySelector('.pl-dias')||{}).textContent||'';
+    var g=mk('div','m-grid');
+    g.appendChild(campo('Vencimento mais próximo', venc+(dias?(' — '+dias):'')));
+    g.appendChild(campo('Papel do BCMS', d.papel==='ger'
+      ?'Gerenciador (conduz o pregão)':'Participante (carona de outra OM)'));
+    g.appendChild(campo('Objeto (categorias)', d.obj, true));
+    g.appendChild(campo('Itens no pregão', tr.cells[4].textContent.trim()));
+    g.appendChild(campo('Capacidade (saldo)',
+      (tr.cells[5].querySelector('strong')||tr.cells[5]).textContent.trim()));
+    g.appendChild(campo('Fornecedor(es)', d.forns, true));
+    modalBody.appendChild(g);
+    // mesmos itens que o planejamento conta: vig/v30 com vencimento AINDA futuro
+    // (nunca vencidos — nem os que expiraram entre a coleta e hoje).
+    var itensPg=[].slice.call(document.querySelectorAll('#tb tbody tr')).filter(
+      function(r){var ts=parseFloat(r.dataset.fimts)||0;
+        return r.dataset.key===d.key && (r.dataset.st==='vig'||r.dataset.st==='v30')
+            && ts>0 && diasDe(ts)>=0;});
+    itensPg.sort(function(a,b){return (parseFloat(b.dataset.cap)||0)-(parseFloat(a.dataset.cap)||0);});
+    modalBody.appendChild(mk('div','m-sec','Itens deste pregão ('+itensPg.length+')'));
+    if(itensPg.length){
+      var wrap=mk('div','tblwrap'), t=mk('table');
+      var thead=mk('thead'), htr=mk('tr');
+      ['Item','Descrição','Categoria','Saldo','Vlr. unit.','Valor total','Fim vig.']
+        .forEach(function(x,ix){var th=mk('th',ix>=3&&ix<=5?'num':null,x); htr.appendChild(th);});
+      thead.appendChild(htr); t.appendChild(thead);
+      var tb=mk('tbody');
+      itensPg.forEach(function(r){
+        var row=mk('tr');
+        row.appendChild(mk('td','num', r.cells[2].textContent.trim()));
+        row.appendChild(mk('td',null, r.dataset.desc||r.cells[3].textContent.trim()));
+        row.appendChild(mk('td',null, r.dataset.cat||''));
+        row.appendChild(mk('td','num', qtd(r.dataset.saldo)));
+        row.appendChild(mk('td','num', money(r.dataset.vu)));
+        row.appendChild(mk('td','num', money(r.dataset.cap)));
+        row.appendChild(mk('td',null, r.dataset.fim||''));
+        tb.appendChild(row);
+      });
+      t.appendChild(tb); wrap.appendChild(t); modalBody.appendChild(wrap);
+    } else {
+      modalBody.appendChild(mk('p','cap',
+        'Os itens deste pregão não estão na lista (sem saldo ou já vencidos).'));
+    }
+  }
+
+  function ligarDetalhe(sel, fn){
+    var corpoT=document.querySelector(sel);
+    if(!corpoT) return;
+    corpoT.addEventListener('click',function(e){
+      if(e.target.closest('a')) return;      // não intercepta o link ↗
+      var tr=e.target.closest('tr'); if(!tr||!tr.dataset.key) return;
+      fn(tr); abrirModal();
+    });
+    corpoT.addEventListener('keydown',function(e){
+      if(e.key!=='Enter' && e.key!==' ') return;
+      var tr=e.target.closest('tr'); if(!tr||!tr.dataset.key) return;
+      e.preventDefault(); fn(tr); abrirModal();
+    });
+  }
+  ligarDetalhe('#tb tbody', detalheItem);
+  ligarDetalhe('#tbPlan tbody', detalhePregao);
 })();
 </script>
 </body>
