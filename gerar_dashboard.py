@@ -22,6 +22,8 @@ import html
 import io
 import json
 import os
+import re
+import unicodedata
 import urllib.request
 from datetime import datetime, timedelta
 
@@ -39,6 +41,11 @@ DRIVE_FILE_ID_PADRAO = "1Jp2lSSR1m_FofvlwJbcOUT9wCXxG6785"
 UASG_ALVO = os.environ.get("UASG_ALVO", "160329").strip()
 NOME_UNIDADE = os.environ.get("NOME_UNIDADE", "Batalhão Central de Manutenção e Suprimento")
 NOME_CURTO = os.environ.get("NOME_CURTO", "BCMS")
+
+# Unidade "primária" — a que vira index.html no site multi-unidade. As demais
+# viram <slug>.html. `main()` gera uma página por OMDS com dados (looping por
+# UNIDADES e reatribuindo UASG_ALVO/NOME_* a cada volta).
+UASG_PRIMARIO = UASG_ALVO
 
 AUSENTE = "Informação ausente"
 
@@ -88,20 +95,38 @@ def unidades_json() -> str:
     return json.dumps(saida, ensure_ascii=False)
 
 
-def omds_nav_html() -> str:
-    """Barra de troca de OMDS (renderizada no servidor; JS só trata cliques)."""
+def _slug(u: dict) -> str:
+    """Nome de arquivo da página da unidade (sem acento/espaço)."""
+    s = unicodedata.normalize("NFKD", u["sigla"]).encode("ascii", "ignore").decode()
+    s = re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+    return s or u["uasg"]
+
+
+def pagina_da_unidade(u: dict) -> str:
+    """Arquivo HTML da unidade: a primária é index.html; as demais, <slug>.html."""
+    return "index.html" if u["uasg"] == UASG_PRIMARIO else f"{_slug(u)}.html"
+
+
+def omds_nav_html(com_dados: set, atual_uasg: str) -> str:
+    """Barra de OMDS: cada unidade COM dados vira um link para sua página; as sem
+    dados ficam como chip apagado ('aguardando coleta'). Navegação por link —
+    cada página já vem pronta (tema/brasão/dados no servidor), sem troca por JS."""
     chips = []
     for u in UNIDADES:
-        coletado = u["uasg"] == UASG_ALVO
-        atual = "true" if coletado else "false"
-        selo = "" if coletado else '<span class="omds-selo" title="Aguardando coleta">•</span>'
-        chips.append(
-            f'<button class="omds" data-sigla="{esc(u["sigla"])}" '
-            f'aria-current="{atual}" '
-            f'title="{esc(u["nome"])}{"" if coletado else " — aguardando coleta"}">'
-            f'<img src="assets/logos/{esc(u["logo"])}" alt="" loading="lazy" '
-            f'onerror="this.style.display=\'none\'">'
-            f'<span>{esc(u["sigla"])}</span>{selo}</button>')
+        tem = u["uasg"] in com_dados
+        eh_atual = u["uasg"] == atual_uasg
+        logo = (f'<img src="assets/logos/{esc(u["logo"])}" alt="" loading="lazy" '
+                f'onerror="this.style.display=\'none\'"><span>{esc(u["sigla"])}</span>')
+        if tem:
+            chips.append(
+                f'<a class="omds" href="{pagina_da_unidade(u)}" '
+                f'aria-current="{"true" if eh_atual else "false"}" '
+                f'title="{esc(u["nome"])}">{logo}</a>')
+        else:
+            chips.append(
+                f'<span class="omds omds-off" aria-current="false" '
+                f'title="{esc(u["nome"])} — aguardando coleta">{logo}'
+                f'<span class="omds-selo" title="Aguardando coleta">•</span></span>')
     return "".join(chips)
 
 
@@ -520,7 +545,7 @@ def _tabela_planejamento(planejamento: list) -> str:
     return "\n".join(linhas)
 
 
-def render(m: dict, hist: list[dict]) -> str:
+def render(m: dict, hist: list[dict], com_dados: set) -> str:
     tpl = _TEMPLATE
     ativa = unidade_ativa()
     subs = {
@@ -531,8 +556,7 @@ def render(m: dict, hist: list[dict]) -> str:
         "%%UNIDADE_CURTA%%": ativa["sigla"],
         "%%EMBLEMA%%": f'assets/logos/{ativa["logo"]}',
         "%%ACCENT%%": ativa["accent"],
-        "%%OMDS_NAV%%": omds_nav_html(),
-        "%%UNIDADES_JSON%%": unidades_json(),
+        "%%OMDS_NAV%%": omds_nav_html(com_dados, ativa["uasg"]),
         "%%TABELA_PLANEJ%%": _tabela_planejamento(m["planejamento"]),
         "%%N_PLANEJ%%": fmt_int(len(m["planejamento"])),
         "%%CAP_TOTAL%%": fmt_brl(m["cap_total"]),
@@ -641,8 +665,11 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
 .omds{display:inline-flex;align-items:center;gap:7px;flex:none;cursor:pointer;
   background:var(--surface-2);border:1px solid var(--border);border-radius:999px;
   padding:5px 13px 5px 6px;font:12.5px var(--sans);color:var(--ink-2);
+  text-decoration:none;
   transition:background .15s,border-color .15s,color .15s}
-.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
+a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
+.omds-off{opacity:.5;cursor:default}
+.omds-off:hover{border-color:var(--border);color:var(--ink-2)}
 .omds img{height:24px;width:24px;object-fit:contain;border-radius:50%;
   background:#fff;padding:1px}
 .omds[aria-current="true"]{background:var(--accent);border-color:var(--accent);
@@ -1146,42 +1173,9 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     try{localStorage.setItem(KEY, root.dataset.theme);}catch(e){}
   };
 
-  // -------------------------------------------------- troca de OMDS
-  // Só a UASG_ALVO desta geração tem dados (#painel). As demais mostram o
-  // painel "aguardando coleta" com o brasão e o acento da unidade.
-  var UNIDADES = %%UNIDADES_JSON%%;
-  var UKEY='bcms-omds', porSigla={};
-  UNIDADES.forEach(function(u){porSigla[u.sigla]=u;});
-  var emblema=document.getElementById('emblema');
-  var painel=document.getElementById('painel'), semColeta=document.getElementById('semColeta');
-
-  function trocaOMDS(sigla){
-    var u=porSigla[sigla]; if(!u) return;
-    root.style.setProperty('--accent', u.accent);
-    emblema.style.visibility='visible';          // reset (onerror pode ter escondido)
-    emblema.src='assets/logos/'+u.logo; emblema.alt='Brasão '+u.sigla;
-    document.getElementById('uNome').textContent=u.nome;
-    document.getElementById('uUasg').textContent=u.uasg?('UASG '+u.uasg):'UASG a definir';
-    document.title='Capacidade de Empenho — Atas '+u.sigla;
-    [].forEach.call(document.querySelectorAll('.omds'),function(c){
-      c.setAttribute('aria-current', c.dataset.sigla===sigla?'true':'false');});
-    if(u.coletado){
-      painel.style.display=''; semColeta.style.display='none';
-    }else{
-      painel.style.display='none'; semColeta.style.display='block';
-      document.getElementById('scEmblema').src='assets/logos/'+u.logo;
-      document.getElementById('scEmblema').alt='Brasão '+u.sigla;
-      document.getElementById('scNome').textContent=u.nome;
-      document.getElementById('scUasg').textContent=u.uasg?('UASG '+u.uasg):'';
-      window.scrollTo(0,0);
-    }
-    try{localStorage.setItem(UKEY, sigla);}catch(e){}
-  }
-  [].forEach.call(document.querySelectorAll('.omds'),function(c){
-    c.addEventListener('click',function(){trocaOMDS(c.dataset.sigla);});});
-  // restaura a última OM escolhida (se ainda existir no manifesto)
-  try{var ult=localStorage.getItem(UKEY);
-      if(ult && porSigla[ult]) trocaOMDS(ult);}catch(e){}
+  // Troca de OMDS: cada unidade é uma PÁGINA (index.html / <slug>.html), já
+  // pronta no servidor (tema, brasão, dados). Os brasões são links <a> — a
+  // navegação normal do navegador cuida da troca; nada a fazer aqui via JS.
 
   var LOTE=120;                       // linhas renderizadas por vez
   var tb=document.getElementById('tb'), corpo=tb.tBodies[0];
@@ -1745,6 +1739,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
 # ---------------------------------------------------------------- main
 def main() -> int:
+    global UASG_ALVO, NOME_UNIDADE, NOME_CURTO, UASG_PRIMARIO
     local = os.environ.get("SOURCE_XLSX", "").strip()
     if local:
         print(f"[INFO] Usando arquivo local: {local}")
@@ -1758,23 +1753,39 @@ def main() -> int:
             return 2
         fobj = baixar_do_drive(fid)
 
-    m = etl(carregar_linhas(fobj))
-    if not m["itens"]:
-        print(f"[ERRO] Nenhuma linha da UASG {UASG_ALVO} no consolidado — abortando "
-              "para não publicar um painel vazio.")
+    linhas = carregar_linhas(fobj)        # lê a planilha UMA vez
+
+    # 1) ETL de cada OMDS (mesmas linhas, filtro por UASG). Guarda as que têm dados.
+    resultados: dict = {}
+    for u in UNIDADES:
+        UASG_ALVO, NOME_UNIDADE, NOME_CURTO = u["uasg"], u["nome"], u["sigla"]
+        mu = etl(linhas)
+        if mu["itens"]:
+            resultados[u["uasg"]] = mu
+    if not resultados:
+        print("[ERRO] Nenhuma OMDS com dados no consolidado — abortando.")
         return 3
+    com_dados = set(resultados)
+    # index.html tem de existir: se a unidade primária não tem dados, promove a
+    # primeira (na ordem do manifesto) que tenha.
+    if UASG_PRIMARIO not in com_dados:
+        UASG_PRIMARIO = next(u["uasg"] for u in UNIDADES if u["uasg"] in com_dados)
 
-    hist = atualizar_historico(m)
+    # 2) Uma página por OMDS com dados (primária = index.html; demais = <slug>.html).
     os.makedirs(SITE, exist_ok=True)
-    saida = os.path.join(SITE, "index.html")
-    with open(saida, "w", encoding="utf-8") as f:
-        f.write(render(m, hist))
-
-    print(f"[OK] {saida} ({os.path.getsize(saida)/1024:.0f} KB)")
-    print(f"     Capacidade total: {fmt_brl(m['cap_total'])} "
-          f"({m['n_itens']} itens, {m['n_pregoes']} pregões)")
-    print(f"     Filtros: {len(m['op_cat'])} categorias · {len(m['op_nd'])} ND · "
-          f"{len(m['op_pregao'])} pregões · {len(m['op_tipo'])} tipos")
+    for u in UNIDADES:
+        if u["uasg"] not in com_dados:
+            print(f"[AVISO] {u['sigla']} (UASG {u['uasg']}) sem dados — página não gerada.")
+            continue
+        UASG_ALVO, NOME_UNIDADE, NOME_CURTO = u["uasg"], u["nome"], u["sigla"]
+        mu = resultados[u["uasg"]]
+        # o histórico (history.json é único) acompanha só a unidade primária
+        hist = atualizar_historico(mu) if u["uasg"] == UASG_PRIMARIO else []
+        arq = pagina_da_unidade(u)
+        with open(os.path.join(SITE, arq), "w", encoding="utf-8") as f:
+            f.write(render(mu, hist, com_dados))
+        print(f"[OK] {arq}: {fmt_brl(mu['cap_total'])} "
+              f"({mu['n_itens']} itens, {mu['n_pregoes']} pregões)")
     return 0
 
 
