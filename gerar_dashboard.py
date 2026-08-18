@@ -1055,7 +1055,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     <p class="cap"><b>Clique numa linha</b> para ver todos os detalhes do item ·
       clique nos títulos para ordenar · ↗ abre o item no Compras.gov.br. Atas já
       vencidas não são listadas.</p>
-    <div class="frow2" style="margin:0 0 14px">
+    <div class="frow2" style="margin:0 0 14px;align-items:center">
       <div class="seg" id="segSit" role="group" aria-label="Situação da ata (filtra apenas esta lista)">
         <button data-f="ativos" aria-pressed="true">Válidas</button>
         <button data-f="v30" aria-pressed="false">≤30 dias</button>
@@ -1063,6 +1063,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       </div>
       <button class="btn btn-pregao" id="btPregao" aria-pressed="false" hidden></button>
       <span class="cap" style="margin:0">Vigentes e vencendo — sem as vencidas.</span>
+      <button type="button" class="btn" id="btCsvItens" style="margin-left:auto"
+              title="Baixar em CSV a tabela com o filtro atual (abre no Excel)">⬇ Exportar tabela</button>
     </div>
     <div class="tblwrap">
       <table id="tb">
@@ -1457,6 +1459,35 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       x.setAttribute('aria-pressed', x.dataset.f==='ativos'?'true':'false');});
     status='ativos'; aplica();};
   btMais.onclick=function(){mostrando+=LOTE; pinta();};
+
+  // Exporta a tabela do FILTRO ATUAL (todos os itens de `filtrados`, não só a
+  // página visível) em CSV pt-BR (; + BOM, abre no Excel). Colunas completas,
+  // lidas dos data-* das linhas — os mesmos campos do detalhe.
+  document.getElementById('btCsvItens').onclick=function(){
+    if(!filtrados.length){ alert('Não há itens no filtro atual para exportar.'); return; }
+    var sep=';';
+    function c(v){ v=(v==null?'':''+v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+    function n(v){ return (v==null||v==='')?'':(''+v).replace('.', ','); }  // decimal pt-BR
+    var cab=['Pregao','UASG_Gerenciadora','Item','Descricao','CATMAT_Nome','CATMAT_Codigo',
+             'Categoria','ND_Sugerida','Subitem','Confianca_ND','Fornecedor','Nr_Ata',
+             'Inicio_Vigencia','Fim_Vigencia','Situacao','Qtd_Homologada','Qtd_Autorizada',
+             'Saldo','Valor_Unitario','Valor_Total_Homologado','Capacidade_saldoxunit','Link'];
+    var out=[cab.map(c).join(sep)];
+    filtrados.forEach(function(d){
+      var tr=d.tr, x=tr.dataset;
+      out.push([tr.cells[0].textContent.trim(), tr.cells[1].textContent.trim(),
+                tr.cells[2].textContent.trim(), x.desc||'', x.catmat||'', x.cod||'',
+                x.cat||'', x.nd||'', x.sub||'', x.conf||'', x.forn||'', x.nrata||'',
+                x.ini||'', x.fim||'', x.stlabel||'', n(x.qhom), n(x.qaut), n(x.saldo),
+                n(x.vu), n(x.vtot), n(x.cap), x.link||''].map(c).join(sep));
+    });
+    var blob=new Blob(['﻿'+out.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    var hoje=new Date().toISOString().slice(0,10);
+    a.href=url; a.download='capacidade_itens_%%UNIDADE_CURTA%%_'+hoje+'.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  };
 
   var ord={col:-1,asc:false};
   [].forEach.call(tb.tHead.rows[0].cells,function(th,i){
