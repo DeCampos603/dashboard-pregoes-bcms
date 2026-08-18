@@ -1064,7 +1064,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       <button class="btn btn-pregao" id="btPregao" aria-pressed="false" hidden></button>
       <span class="cap" style="margin:0">Vigentes e vencendo — sem as vencidas.</span>
       <button type="button" class="btn" id="btCsvItens" style="margin-left:auto"
-              title="Baixar em CSV a tabela com o filtro atual (abre no Excel)">⬇ Exportar tabela</button>
+              title="Baixar em Excel (.xlsx) a tabela com o filtro atual">⬇ Exportar Excel</button>
     </div>
     <div class="tblwrap">
       <table id="tb">
@@ -1122,7 +1122,7 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         </div>
         <span class="cap" style="margin:0" id="planResumo"></span>
         <button type="button" class="btn" id="btPlanCsv" style="margin-left:auto"
-                title="Baixar a lista visível em CSV (abre no Excel)">⬇ Exportar CSV</button>
+                title="Baixar a lista visível em Excel (.xlsx)">⬇ Exportar Excel</button>
       </div>
       <p class="cap">Cartões acima resumem os pregões por prazo — <b>clique</b> em um
         para filtrar a lista (clique de novo para ver todos). <b>Gerencia</b> = o BCMS
@@ -1196,6 +1196,63 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       status='ativos', verTudo=false, verTudoKey='', mostrando=LOTE, filtrados=[];
 
   function brl(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+
+  // ===== gerador de .xlsx (Excel real) em JS puro — o xlsx é um ZIP de XMLs =====
+  function _crc32(buf){
+    var t=_crc32.t; if(!t){t=_crc32.t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}}
+    var crc=-1; for(var i=0;i<buf.length;i++) crc=(crc>>>8)^t[(crc^buf[i])&255]; return (crc^-1)>>>0;
+  }
+  function _u8(s){return new TextEncoder().encode(s);}
+  function _zip(files){                      // STORE (sem compressão); Excel lê ok
+    var parts=[],cen=[],off=0;
+    function u16(n){return [n&255,(n>>8)&255];}
+    function u32(n){return [n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];}
+    files.forEach(function(f){
+      var nm=_u8(f.name),crc=_crc32(f.data),sz=f.data.length,lho=off;
+      var lh=new Uint8Array([].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nm.length),u16(0)));
+      parts.push(lh,nm,f.data); off+=lh.length+nm.length+sz;
+      cen.push(new Uint8Array([].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(lho))),nm);
+    });
+    var cs=0; cen.forEach(function(c){cs+=c.length;});
+    var eo=new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cs),u32(off),u16(0)));
+    var all=parts.concat(cen,[eo]),tot=0; all.forEach(function(a){tot+=a.length;});
+    var out=new Uint8Array(tot),p=0; all.forEach(function(a){out.set(a,p);p+=a.length;}); return out;
+  }
+  function _xe(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function baixarExcel(nome, cab, linhas, colsNum){
+    colsNum=colsNum||[];
+    function col(i){return String.fromCharCode(65+i);}      // até 26 colunas (A..Z)
+    var todas=[cab].concat(linhas), rows='';
+    todas.forEach(function(r,ri){
+      var cs='';
+      r.forEach(function(v,ci){
+        if(v===''||v==null) return;
+        var ref=col(ci)+(ri+1);
+        if(ri>0 && colsNum.indexOf(ci)>=0 && !isNaN(parseFloat(v)))
+          cs+='<c r="'+ref+'"><v>'+parseFloat(v)+'</v></c>';
+        else
+          cs+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+_xe(v)+'</t></is></c>';
+      });
+      rows+='<row r="'+(ri+1)+'">'+cs+'</row>';
+    });
+    var sheet='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+rows+'</sheetData></worksheet>';
+    var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>';
+    var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    var wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Dados" sheetId="1" r:id="rId1"/></sheets></workbook>';
+    var wbr='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>';
+    var zip=_zip([
+      {name:'[Content_Types].xml',data:_u8(ct)},
+      {name:'_rels/.rels',data:_u8(rels)},
+      {name:'xl/workbook.xml',data:_u8(wb)},
+      {name:'xl/_rels/workbook.xml.rels',data:_u8(wbr)},
+      {name:'xl/worksheets/sheet1.xml',data:_u8(sheet)}
+    ]);
+    var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    var url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url; a.download=nome+'.xlsx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  }
   function curto(v){
     if(Math.abs(v)>=1e6) return 'R$ '+(v/1e6).toFixed(2).replace('.',',')+' mi';
     if(Math.abs(v)>=1e3) return 'R$ '+Math.round(v/1e3)+' mil';
@@ -1461,32 +1518,24 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   btMais.onclick=function(){mostrando+=LOTE; pinta();};
 
   // Exporta a tabela do FILTRO ATUAL (todos os itens de `filtrados`, não só a
-  // página visível) em CSV pt-BR (; + BOM, abre no Excel). Colunas completas,
-  // lidas dos data-* das linhas — os mesmos campos do detalhe.
+  // página visível) em EXCEL (.xlsx). Colunas completas lidas dos data-* das
+  // linhas (mesmos campos do detalhe); valores/quantidades como número.
   document.getElementById('btCsvItens').onclick=function(){
     if(!filtrados.length){ alert('Não há itens no filtro atual para exportar.'); return; }
-    var sep=';';
-    function c(v){ v=(v==null?'':''+v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
-    function n(v){ return (v==null||v==='')?'':(''+v).replace('.', ','); }  // decimal pt-BR
     var cab=['Pregao','UASG_Gerenciadora','Item','Descricao','CATMAT_Nome','CATMAT_Codigo',
              'Categoria','ND_Sugerida','Subitem','Confianca_ND','Fornecedor','Nr_Ata',
              'Inicio_Vigencia','Fim_Vigencia','Situacao','Qtd_Homologada','Qtd_Autorizada',
              'Saldo','Valor_Unitario','Valor_Total_Homologado','Capacidade_saldoxunit','Link'];
-    var out=[cab.map(c).join(sep)];
-    filtrados.forEach(function(d){
+    var linhas=filtrados.map(function(d){
       var tr=d.tr, x=tr.dataset;
-      out.push([tr.cells[0].textContent.trim(), tr.cells[1].textContent.trim(),
-                tr.cells[2].textContent.trim(), x.desc||'', x.catmat||'', x.cod||'',
-                x.cat||'', x.nd||'', x.sub||'', x.conf||'', x.forn||'', x.nrata||'',
-                x.ini||'', x.fim||'', x.stlabel||'', n(x.qhom), n(x.qaut), n(x.saldo),
-                n(x.vu), n(x.vtot), n(x.cap), x.link||''].map(c).join(sep));
+      return [tr.cells[0].textContent.trim(), tr.cells[1].textContent.trim(),
+              tr.cells[2].textContent.trim(), x.desc||'', x.catmat||'', x.cod||'',
+              x.cat||'', x.nd||'', x.sub||'', x.conf||'', x.forn||'', x.nrata||'',
+              x.ini||'', x.fim||'', x.stlabel||'', x.qhom||'', x.qaut||'', x.saldo||'',
+              x.vu||'', x.vtot||'', x.cap||'', x.link||''];
     });
-    var blob=new Blob(['﻿'+out.join('\r\n')],{type:'text/csv;charset=utf-8;'});
-    var url=URL.createObjectURL(blob), a=document.createElement('a');
     var hoje=new Date().toISOString().slice(0,10);
-    a.href=url; a.download='capacidade_itens_%%UNIDADE_CURTA%%_'+hoje+'.csv';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+    baixarExcel('capacidade_itens_%%UNIDADE_CURTA%%_'+hoje, cab, linhas, [15,16,17,18,19,20]);
   };
 
   var ord={col:-1,asc:false};
@@ -1577,14 +1626,12 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       [].forEach.call(document.querySelectorAll('#planPapel button'),function(x){
         x.setAttribute('aria-pressed','false');});
       b.setAttribute('aria-pressed','true'); planP=b.dataset.p; aplicaPlanej();};});
-  // Exporta a lista VISÍVEL (respeita banda + papel) em CSV pt-BR (; e BOM,
-  // abre direto no Excel). Usa os dados completos das linhas, não o texto cortado.
+  // Exporta a lista VISÍVEL (respeita banda + papel) em EXCEL (.xlsx). Usa os
+  // dados completos das linhas (não o texto cortado); Itens/Capacidade número.
   document.getElementById('btPlanCsv').onclick=function(){
-    var sep=';';
-    function c(v){ v=(v==null?'':''+v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
     var cab=['Vencimento','Situacao','Pregao','UASG_Gerenciadora','Papel','Objeto',
              'Itens','Capacidade_saldo_R$','Fornecedores'];
-    var out=[cab.map(c).join(sep)];
+    var linhas=[];
     planLinhas.forEach(function(tr){
       if(tr.style.display==='none') return;
       var venc=(tr.cells[0].querySelector('b')||{}).textContent||'';
@@ -1596,14 +1643,11 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       var itens=tr.cells[4].dataset.v||tr.cells[4].textContent.trim();
       var capv=tr.cells[5].dataset.v||'0';
       var forn=(tr.cells[6].getAttribute('title')||tr.cells[6].textContent).trim();
-      out.push([venc,sit,pg,ger,papel,obj,itens,capv,forn].map(c).join(sep));
+      linhas.push([venc,sit,pg,ger,papel,obj,itens,capv,forn]);
     });
-    var blob=new Blob(['﻿'+out.join('\r\n')],{type:'text/csv;charset=utf-8;'});
-    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    if(!linhas.length){ alert('Nada para exportar neste filtro.'); return; }
     var hoje=new Date().toISOString().slice(0,10);
-    a.href=url; a.download='planejamento_atas_%%UNIDADE_CURTA%%_'+hoje+'.csv';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+    baixarExcel('planejamento_atas_%%UNIDADE_CURTA%%_'+hoje, cab, linhas, [6,7]);
   };
   var pord={col:-1,asc:false};
   [].forEach.call(planTb.tHead.rows[0].cells,function(th,i){
