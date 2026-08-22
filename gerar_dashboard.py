@@ -1708,7 +1708,28 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     g.appendChild(campo('ND sugerida', d.nd));
     g.appendChild(campo('Subitem sugerido', d.sub));
     g.appendChild(campo('Confiança da ND', d.conf));
-    g.appendChild(campo('Fornecedor', d.forn, true));
+    var campoForn = campo('Fornecedor', d.forn, true);
+    var matchCnpj = (d.forn || '').match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+    if (matchCnpj) {
+      var cnpjStr = matchCnpj[0].replace(/\D/g, '');
+      var btnRaiox = mk('button', 'btn-raiox', '🔍 Raio-X do Fornecedor');
+      btnRaiox.style.cssText = 'margin-top: 8px; background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-block; transition: all 0.2s;';
+      btnRaiox.onmouseover = function() { this.style.background = 'var(--primary)'; this.style.color = '#fff'; };
+      btnRaiox.onmouseout = function() { this.style.background = 'color-mix(in srgb, var(--primary) 10%, transparent)'; this.style.color = 'var(--primary)'; };
+      btnRaiox.onclick = function() {
+        modalBody.innerHTML = '';
+        var backBtn = mk('button', null, '← Voltar ao Item');
+        backBtn.style.cssText = 'margin-bottom: 12px; background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-weight: 500; font-size: 13px;';
+        backBtn.onclick = function() { detalheItem(tr); };
+        modalBody.appendChild(backBtn);
+        var ifrm = mk('iframe');
+        ifrm.src = 'http://127.0.0.1:8000/?cnpj=' + cnpjStr;
+        ifrm.style.cssText = 'width: 100%; height: 75vh; border: 1px solid var(--border); border-radius: 8px; background: #fff;';
+        modalBody.appendChild(ifrm);
+      };
+      campoForn.appendChild(btnRaiox);
+    }
+    g.appendChild(campoForn);
     modalBody.appendChild(g);
     modalBody.appendChild(mk('div','m-sec','Ata e vigência'));
     var g2=mk('div','m-grid');
