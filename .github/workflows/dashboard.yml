@@ -3,6 +3,8 @@ name: Atualizar Dashboard Pregões
 # Roda todo dia (cron em UTC; 11:30 UTC = 08:30 de Brasília) e sob demanda.
 # O agendamento do GitHub é "melhor esforço" (pode atrasar alguns minutos).
 on:
+  push:
+    branches: ["main"]
   schedule:
     - cron: "30 11 * * *"
   workflow_dispatch: {}
