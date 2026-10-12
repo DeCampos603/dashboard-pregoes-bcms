@@ -420,19 +420,21 @@ _ST_ICONE = {"vig": "●", "v30": "▲", "venc": "✕", "semata": "○", "semdad
 
 
 def _barras(pares: list) -> str:
-    """Barras horizontais: série única (uma cor), ponta arredondada 4px,
-    base reta, trilho = passo claro do mesmo matiz."""
+    """Barras horizontais: série única com top 3 destacado e percentual relativo."""
     if not pares:
         return '<p class="vazio">Sem dados para este filtro.</p>'
     topo = pares[0][1] or 1
+    total_geral = sum(v for _, v in pares) or 1
     out = []
-    for rotulo, valor in pares:
-        pct = max(valor / topo * 100, 1.5)
+    for idx, (rotulo, valor) in enumerate(pares):
+        pct_bar = max(valor / topo * 100, 1.5)
+        pct_tot = (valor / total_geral * 100) if total_geral else 0
+        rank_badge = f'<span class="rank-pos rank-{idx+1}">{idx+1}º</span> ' if idx < 3 else ""
         out.append(
             f'<div class="brow" tabindex="0" data-lab="{esc(rotulo)}" data-val="{fmt_brl(valor)}">'
-            f'<div class="blabel">{esc(rotulo, 30)}</div>'
-            f'<div class="btrack"><div class="bfill" style="width:{pct:.1f}%"></div></div>'
-            f'<div class="bval">{fmt_short(valor)}</div></div>')
+            f'<div class="blabel" title="{esc(rotulo)}">{rank_badge}{esc(rotulo, 30)}</div>'
+            f'<div class="btrack"><div class="bfill{" bfill-top" if idx < 3 else ""}" style="width:{pct_bar:.1f}%"></div></div>'
+            f'<div class="bval"><span class="bval-num">{fmt_short(valor)}</span><span class="bval-pct">{pct_tot:.1f}%</span></div></div>')
     return "".join(out)
 
 
@@ -808,15 +810,16 @@ a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
 .seg button[aria-pressed="true"]{background:var(--primary);color:#fff;font-weight:600}
 [data-theme="dark"] .seg button[aria-pressed="true"]{color:#0B1219}
 
-/* ---------------------------------------------------------------- KPIs */
+/* ---------------------------------------------------------------- KPIs (Padrão Tremor & IBM Carbon) */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:16px 0}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;box-shadow:var(--shadow)}
-.kpi .lbl{font-size:12.5px;color:var(--ink-muted)}
+.kpi{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px 18px;box-shadow:var(--shadow);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.kpi:hover{transform:translateY(-2px);border-color:var(--border-2);box-shadow:var(--shadow-2)}
+.kpi .lbl{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-muted)}
 .kpi .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:3px;
-  font-variant-numeric:proportional-nums}
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 .kpi .v.warn{color:var(--warning)} .kpi .v.bad{color:var(--danger)}
-.kpi .hint{font-size:11.5px;color:var(--ink-muted);margin-top:3px}
+.kpi .hint{font-size:11.5px;color:var(--ink-muted);margin-top:4px}
 
 /* ---------------------------------------------------------------- cards */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
@@ -831,20 +834,29 @@ a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
 @media(max-width:860px){.grid2{grid-template-columns:1fr}}
 
 /* ---------------------------------------------------------------- barras
-   Série única (uma cor). Ponta de dado 4px arredondada, base reta. */
-.brow{display:grid;grid-template-columns:minmax(90px,150px) 1fr 84px;gap:12px;
-  align-items:center;padding:4px 6px;margin:0 -6px;border-radius:var(--r-sm);
-  cursor:pointer;transition:background .12s}
+   Visualização Analítica: Direct Labeling, Percentual do Todo e Pódio Top 3 */
+.brow{display:grid;grid-template-columns:minmax(100px,160px) 1fr 92px;gap:12px;
+  align-items:center;padding:5px 8px;margin:0 -6px;border-radius:var(--r-sm);
+  cursor:pointer;transition:background .15s}
 .brow:hover,.brow:focus-visible{background:var(--surface-3)}
 .brow:active{background:var(--track)}
 .blabel{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis}
-.btrack{background:var(--track);border-radius:0 6px 6px 0;height:13px;overflow:hidden}
+  text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
+.rank-pos{font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;
+  background:var(--surface-3);color:var(--ink-muted);line-height:1.2;flex:none}
+.rank-1{background:rgba(200,144,30,.15);color:#B5822B;border:1px solid rgba(200,144,30,.35)}
+.rank-2{background:rgba(100,116,139,.12);color:var(--ink-2);border:1px solid rgba(100,116,139,.25)}
+.rank-3{background:rgba(180,83,9,.12);color:#B45309;border:1px solid rgba(180,83,9,.25)}
+.btrack{background:var(--track);border-radius:0 6px 6px 0;height:14px;overflow:hidden}
 .bfill{height:100%;background:var(--primary);border-radius:0 4px 4px 0;
   transition:width .25s ease}
+.bfill-top{background:var(--primary-600, #2563EB);filter:saturate(1.2)}
 .brow:hover .bfill{filter:brightness(1.12)}
 .bval{font-size:12px;text-align:right;color:var(--ink-2);
-  font-variant-numeric:tabular-nums;white-space:nowrap}
+  font-variant-numeric:tabular-nums;white-space:nowrap;display:flex;flex-direction:column;
+  align-items:flex-end;line-height:1.2}
+.bval-num{font-weight:600}
+.bval-pct{font-size:10px;color:var(--ink-muted);font-weight:500}
 .vazio{color:var(--ink-muted);font-size:13px;padding:14px 0;text-align:center}
 
 /* ---------------------------------------------------------------- tabelas */
@@ -1286,14 +1298,25 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     el.textContent='';
     if(!arr.length){el.appendChild(elem('p','vazio','Sem dados para este filtro.'));return;}
     var topo=arr[0][1]||1;
-    arr.forEach(function(p){
+    var totalGeral=arr.reduce(function(acc,x){return acc+x[1];},0)||1;
+    arr.forEach(function(p,idx){
       var row=elem('div','brow'); row.tabIndex=0; row.setAttribute('role','button');
       row.setAttribute('aria-label','Filtrar por '+p[0]); row.title='Filtrar por '+p[0];
-      row.appendChild(elem('div','blabel',p[0]));
-      var tr=elem('div','btrack'), fl=elem('div','bfill');
+      var lblDiv=elem('div','blabel');
+      if(idx<3){
+        var rk=elem('span','rank-pos rank-'+(idx+1),(idx+1)+'º');
+        lblDiv.appendChild(rk);
+      }
+      lblDiv.appendChild(document.createTextNode(p[0]));
+      row.appendChild(lblDiv);
+      var tr=elem('div','btrack'), fl=elem('div','bfill'+(idx<3?' bfill-top':''));
       fl.style.width=Math.max(p[1]/topo*100,1.5).toFixed(1)+'%';
       tr.appendChild(fl); row.appendChild(tr);
-      row.appendChild(elem('div','bval',curto(p[1])));
+      var valDiv=elem('div','bval');
+      valDiv.appendChild(elem('span','bval-num',curto(p[1])));
+      var pctTot=((p[1]/totalGeral)*100).toFixed(1)+'%';
+      valDiv.appendChild(elem('span','bval-pct',pctTot));
+      row.appendChild(valDiv);
       var lab=p[0], val=brl(p[1]), fval=p[2];
       row.addEventListener('pointermove',function(e){mostraTip(e,lab,val);});
       row.addEventListener('pointerleave',escondeTip);
