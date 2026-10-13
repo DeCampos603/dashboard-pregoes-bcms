@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="light" style="--accent:#DB2819">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Capacidade de Empenho — Atas BCMS</title>
 <style>
@@ -262,6 +262,18 @@ a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
 
 /* ---------------------------------------------------------------- tabelas */
 .tblwrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+@media(max-width:640px){
+  .tblwrap::before{
+    content:"👉 Deslize para o lado para ver mais colunas";
+    display:block;
+    font-size:11px;
+    font-weight:600;
+    color:var(--text-muted, #888);
+    padding:6px 10px;
+    background:rgba(0,0,0,0.04);
+    border-bottom:1px dashed var(--border);
+  }
+}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 th,td{padding:8px 9px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
 thead th{position:sticky;top:0;background:var(--surface);z-index:1;
