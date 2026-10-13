@@ -363,6 +363,71 @@ def etl(linhas: list[dict]) -> dict:
             p["forns"].add(i["forn"])
     planejamento = sorted(planej.values(), key=lambda p: p["fim"])
 
+    # PREENCHIMENTO SAG:
+    # Agrega todos os pregões mapeados da OM, diferenciando:
+    # - Gerenciador (UASG_Gerenciadora == UASG_ALVO): Total homologado de todos os itens do pregão.
+    # - Participante (UASG_Gerenciadora != UASG_ALVO): Cota total de participação da OM (Qtd Aut × VU).
+    sag_map = {}
+    for i in itens:
+        k = i["key"]
+        p = sag_map.get(k)
+        if p is None:
+            eh_ger = str(i["ger"]).startswith(UASG_ALVO)
+            ano = i["pregao"].split("/")[-1] if "/" in i["pregao"] else ""
+            p = sag_map[k] = {
+                "key": k,
+                "ger": i["ger"],
+                "pregao": i["pregao"],
+                "papel": "ger" if eh_ger else "part",
+                "ano": ano,
+                "itens": {},
+                "cats": {},
+                "catmats": {},
+                "forns": set(),
+                "fim": i["fim"],
+                "st": i["st"],
+                "link": i.get("link", ""),
+            }
+        nr = i["nr"]
+        if nr not in p["itens"]:
+            vtot = i["vtot"] or 0.0
+            vu = i["vu"] or 0.0
+            qaut = i["qaut"] or 0
+            cota = round(qaut * vu, 2)
+            p["itens"][nr] = {
+                "vtot": vtot,
+                "cota": cota,
+                "vu": vu,
+                "qaut": qaut,
+            }
+        p["cats"][i["cat"]] = p["cats"].get(i["cat"], 0) + 1
+        if i.get("catmat"):
+            p["catmats"][i["catmat"]] = p["catmats"].get(i["catmat"], 0) + 1
+        if str(i["forn"]).strip() not in ("", AUSENTE):
+            p["forns"].add(i["forn"])
+        if i["fim"]:
+            if p["fim"] is None or i["fim"] > p["fim"]:
+                p["fim"] = i["fim"]
+        if i["st"] == "vig" or (i["st"] == "v30" and p["st"] != "vig"):
+            p["st"] = i["st"]
+
+    sag_gerenciados = []
+    sag_participados = []
+    for p in sag_map.values():
+        if p["papel"] == "ger":
+            p["valor"] = sum(it["vtot"] for it in p["itens"].values())
+            sag_gerenciados.append(p)
+        else:
+            p["valor"] = sum(it["cota"] for it in p["itens"].values())
+            sag_participados.append(p)
+
+    sag_gerenciados.sort(key=lambda p: (p["ano"], p["valor"]), reverse=True)
+    sag_participados.sort(key=lambda p: (p["ano"], p["valor"]), reverse=True)
+
+    tot_sag_ger = sum(p["valor"] for p in sag_gerenciados)
+    tot_sag_part = sum(p["valor"] for p in sag_participados)
+    tot_sag_geral = tot_sag_ger + tot_sag_part
+
     return {
         "hoje": hoje,
         "posicao": max(datas_coleta).strftime("%d/%m/%Y") if datas_coleta else hoje.strftime("%d/%m/%Y"),
@@ -384,6 +449,14 @@ def etl(linhas: list[dict]) -> dict:
         "op_forn": [o for o in opcoes("forn")
                     if str(o[0]).strip() not in ("", AUSENTE)],
         "planejamento": planejamento,
+        "sag_gerenciados": sag_gerenciados,
+        "sag_participados": sag_participados,
+        "tot_sag_ger": tot_sag_ger,
+        "tot_sag_part": tot_sag_part,
+        "tot_sag_geral": tot_sag_geral,
+        "n_sag_ger": len(sag_gerenciados),
+        "n_sag_part": len(sag_participados),
+        "n_sag_total": len(sag_gerenciados) + len(sag_participados),
     }
 
 
@@ -563,6 +636,87 @@ def _tabela_planejamento(planejamento: list) -> str:
     return "\n".join(linhas)
 
 
+def _objeto_sag(p: dict) -> tuple[str, str]:
+    """Retorna (objeto_curto, objeto_completo_para_tooltip) sintetizado."""
+    cats = sorted(p["cats"].items(), key=lambda x: (x[0] == AUSENTE, -x[1]))
+    cat_str = " · ".join([c[0] for c in cats[:2]]) if cats else "Diversos"
+    catmats = sorted(p["catmats"].items(), key=lambda x: -x[1])
+    mats_top = [m[0].title() for m in catmats[:2] if m[0]]
+    if mats_top:
+        curto = f"{cat_str} ({', '.join(mats_top)})"
+    else:
+        curto = cat_str
+    mats_all = [m[0].title() for m in catmats[:8] if m[0]]
+    detalhes = f"{cat_str} — Principais itens: {', '.join(mats_all)}" if mats_all else cat_str
+    return curto, detalhes
+
+
+def _tabela_sag_gerenciados(gerenciados: list) -> str:
+    """Linhas da tabela de pregões gerenciados para o SAG."""
+    linhas = []
+    for p in gerenciados:
+        curto, detalhe = _objeto_sag(p)
+        fim = p["fim"].strftime("%d/%m/%Y") if p["fim"] else "—"
+        forns_txt = "; ".join(f.split(" - ", 1)[-1] for f in p["forns"])
+        st = p["st"]
+        st_tag = (f'<span class="tag tag-{st}"><span aria-hidden="true">{_ST_ICONE.get(st, "●")}</span>'
+                  f'{_ST_LABEL.get(st, st)}</span>')
+        search_txt = f"{p['pregao']} {p['ger']} {p['ano']} {curto} {forns_txt}".lower()
+        linhas.append(
+            f'<tr data-key="{esc(p["key"])}" data-pregao="{esc(p["pregao"])}" data-papel="ger"'
+            f' data-ano="{esc(p["ano"])}" data-valor="{p["valor"]:.2f}" data-ger="{esc(str(p["ger"]))}"'
+            f' data-search="{esc(search_txt, 300)}" tabindex="0"'
+            f' aria-label="Pregão gerenciado {esc(p["pregao"])}">'
+            f'<td><b>{esc(p["pregao"])}</b></td>'
+            f'<td class="pl-obj" title="{esc(detalhe, 240)}">{esc(curto, 60)}</td>'
+            f'<td class="num" data-v="{len(p["itens"])}">{fmt_int(len(p["itens"]))}</td>'
+            f'<td class="num" data-v="{p["valor"]:.2f}"><strong>{fmt_brl(p["valor"])}</strong></td>'
+            f'<td style="white-space:nowrap">{fim}</td>'
+            f'<td>{st_tag}</td>'
+            f'<td style="text-align:center">'
+            f'<button type="button" class="btn-copiar-linha" data-copia="{esc(p["pregao"])}\tGerenciador\t{esc(str(p["ger"]))}\t{esc(curto)}\t{len(p["itens"])}\t{p["valor"]:.2f}\t{fim}\t{_ST_LABEL.get(st, st)}"'
+            f' title="Copiar dados desta linha para o SAG">📋</button>'
+            f'</td>'
+            f'</tr>')
+    return "\n".join(linhas) if linhas else '<tr><td colspan="7" class="muted">Nenhum pregão gerenciador encontrado.</td></tr>'
+
+
+def _tabela_sag_participados(participados: list) -> str:
+    """Linhas da tabela de pregões participantes para o SAG."""
+    linhas = []
+    for p in participados:
+        curto, detalhe = _objeto_sag(p)
+        fim = p["fim"].strftime("%d/%m/%Y") if p["fim"] else "—"
+        omd = OM_POR_UASG.get(str(p["ger"]).strip())
+        sigla = omd["sigla"] if omd else ""
+        nome_om = omd["nome"] if omd else ""
+        ger_html = (f'<b>{esc(p["ger"])}</b><span class="pl-om" title="{esc(nome_om)}">{esc(sigla)}</span>'
+                    if sigla else f'<b>{esc(p["ger"])}</b>')
+        forns_txt = "; ".join(f.split(" - ", 1)[-1] for f in p["forns"])
+        st = p["st"]
+        st_tag = (f'<span class="tag tag-{st}"><span aria-hidden="true">{_ST_ICONE.get(st, "●")}</span>'
+                  f'{_ST_LABEL.get(st, st)}</span>')
+        search_txt = f"{p['pregao']} {p['ger']} {sigla} {nome_om} {p['ano']} {curto} {forns_txt}".lower()
+        linhas.append(
+            f'<tr data-key="{esc(p["key"])}" data-pregao="{esc(p["pregao"])}" data-papel="part"'
+            f' data-ano="{esc(p["ano"])}" data-valor="{p["valor"]:.2f}" data-ger="{esc(str(p["ger"]))}"'
+            f' data-om="{esc(sigla)}" data-search="{esc(search_txt, 300)}" tabindex="0"'
+            f' aria-label="Pregão participante {esc(p["pregao"])}">'
+            f'<td><b>{esc(p["pregao"])}</b></td>'
+            f'<td class="pl-ger" title="{esc(nome_om)}">{ger_html}</td>'
+            f'<td class="pl-obj" title="{esc(detalhe, 240)}">{esc(curto, 54)}</td>'
+            f'<td class="num" data-v="{len(p["itens"])}">{fmt_int(len(p["itens"]))}</td>'
+            f'<td class="num" data-v="{p["valor"]:.2f}"><strong>{fmt_brl(p["valor"])}</strong></td>'
+            f'<td style="white-space:nowrap">{fim}</td>'
+            f'<td>{st_tag}</td>'
+            f'<td style="text-align:center">'
+            f'<button type="button" class="btn-copiar-linha" data-copia="{esc(p["pregao"])}\tParticipante\t{esc(str(p["ger"]))} {sigla}\t{esc(curto)}\t{len(p["itens"])}\t{p["valor"]:.2f}\t{fim}\t{_ST_LABEL.get(st, st)}"'
+            f' title="Copiar dados desta linha para o SAG">📋</button>'
+            f'</td>'
+            f'</tr>')
+    return "\n".join(linhas) if linhas else '<tr><td colspan="8" class="muted">Nenhum pregão participante encontrado.</td></tr>'
+
+
 def render(m: dict, hist: list[dict], com_dados: set) -> str:
     tpl = _TEMPLATE
     ativa = unidade_ativa()
@@ -577,6 +731,14 @@ def render(m: dict, hist: list[dict], com_dados: set) -> str:
         "%%OMDS_NAV%%": omds_nav_html(com_dados, ativa["uasg"]),
         "%%TABELA_PLANEJ%%": _tabela_planejamento(m["planejamento"]),
         "%%N_PLANEJ%%": fmt_int(len(m["planejamento"])),
+        "%%TABELA_SAG_GER%%": _tabela_sag_gerenciados(m["sag_gerenciados"]),
+        "%%TABELA_SAG_PART%%": _tabela_sag_participados(m["sag_participados"]),
+        "%%N_SAG_GER%%": fmt_int(m["n_sag_ger"]),
+        "%%N_SAG_PART%%": fmt_int(m["n_sag_part"]),
+        "%%N_SAG_TOTAL%%": fmt_int(m["n_sag_total"]),
+        "%%TOT_SAG_GER%%": fmt_brl(m["tot_sag_ger"]),
+        "%%TOT_SAG_PART%%": fmt_brl(m["tot_sag_part"]),
+        "%%TOT_SAG_GERAL%%": fmt_brl(m["tot_sag_geral"]),
         "%%CAP_TOTAL%%": fmt_brl(m["cap_total"]),
         "%%CAP_VIG%%": fmt_brl(m["cap_vig"]),
         "%%CAP_V30%%": fmt_brl(m["cap_v30"]),
@@ -755,6 +917,35 @@ a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
 .pl-papel{display:block;font-size:11px;font-weight:600;margin-top:1px}
 .pl-papel.p-ger{color:var(--accent)}
 .pl-papel.p-part{color:var(--ink-muted);font-weight:500}
+
+/* ==================== SAG (PREENCHIMENTO SAG) ==================== */
+.sag-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 14px}
+@media(max-width:768px){.sag-kpis{grid-template-columns:1fr}}
+.sag-kpi-card{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-sm);
+  padding:14px 16px;display:flex;flex-direction:column;gap:3px;text-align:left;transition:background .15s,box-shadow .15s;min-width:0;width:100%}
+.sag-kpi-card.sag-kpi-tot{border-left:4px solid var(--primary)}
+.sag-kpi-card.sag-kpi-ger{border-left:4px solid var(--accent);cursor:pointer}
+.sag-kpi-card.sag-kpi-part{border-left:4px solid #0070F3;cursor:pointer}
+.sag-kpi-card:hover{background:var(--surface-3)}
+.sag-kpi-card[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
+.sag-kpi-val{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+.sag-kpi-lb{font-size:12.5px;font-weight:600;color:var(--ink-muted)}
+.sag-kpi-sub{font-size:11.5px;color:var(--ink-muted);font-weight:500}
+
+.sag-bloco{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-sm);padding:16px;transition:opacity .15s;margin-bottom:18px}
+.sag-bloco-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-2)}
+.sag-bloco-tit{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sag-bloco-tit h3{margin:0;font-size:16px;font-weight:700;color:var(--ink)}
+.sag-bloco-total{font-size:13.5px;font-weight:700;color:var(--ink);background:var(--surface-2);padding:5px 12px;border-radius:6px;border:1px solid var(--border)}
+
+.sag-tag{display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.sag-tag-ger{background:color-mix(in srgb, var(--accent) 15%, transparent);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 30%, transparent)}
+.sag-tag-part{background:color-mix(in srgb, #0070F3 15%, transparent);color:#0070F3;border:1px solid color-mix(in srgb, #0070F3 30%, transparent)}
+
+.tb-sag td.num{font-variant-numeric:tabular-nums;text-align:right}
+.tb-sag td strong{font-weight:700}
+.btn-copiar-linha{background:none;border:1px solid var(--border);border-radius:4px;padding:3px 7px;cursor:pointer;font-size:12px;color:var(--ink-muted);transition:background .12s,color .12s,border-color .12s}
+.btn-copiar-linha:hover{background:var(--surface-3);color:var(--ink);border-color:var(--ink-muted)}
 
 /* ---------------------------------------------------------------- hero */
 .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
@@ -996,6 +1187,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
             aria-controls="tab-capacidade">Capacidade de empenho</button>
     <button class="tab" id="tabPlan" role="tab" aria-selected="false"
             aria-controls="tab-planejamento">📅 Planejamento · atas vencendo</button>
+    <button class="tab" id="tabSag" role="tab" aria-selected="false"
+            aria-controls="tab-sag">📋 Preenchimento Sag</button>
   </nav>
 
   <div id="tab-capacidade" role="tabpanel">
@@ -1172,6 +1365,125 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
         Nenhuma ata vencendo neste horizonte.</p>
     </section>
   </div><!-- /tab-planejamento -->
+
+  <div id="tab-sag" role="tabpanel" hidden>
+    <section class="hero" style="--accent:var(--primary)">
+      <p class="hero-label">Sistema de Acompanhamento da Gestão (SAG)</p>
+      <p class="hero-big" id="sagTitulo" style="font-size:clamp(26px,4vw,34px)">%%TOT_SAG_GERAL%%</p>
+      <p class="hero-cap">Consolidado para prestação de contas no SAG: <b>pregões gerenciadores</b> (valor total homologado do pregão) e <b>pregões participantes</b> (cota total de participação da OM).</p>
+    </section>
+
+    <section class="card">
+      <div class="sag-kpis" role="group" aria-label="Resumo SAG">
+        <div class="sag-kpi-card sag-kpi-tot">
+          <span class="sag-kpi-val" id="sagCardTotVal">%%TOT_SAG_GERAL%%</span>
+          <span class="sag-kpi-lb">Total Mapeado SAG</span>
+          <span class="sag-kpi-sub" id="sagCardTotQtd">%%N_SAG_TOTAL%% pregões no painel</span>
+        </div>
+        <button type="button" class="sag-kpi-card sag-kpi-ger" id="cardFiltroGer" data-papel="ger" aria-pressed="false"
+                title="Filtrar apenas pregões gerenciadores">
+          <span class="sag-kpi-val" id="sagCardGerVal">%%TOT_SAG_GER%%</span>
+          <span class="sag-kpi-lb">👑 Gerenciador (Pregão Total)</span>
+          <span class="sag-kpi-sub" id="sagCardGerQtd">%%N_SAG_GER%% pregões gerenciados</span>
+        </button>
+        <button type="button" class="sag-kpi-card sag-kpi-part" id="cardFiltroPart" data-papel="part" aria-pressed="false"
+                title="Filtrar apenas pregões participantes">
+          <span class="sag-kpi-val" id="sagCardPartVal">%%TOT_SAG_PART%%</span>
+          <span class="sag-kpi-lb">🤝 Participante (Cota da OM)</span>
+          <span class="sag-kpi-sub" id="sagCardPartQtd">%%N_SAG_PART%% cotas autorizadas</span>
+        </button>
+      </div>
+
+      <div class="frow2" style="margin:16px 0 10px;align-items:center;flex-wrap:wrap;gap:8px">
+        <div class="seg" id="sagPapel" role="group" aria-label="Filtrar por papel">
+          <button data-p="all" aria-pressed="true">Todos (%%N_SAG_TOTAL%%)</button>
+          <button data-p="ger" aria-pressed="false">👑 Gerenciadores (%%N_SAG_GER%%)</button>
+          <button data-p="part" aria-pressed="false">🤝 Participantes (%%N_SAG_PART%%)</button>
+        </div>
+
+        <div class="seg" id="sagAno" role="group" aria-label="Filtrar por ano">
+          <button data-ano="all" aria-pressed="true">Todos Anos</button>
+          <button data-ano="2026" aria-pressed="false">2026</button>
+          <button data-ano="2025" aria-pressed="false">2025</button>
+          <button data-ano="2024" aria-pressed="false">2024</button>
+        </div>
+
+        <input id="sagBusca" type="search" placeholder="Buscar nº pregão, objeto, gerenciador…"
+               style="max-width:280px;flex:1" aria-label="Buscar na tabela SAG">
+
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button type="button" class="btn" id="btSagCopiar"
+                  title="Copiar linhas visíveis tabuladas para colar direto no Excel do SAG">📋 Copiar Tabela</button>
+          <button type="button" class="btn" id="btSagExcel"
+                  title="Baixar lista visível em planilha Excel (.xlsx)">⬇ Exportar Excel</button>
+        </div>
+      </div>
+
+      <p class="cap" id="sagAvisoFiltro">
+        Organizado por <b>Pregões Gerenciadores</b> (valor total homologado do certame) e <b>Pregões Participantes</b> (cota de participação autorizada da OM). Clique nos títulos das colunas para ordenar.
+      </p>
+
+      <!-- BLOCO 1: GERENCIADORES -->
+      <div id="sagBlocoGer" class="sag-bloco">
+        <div class="sag-bloco-hdr">
+          <div class="sag-bloco-tit">
+            <span class="sag-tag sag-tag-ger">👑 Gerenciador</span>
+            <h3>Pregões Gerenciados pela Unidade</h3>
+            <span class="cap" style="margin:0">(Total homologado global do certame)</span>
+          </div>
+          <span class="sag-bloco-total" id="sagSubtotalGer">Total: %%TOT_SAG_GER%% (%%N_SAG_GER%%)</span>
+        </div>
+        <div class="tblwrap">
+          <table id="tbSagGer" class="tb-sag">
+            <thead><tr>
+              <th style="width:130px">Pregão</th>
+              <th>Objeto do Pregão</th>
+              <th class="num" style="width:85px">Itens</th>
+              <th class="num" style="width:175px">Total Homologado (R$)</th>
+              <th style="width:115px">Vigência</th>
+              <th style="width:110px">Status</th>
+              <th style="width:55px;text-align:center">Copiar</th>
+            </tr></thead>
+            <tbody>
+%%TABELA_SAG_GER%%
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BLOCO 2: PARTICIPANTES -->
+      <div id="sagBlocoPart" class="sag-bloco" style="margin-top:20px">
+        <div class="sag-bloco-hdr">
+          <div class="sag-bloco-tit">
+            <span class="sag-tag sag-tag-part">🤝 Participante</span>
+            <h3>Pregões com Participação da Unidade</h3>
+            <span class="cap" style="margin:0">(Cota de participação autorizada da OM)</span>
+          </div>
+          <span class="sag-bloco-total" id="sagSubtotalPart">Total: %%TOT_SAG_PART%% (%%N_SAG_PART%%)</span>
+        </div>
+        <div class="tblwrap">
+          <table id="tbSagPart" class="tb-sag">
+            <thead><tr>
+              <th style="width:130px">Pregão</th>
+              <th style="width:150px">Gerenciador</th>
+              <th>Objeto do Pregão</th>
+              <th class="num" style="width:85px">Itens Cota</th>
+              <th class="num" style="width:175px">Cota OM (R$)</th>
+              <th style="width:115px">Vigência</th>
+              <th style="width:110px">Status</th>
+              <th style="width:55px;text-align:center">Copiar</th>
+            </tr></thead>
+            <tbody>
+%%TABELA_SAG_PART%%
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="vazio" id="sagVazio" style="display:none">
+        Nenhum pregão encontrado para os filtros selecionados.</p>
+    </section>
+  </div><!-- /tab-sag -->
 
   </div><!-- /painel -->
 
@@ -1596,20 +1908,29 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
   aplica();
 
-  // ==================== ABAS + PLANEJAMENTO ====================
-  var tabCap=document.getElementById('tabCap'), tabPlan=document.getElementById('tabPlan'),
+  // ==================== ABAS (CAPACIDADE / PLANEJAMENTO / SAG) ====================
+  var tabCap=document.getElementById('tabCap'),
+      tabPlan=document.getElementById('tabPlan'),
+      tabSag=document.getElementById('tabSag'),
       painelCap=document.getElementById('tab-capacidade'),
-      painelPlan=document.getElementById('tab-planejamento');
-  function trocaAba(ehPlan){
-    tabPlan.setAttribute('aria-selected', ehPlan?'true':'false');
-    tabCap.setAttribute('aria-selected', ehPlan?'false':'true');
-    painelPlan.hidden=!ehPlan; painelCap.hidden=ehPlan;
+      painelPlan=document.getElementById('tab-planejamento'),
+      painelSag=document.getElementById('tab-sag');
+  function trocaAba(qual){
+    var ehCap = qual==='cap', ehPlan = qual==='plan', ehSag = qual==='sag';
+    if(tabCap) tabCap.setAttribute('aria-selected', ehCap?'true':'false');
+    if(tabPlan) tabPlan.setAttribute('aria-selected', ehPlan?'true':'false');
+    if(tabSag) tabSag.setAttribute('aria-selected', ehSag?'true':'false');
+    if(painelCap) painelCap.hidden=!ehCap;
+    if(painelPlan) painelPlan.hidden=!ehPlan;
+    if(painelSag) painelSag.hidden=!ehSag;
     if(ehPlan) aplicaPlanej();
+    if(ehSag) aplicaSag();
     window.scrollTo(0,0);
-    try{localStorage.setItem('bcms-aba', ehPlan?'plan':'cap');}catch(e){}
+    try{localStorage.setItem('bcms-aba', qual);}catch(e){}
   }
-  tabCap.onclick=function(){trocaAba(false);};
-  tabPlan.onclick=function(){trocaAba(true);};
+  if(tabCap) tabCap.onclick=function(){trocaAba('cap');};
+  if(tabPlan) tabPlan.onclick=function(){trocaAba('plan');};
+  if(tabSag) tabSag.onclick=function(){trocaAba('sag');};
 
   var planTb=document.getElementById('tbPlan'), planCorpo=planTb.tBodies[0];
   var planLinhas=[].slice.call(planCorpo.rows), planP='all', planBand=null;
@@ -1706,7 +2027,246 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       planCorpo.appendChild(frag);
     };});
   aplicaPlanej();                         // calcula os números já no carregamento
-  try{ if(localStorage.getItem('bcms-aba')==='plan') trocaAba(true); }catch(e){}
+
+  // ==================== LÓGICA PREENCHIMENTO SAG ====================
+  var tbSagGer=document.getElementById('tbSagGer'),
+      tbSagPart=document.getElementById('tbSagPart'),
+      sagLinhasGer=tbSagGer?[].slice.call(tbSagGer.tBodies[0].rows):[],
+      sagLinhasPart=tbSagPart?[].slice.call(tbSagPart.tBodies[0].rows):[],
+      blocoGer=document.getElementById('sagBlocoGer'),
+      blocoPart=document.getElementById('sagBlocoPart'),
+      sagP='all', sagAnoVal='all';
+
+  function aplicaSag(){
+    var busca=(document.getElementById('sagBusca')?document.getElementById('sagBusca').value:'').trim().toLowerCase();
+    var totGer=0, nGer=0, totPart=0, nPart=0;
+
+    sagLinhasGer.forEach(function(tr){
+      if(!tr.dataset.pregao) return;
+      var anoOk = sagAnoVal==='all' || tr.dataset.ano===sagAnoVal;
+      var buscaOk = !busca || (tr.dataset.search||'').indexOf(busca)!==-1;
+      var papelOk = sagP==='all' || sagP==='ger';
+      var vis = papelOk && anoOk && buscaOk;
+      tr.style.display = vis ? '' : 'none';
+      if(vis){ nGer++; totGer += parseFloat(tr.dataset.valor)||0; }
+    });
+
+    sagLinhasPart.forEach(function(tr){
+      if(!tr.dataset.pregao) return;
+      var anoOk = sagAnoVal==='all' || tr.dataset.ano===sagAnoVal;
+      var buscaOk = !busca || (tr.dataset.search||'').indexOf(busca)!==-1;
+      var papelOk = sagP==='all' || sagP==='part';
+      var vis = papelOk && anoOk && buscaOk;
+      tr.style.display = vis ? '' : 'none';
+      if(vis){ nPart++; totPart += parseFloat(tr.dataset.valor)||0; }
+    });
+
+    if(blocoGer) blocoGer.style.display = (sagP==='part' || nGer===0) ? (sagP==='part' ? 'none' : '') : '';
+    if(blocoPart) blocoPart.style.display = (sagP==='ger' || nPart===0) ? (sagP==='ger' ? 'none' : '') : '';
+
+    var elSubGer=document.getElementById('sagSubtotalGer');
+    if(elSubGer) elSubGer.textContent = 'Total: ' + brl(totGer) + ' (' + nGer + ')';
+    var elSubPart=document.getElementById('sagSubtotalPart');
+    if(elSubPart) elSubPart.textContent = 'Total: ' + brl(totPart) + ' (' + nPart + ')';
+
+    var elKpiTotVal=document.getElementById('sagCardTotVal');
+    if(elKpiTotVal) elKpiTotVal.textContent = brl(totGer + totPart);
+    var elKpiTotQtd=document.getElementById('sagCardTotQtd');
+    if(elKpiTotQtd) elKpiTotQtd.textContent = (nGer + nPart) + ' pregões';
+
+    var elKpiGerVal=document.getElementById('sagCardGerVal');
+    if(elKpiGerVal) elKpiGerVal.textContent = brl(totGer);
+    var elKpiGerQtd=document.getElementById('sagCardGerQtd');
+    if(elKpiGerQtd) elKpiGerQtd.textContent = nGer + ' pregões gerenciados';
+
+    var elKpiPartVal=document.getElementById('sagCardPartVal');
+    if(elKpiPartVal) elKpiPartVal.textContent = brl(totPart);
+    var elKpiPartQtd=document.getElementById('sagCardPartQtd');
+    if(elKpiPartQtd) elKpiPartQtd.textContent = nPart + ' cotas autorizadas';
+
+    var elVazio=document.getElementById('sagVazio');
+    if(elVazio) elVazio.style.display = (nGer===0 && nPart===0) ? '' : 'none';
+  }
+
+  [].forEach.call(document.querySelectorAll('#sagPapel button'), function(btn){
+    btn.onclick = function(){
+      [].forEach.call(document.querySelectorAll('#sagPapel button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      sagP = btn.dataset.p;
+      var cGer = document.getElementById('cardFiltroGer'), cPart = document.getElementById('cardFiltroPart');
+      if(cGer) cGer.setAttribute('aria-pressed', sagP==='ger'?'true':'false');
+      if(cPart) cPart.setAttribute('aria-pressed', sagP==='part'?'true':'false');
+      aplicaSag();
+    };
+  });
+
+  var cardFiltroGer = document.getElementById('cardFiltroGer');
+  if(cardFiltroGer){
+    cardFiltroGer.onclick = function(){
+      var novo = sagP==='ger' ? 'all' : 'ger';
+      var bt = document.querySelector('#sagPapel button[data-p="'+novo+'"]');
+      if(bt) bt.click();
+    };
+  }
+  var cardFiltroPart = document.getElementById('cardFiltroPart');
+  if(cardFiltroPart){
+    cardFiltroPart.onclick = function(){
+      var novo = sagP==='part' ? 'all' : 'part';
+      var bt = document.querySelector('#sagPapel button[data-p="'+novo+'"]');
+      if(bt) bt.click();
+    };
+  }
+
+  [].forEach.call(document.querySelectorAll('#sagAno button'), function(btn){
+    btn.onclick = function(){
+      [].forEach.call(document.querySelectorAll('#sagAno button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      sagAnoVal = btn.dataset.ano;
+      aplicaSag();
+    };
+  });
+
+  var inpSagBusca = document.getElementById('sagBusca');
+  if(inpSagBusca){ inpSagBusca.oninput = aplicaSag; }
+
+  document.addEventListener('click', function(e){
+    var bt = e.target.closest('.btn-copiar-linha');
+    if(!bt) return;
+    var texto = bt.dataset.copia;
+    if(!texto) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(texto).then(function(){
+        var orig = bt.textContent;
+        bt.textContent = '✓';
+        setTimeout(function(){ bt.textContent = orig; }, 1500);
+      });
+    } else {
+      prompt('Copie os dados abaixo:', texto);
+    }
+  });
+
+  var btSagCopiar = document.getElementById('btSagCopiar');
+  if(btSagCopiar){
+    btSagCopiar.onclick = function(){
+      var linhas = ['Pregão\tPapel\tGerenciador\tObjeto\tItens\tValor Homologado / Cota SAG (R$)\tVigência\tStatus'];
+      if(sagP==='all' || sagP==='ger'){
+        sagLinhasGer.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var obj = (tr.cells[1].getAttribute('title')||tr.cells[1].textContent).trim();
+            var itens = tr.cells[2].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[4].textContent.trim();
+            var st = tr.cells[5].textContent.trim();
+            linhas.push(pg + '\tGerenciador\t' + (tr.dataset.ger||'') + '\t' + obj + '\t' + itens + '\t' + val + '\t' + vig + '\t' + st);
+          }
+        });
+      }
+      if(sagP==='all' || sagP==='part'){
+        sagLinhasPart.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var ger = tr.cells[1].textContent.trim();
+            var obj = (tr.cells[2].getAttribute('title')||tr.cells[2].textContent).trim();
+            var itens = tr.cells[3].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[5].textContent.trim();
+            var st = tr.cells[6].textContent.trim();
+            linhas.push(pg + '\tParticipante\t' + ger + '\t' + obj + '\t' + itens + '\t' + val + '\t' + vig + '\t' + st);
+          }
+        });
+      }
+      if(linhas.length <= 1){ alert('Nenhum dado visível para copiar.'); return; }
+      var tsv = linhas.join('\n');
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(tsv).then(function(){
+          var orig = btSagCopiar.textContent;
+          btSagCopiar.textContent = '✓ Tabela Copiada!';
+          setTimeout(function(){ btSagCopiar.textContent = orig; }, 2000);
+        });
+      } else {
+        prompt('Copie a tabela abaixo para colar no SAG:', tsv);
+      }
+    };
+  }
+
+  var btSagExcel = document.getElementById('btSagExcel');
+  if(btSagExcel){
+    btSagExcel.onclick = function(){
+      var cab = ['Pregão', 'Papel SAG', 'Gerenciador', 'Objeto do Pregão', 'Qtd Itens', 'Valor Homologado / Cota SAG (R$)', 'Fim Vigência', 'Status'];
+      var linhas = [];
+      if(sagP==='all' || sagP==='ger'){
+        sagLinhasGer.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var obj = (tr.cells[1].getAttribute('title')||tr.cells[1].textContent).trim();
+            var itens = tr.cells[2].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[4].textContent.trim();
+            var st = tr.cells[5].textContent.trim();
+            linhas.push([pg, 'Gerenciador', tr.dataset.ger||'', obj, itens, val, vig, st]);
+          }
+        });
+      }
+      if(sagP==='all' || sagP==='part'){
+        sagLinhasPart.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var ger = tr.cells[1].textContent.trim();
+            var obj = (tr.cells[2].getAttribute('title')||tr.cells[2].textContent).trim();
+            var itens = tr.cells[3].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[5].textContent.trim();
+            var st = tr.cells[6].textContent.trim();
+            linhas.push([pg, 'Participante', ger, obj, itens, val, vig, st]);
+          }
+        });
+      }
+      if(!linhas.length){ alert('Nenhum pregão para exportar neste filtro.'); return; }
+      var hoje = new Date().toISOString().slice(0,10);
+      baixarExcel('preenchimento_sag_%%UNIDADE_CURTA%%_'+hoje, cab, linhas, [4,5]);
+    };
+  }
+
+  function bindOrdSag(tabela, listaLinhas){
+    if(!tabela) return;
+    var ordem = {col:-1, asc:false};
+    [].forEach.call(tabela.tHead.rows[0].cells, function(th, i){
+      if(i === tabela.tHead.rows[0].cells.length - 1) return;
+      th.style.cursor = 'pointer';
+      th.onclick = function(){
+        ordem.asc = ordem.col===i ? !ordem.asc : false;
+        ordem.col = i;
+        var isNum = th.classList.contains('num');
+        listaLinhas.sort(function(a, b){
+          var va, vb;
+          if(isNum){
+            va = parseFloat(a.cells[i].dataset.v||a.dataset.valor||0);
+            vb = parseFloat(b.cells[i].dataset.v||b.dataset.valor||0);
+          } else {
+            va = a.cells[i].textContent.toLowerCase();
+            vb = b.cells[i].textContent.toLowerCase();
+          }
+          return (va<vb ? -1 : va>vb ? 1 : 0) * (ordem.asc ? 1 : -1);
+        });
+        var frag = document.createDocumentFragment();
+        listaLinhas.forEach(function(tr){ frag.appendChild(tr); });
+        tabela.tBodies[0].appendChild(frag);
+      };
+    });
+  }
+  bindOrdSag(tbSagGer, sagLinhasGer);
+  bindOrdSag(tbSagPart, sagLinhasPart);
+
+  aplicaSag();
+
+  try{
+    var abaSalva = localStorage.getItem('bcms-aba');
+    if(abaSalva==='sag') trocaAba('sag');
+    else if(abaSalva==='plan') trocaAba('plan');
+    else if(window.location.hash==='#sag') trocaAba('sag');
+    else if(window.location.hash==='#planejamento') trocaAba('plan');
+  }catch(e){}
 
   // ==================== DETALHAMENTO (modal ao clicar) ====================
   var OMNOMES=%%OMNOMES%%;

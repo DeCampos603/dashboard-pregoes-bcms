@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="light" style="--accent:#047CC0">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>Capacidade de Empenho — Atas D C Mun</title>
 <style>
@@ -140,6 +140,35 @@ a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
 .pl-papel{display:block;font-size:11px;font-weight:600;margin-top:1px}
 .pl-papel.p-ger{color:var(--accent)}
 .pl-papel.p-part{color:var(--ink-muted);font-weight:500}
+
+/* ==================== SAG (PREENCHIMENTO SAG) ==================== */
+.sag-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 14px}
+@media(max-width:768px){.sag-kpis{grid-template-columns:1fr}}
+.sag-kpi-card{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-sm);
+  padding:14px 16px;display:flex;flex-direction:column;gap:3px;text-align:left;transition:background .15s,box-shadow .15s;min-width:0;width:100%}
+.sag-kpi-card.sag-kpi-tot{border-left:4px solid var(--primary)}
+.sag-kpi-card.sag-kpi-ger{border-left:4px solid var(--accent);cursor:pointer}
+.sag-kpi-card.sag-kpi-part{border-left:4px solid #0070F3;cursor:pointer}
+.sag-kpi-card:hover{background:var(--surface-3)}
+.sag-kpi-card[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
+.sag-kpi-val{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+.sag-kpi-lb{font-size:12.5px;font-weight:600;color:var(--ink-muted)}
+.sag-kpi-sub{font-size:11.5px;color:var(--ink-muted);font-weight:500}
+
+.sag-bloco{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-sm);padding:16px;transition:opacity .15s;margin-bottom:18px}
+.sag-bloco-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-2)}
+.sag-bloco-tit{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sag-bloco-tit h3{margin:0;font-size:16px;font-weight:700;color:var(--ink)}
+.sag-bloco-total{font-size:13.5px;font-weight:700;color:var(--ink);background:var(--surface-2);padding:5px 12px;border-radius:6px;border:1px solid var(--border)}
+
+.sag-tag{display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.sag-tag-ger{background:color-mix(in srgb, var(--accent) 15%, transparent);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 30%, transparent)}
+.sag-tag-part{background:color-mix(in srgb, #0070F3 15%, transparent);color:#0070F3;border:1px solid color-mix(in srgb, #0070F3 30%, transparent)}
+
+.tb-sag td.num{font-variant-numeric:tabular-nums;text-align:right}
+.tb-sag td strong{font-weight:700}
+.btn-copiar-linha{background:none;border:1px solid var(--border);border-radius:4px;padding:3px 7px;cursor:pointer;font-size:12px;color:var(--ink-muted);transition:background .12s,color .12s,border-color .12s}
+.btn-copiar-linha:hover{background:var(--surface-3);color:var(--ink);border-color:var(--ink-muted)}
 
 /* ---------------------------------------------------------------- hero */
 .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
@@ -339,19 +368,6 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   .tblwrap{overflow:visible} thead th{position:static}
   a{text-decoration:none;color:#000}
 }
-
-@media (max-width: 640px) {
-  .tblwrap::before {
-    content: "👉 Deslize para ver todas as colunas ↔";
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--muted, #64748b);
-    padding: 4px 8px;
-    margin-bottom: 4px;
-    text-align: right;
-  }
-}
 </style>
 </head>
 <body>
@@ -394,6 +410,8 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
             aria-controls="tab-capacidade">Capacidade de empenho</button>
     <button class="tab" id="tabPlan" role="tab" aria-selected="false"
             aria-controls="tab-planejamento">📅 Planejamento · atas vencendo</button>
+    <button class="tab" id="tabSag" role="tab" aria-selected="false"
+            aria-controls="tab-sag">📋 Preenchimento Sag</button>
   </nav>
 
   <div id="tab-capacidade" role="tabpanel">
@@ -1256,11 +1274,145 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     </section>
   </div><!-- /tab-planejamento -->
 
+  <div id="tab-sag" role="tabpanel" hidden>
+    <section class="hero" style="--accent:var(--primary)">
+      <p class="hero-label">Sistema de Acompanhamento da Gestão (SAG)</p>
+      <p class="hero-big" id="sagTitulo" style="font-size:clamp(26px,4vw,34px)">R$ 3.637.747,15</p>
+      <p class="hero-cap">Consolidado para prestação de contas no SAG: <b>pregões gerenciadores</b> (valor total homologado do pregão) e <b>pregões participantes</b> (cota total de participação da OM).</p>
+    </section>
+
+    <section class="card">
+      <div class="sag-kpis" role="group" aria-label="Resumo SAG">
+        <div class="sag-kpi-card sag-kpi-tot">
+          <span class="sag-kpi-val" id="sagCardTotVal">R$ 3.637.747,15</span>
+          <span class="sag-kpi-lb">Total Mapeado SAG</span>
+          <span class="sag-kpi-sub" id="sagCardTotQtd">17 pregões no painel</span>
+        </div>
+        <button type="button" class="sag-kpi-card sag-kpi-ger" id="cardFiltroGer" data-papel="ger" aria-pressed="false"
+                title="Filtrar apenas pregões gerenciadores">
+          <span class="sag-kpi-val" id="sagCardGerVal">R$ 2.037.188,10</span>
+          <span class="sag-kpi-lb">👑 Gerenciador (Pregão Total)</span>
+          <span class="sag-kpi-sub" id="sagCardGerQtd">1 pregões gerenciados</span>
+        </button>
+        <button type="button" class="sag-kpi-card sag-kpi-part" id="cardFiltroPart" data-papel="part" aria-pressed="false"
+                title="Filtrar apenas pregões participantes">
+          <span class="sag-kpi-val" id="sagCardPartVal">R$ 1.600.559,05</span>
+          <span class="sag-kpi-lb">🤝 Participante (Cota da OM)</span>
+          <span class="sag-kpi-sub" id="sagCardPartQtd">16 cotas autorizadas</span>
+        </button>
+      </div>
+
+      <div class="frow2" style="margin:16px 0 10px;align-items:center;flex-wrap:wrap;gap:8px">
+        <div class="seg" id="sagPapel" role="group" aria-label="Filtrar por papel">
+          <button data-p="all" aria-pressed="true">Todos (17)</button>
+          <button data-p="ger" aria-pressed="false">👑 Gerenciadores (1)</button>
+          <button data-p="part" aria-pressed="false">🤝 Participantes (16)</button>
+        </div>
+
+        <div class="seg" id="sagAno" role="group" aria-label="Filtrar por ano">
+          <button data-ano="all" aria-pressed="true">Todos Anos</button>
+          <button data-ano="2026" aria-pressed="false">2026</button>
+          <button data-ano="2025" aria-pressed="false">2025</button>
+          <button data-ano="2024" aria-pressed="false">2024</button>
+        </div>
+
+        <input id="sagBusca" type="search" placeholder="Buscar nº pregão, objeto, gerenciador…"
+               style="max-width:280px;flex:1" aria-label="Buscar na tabela SAG">
+
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button type="button" class="btn" id="btSagCopiar"
+                  title="Copiar linhas visíveis tabuladas para colar direto no Excel do SAG">📋 Copiar Tabela</button>
+          <button type="button" class="btn" id="btSagExcel"
+                  title="Baixar lista visível em planilha Excel (.xlsx)">⬇ Exportar Excel</button>
+        </div>
+      </div>
+
+      <p class="cap" id="sagAvisoFiltro">
+        Organizado por <b>Pregões Gerenciadores</b> (valor total homologado do certame) e <b>Pregões Participantes</b> (cota de participação autorizada da OM). Clique nos títulos das colunas para ordenar.
+      </p>
+
+      <!-- BLOCO 1: GERENCIADORES -->
+      <div id="sagBlocoGer" class="sag-bloco">
+        <div class="sag-bloco-hdr">
+          <div class="sag-bloco-tit">
+            <span class="sag-tag sag-tag-ger">👑 Gerenciador</span>
+            <h3>Pregões Gerenciados pela Unidade</h3>
+            <span class="cap" style="margin:0">(Total homologado global do certame)</span>
+          </div>
+          <span class="sag-bloco-total" id="sagSubtotalGer">Total: R$ 2.037.188,10 (1)</span>
+        </div>
+        <div class="tblwrap">
+          <table id="tbSagGer" class="tb-sag">
+            <thead><tr>
+              <th style="width:130px">Pregão</th>
+              <th>Objeto do Pregão</th>
+              <th class="num" style="width:85px">Itens</th>
+              <th class="num" style="width:175px">Total Homologado (R$)</th>
+              <th style="width:115px">Vigência</th>
+              <th style="width:110px">Status</th>
+              <th style="width:55px;text-align:center">Copiar</th>
+            </tr></thead>
+            <tbody>
+<tr data-key="160246 · 90023/2025" data-pregao="90023/2025" data-papel="ger" data-ano="2025" data-valor="2037188.10" data-ger="160246" data-search="90023/2025 160246 2025 material de expediente · limpeza e conservação (grampo grampeador, cartucho toner impressora hp) 44.270.347 suelen lopes dos santos; goldem distribuidora e representacao ltda; jf comercio de material e medicamentos hospitalares ltda; r t costa feliciano; kfc comercio de produ…" tabindex="0" aria-label="Pregão gerenciado 90023/2025"><td><b>90023/2025</b></td><td class="pl-obj" title="Material de Expediente · Limpeza e Conservação — Principais itens: Grampo Grampeador, Cartucho Toner Impressora Hp, Saco Plástico Lixo, Obréia, Prendedor Papel, Pasta Arquivo, Clipe, Cola">Material de Expediente · Limpeza e Conservação (Grampo Gram…</td><td class="num" data-v="187">187</td><td class="num" data-v="2037188.10"><strong>R$ 2.037.188,10</strong></td><td style="white-space:nowrap">08/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90023/2025	Gerenciador	160246	Material de Expediente · Limpeza e Conservação (Grampo Grampeador, Cartucho Toner Impressora Hp)	187	2037188.10	08/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BLOCO 2: PARTICIPANTES -->
+      <div id="sagBlocoPart" class="sag-bloco" style="margin-top:20px">
+        <div class="sag-bloco-hdr">
+          <div class="sag-bloco-tit">
+            <span class="sag-tag sag-tag-part">🤝 Participante</span>
+            <h3>Pregões com Participação da Unidade</h3>
+            <span class="cap" style="margin:0">(Cota de participação autorizada da OM)</span>
+          </div>
+          <span class="sag-bloco-total" id="sagSubtotalPart">Total: R$ 1.600.559,05 (16)</span>
+        </div>
+        <div class="tblwrap">
+          <table id="tbSagPart" class="tb-sag">
+            <thead><tr>
+              <th style="width:130px">Pregão</th>
+              <th style="width:150px">Gerenciador</th>
+              <th>Objeto do Pregão</th>
+              <th class="num" style="width:85px">Itens Cota</th>
+              <th class="num" style="width:175px">Cota OM (R$)</th>
+              <th style="width:115px">Vigência</th>
+              <th style="width:110px">Status</th>
+              <th style="width:55px;text-align:center">Copiar</th>
+            </tr></thead>
+            <tbody>
+<tr data-key="160238 · 90012/2026" data-pregao="90012/2026" data-papel="part" data-ano="2026" data-valor="522256.51" data-ger="160238" data-om="Ba Ap Log" data-search="90012/2026 160238 ba ap log base de apoio logístico do exército 2026 informática / ti · material permanente (diversos) (switch, cabo extensor) isabelle gentil de andrade cardoso ltda; npr comercio e servicos ltda; jvs comercio e servicos de informatica ltda; conecte empreendimentos &amp; negocios ltda;…" tabindex="0" aria-label="Pregão participante 90012/2026"><td><b>90012/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Informática / TI · Material Permanente (diversos) — Principais itens: Switch, Cabo Extensor, Microcomputador, Pente De Memória, Disco Magnético, Cabo Rede Computador, Conector Telefônico, Adaptador Conector">Informática / TI · Material Permanente (diversos) (Sw…</td><td class="num" data-v="51">51</td><td class="num" data-v="522256.51"><strong>R$ 522.256,51</strong></td><td style="white-space:nowrap">25/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90012/2026	Participante	160238 Ba Ap Log	Informática / TI · Material Permanente (diversos) (Switch, Cabo Extensor)	51	522256.51	25/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160238 · 90315/2026" data-pregao="90315/2026" data-papel="part" data-ano="2026" data-valor="98062.35" data-ger="160238" data-om="Ba Ap Log" data-search="90315/2026 160238 ba ap log base de apoio logístico do exército 2026 material de expediente · material de consumo (diversos) (impresso padronizado, tapete) perfil solucoes empresariais ltda; vtprint outdoor e grafica ltda; lc los costas artigos militares ltda; 53.756.019 renan farias batista; tvc d…" tabindex="0" aria-label="Pregão participante 90315/2026"><td><b>90315/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Material de Expediente · Material de Consumo (diversos) — Principais itens: Impresso Padronizado, Tapete, Placa Identificação, Bandeira Institucional, Caderno, Bloco Rascunho, Painel Anúncio, Faixa Divulgação De Eventos">Material de Expediente · Material de Consumo (diverso…</td><td class="num" data-v="70">70</td><td class="num" data-v="98062.35"><strong>R$ 98.062,35</strong></td><td style="white-space:nowrap">25/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90315/2026	Participante	160238 Ba Ap Log	Material de Expediente · Material de Consumo (diversos) (Impresso Padronizado, Tapete)	70	98062.35	25/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="762400 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="83958.00" data-ger="762400" data-om="" data-search="90001/2026 762400   2026 manutenção predial (tinta acrílica) raridade comercio e servico ltda" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title=""><b>762400</b></td><td class="pl-obj" title="Manutenção Predial — Principais itens: Tinta Acrílica">Manutenção Predial (Tinta Acrílica)</td><td class="num" data-v="1">1</td><td class="num" data-v="83958.00"><strong>R$ 83.958,00</strong></td><td style="white-space:nowrap">09/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	762400 	Manutenção Predial (Tinta Acrílica)	1	83958.00	09/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160274 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="71530.96" data-ger="160274" data-om="" data-search="90001/2026 160274   2026 combustíveis e lubrificantes · material de consumo (diversos) (óleo lubrificante, óleo lubrificante.) rpf comercial ltda; gbs solucoes comerciais ltda; aman distribuidora ltda; patricia cristina de abreu; 62.528.261 wallace danilo pereira francisco; somark distribuidora de …" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title=""><b>160274</b></td><td class="pl-obj" title="Combustíveis e Lubrificantes · Material de Consumo (diversos) — Principais itens: Óleo Lubrificante, Óleo Lubrificante., Graxa, Fluido De Sistema De Freio, Aditivo Radiador, Uréia, Descarbonizante, Limpador Contato Elétrico/Eletrônico">Combustíveis e Lubrificantes · Material de Consumo (d…</td><td class="num" data-v="30">30</td><td class="num" data-v="71530.96"><strong>R$ 71.530,96</strong></td><td style="white-space:nowrap">02/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	160274 	Combustíveis e Lubrificantes · Material de Consumo (diversos) (Óleo Lubrificante, Óleo Lubrificante.)	30	71530.96	02/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90008/2025" data-pregao="90008/2025" data-papel="part" data-ano="2025" data-valor="302486.69" data-ger="160329" data-om="BCMS" data-search="90008/2025 160329 bcms batalhão central de manutenção e suprimento 2025 material permanente (diversos) · ferramentas (roçadeira manual, jogo chave) comercial vanguardeira ltda; valen comercio e servicos ltda; lagos solar energia alternativa ltda; forthe agropecuaria ltda; angra luz comercio e distr…" tabindex="0" aria-label="Pregão participante 90008/2025"><td><b>90008/2025</b></td><td class="pl-ger" title="Batalhão Central de Manutenção e Suprimento"><b>160329</b><span class="pl-om" title="Batalhão Central de Manutenção e Suprimento">BCMS</span></td><td class="pl-obj" title="Material Permanente (diversos) · Ferramentas — Principais itens: Roçadeira Manual, Jogo Chave, Acessório Equipamento Segurança, Luva Proteção, Luva Industrial, Tesoura Poda, Soprador, Furadeira">Material Permanente (diversos) · Ferramentas (Roçadei…</td><td class="num" data-v="96">96</td><td class="num" data-v="302486.69"><strong>R$ 302.486,69</strong></td><td style="white-space:nowrap">01/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90008/2025	Participante	160329 BCMS	Material Permanente (diversos) · Ferramentas (Roçadeira Manual, Jogo Chave)	96	302486.69	01/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160296 · 90028/2025" data-pregao="90028/2025" data-papel="part" data-ano="2025" data-valor="100838.50" data-ger="160296" data-om="" data-search="90028/2025 160296   2025 material de expediente · material de consumo (diversos) (pasta arquivo, fita adesiva) vipe comercial ltda; supry office distribuidora de materiais e servicos ltda; rbx xavier comercio e servicos de informatica ltda; limp desc comercio de materiais de limpeza e descartaveis …" tabindex="0" aria-label="Pregão participante 90028/2025"><td><b>90028/2025</b></td><td class="pl-ger" title=""><b>160296</b></td><td class="pl-obj" title="Material de Expediente · Material de Consumo (diversos) — Principais itens: Pasta Arquivo, Fita Adesiva, Cartolina, Envelope, Caneta Hidrográfica, &quot;Papel Impressão Gráfica&quot;, Clipe, Copo Descartável">Material de Expediente · Material de Consumo (diverso…</td><td class="num" data-v="108">108</td><td class="num" data-v="100838.50"><strong>R$ 100.838,50</strong></td><td style="white-space:nowrap">12/11/2026</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90028/2025	Participante	160296 	Material de Expediente · Material de Consumo (diversos) (Pasta Arquivo, Fita Adesiva)	108	100838.50	12/11/2026	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90004/2025" data-pregao="90004/2025" data-papel="part" data-ano="2025" data-valor="83608.00" data-ger="160329" data-om="BCMS" data-search="90004/2025 160329 bcms batalhão central de manutenção e suprimento 2025 manutenção predial · serviços de ti (manutenção de veículos leves e pesados, manutenção de veículos leves - injeção eletrônica) j s r servicos comerciais ltda; am21 auto pecas e motores ltda; ms comercio e servicos de produtos …" tabindex="0" aria-label="Pregão participante 90004/2025"><td><b>90004/2025</b></td><td class="pl-ger" title="Batalhão Central de Manutenção e Suprimento"><b>160329</b><span class="pl-om" title="Batalhão Central de Manutenção e Suprimento">BCMS</span></td><td class="pl-obj" title="Manutenção Predial · Serviços de TI — Principais itens: Manutenção De Veículos Leves E Pesados, Manutenção De Veículos Leves - Injeção Eletrônica, Ar Condicionado Veículo - Instalação / Montagem / Manutenção, Manutenção De Veículos Pesados…">Manutenção Predial · Serviços de TI (Manutenção De Ve…</td><td class="num" data-v="21">21</td><td class="num" data-v="83608.00"><strong>R$ 83.608,00</strong></td><td style="white-space:nowrap">13/10/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2025	Participante	160329 BCMS	Manutenção Predial · Serviços de TI (Manutenção De Veículos Leves E Pesados, Manutenção De Veículos Leves - Injeção Eletrônica)	21	83608.00	13/10/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160296 · 90034/2025" data-pregao="90034/2025" data-papel="part" data-ano="2025" data-valor="50308.00" data-ger="160296" data-om="" data-search="90034/2025 160296   2025 limpeza e conservação · manutenção predial (saco plástico lixo, balde) supry office distribuidora de materiais e servicos ltda; rbx xavier comercio e servicos de informatica ltda; limp desc comercio de materiais de limpeza e descartaveis em geral ltda; hero comercio e distr…" tabindex="0" aria-label="Pregão participante 90034/2025"><td><b>90034/2025</b></td><td class="pl-ger" title=""><b>160296</b></td><td class="pl-obj" title="Limpeza e Conservação · Manutenção Predial — Principais itens: Saco Plástico Lixo, Balde, Detergente, Desodorante / Aromatizante De Ambiente, Desinfetante Saneante, Pá Coletora Lixo, Pano Limpeza, Luva Borracha">Limpeza e Conservação · Manutenção Predial (Saco Plás…</td><td class="num" data-v="49">49</td><td class="num" data-v="50308.00"><strong>R$ 50.308,00</strong></td><td style="white-space:nowrap">20/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90034/2025	Participante	160296 	Limpeza e Conservação · Manutenção Predial (Saco Plástico Lixo, Balde)	49	50308.00	20/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90009/2025" data-pregao="90009/2025" data-papel="part" data-ano="2025" data-valor="44321.60" data-ger="160329" data-om="BCMS" data-search="90009/2025 160329 bcms batalhão central de manutenção e suprimento 2025 manutenção predial · manutenção e reparos (instalação / manutenção - câmara fria, manutenção de equipamentos de cozinha industrial) tiju maquinas servicos ltda; mecanica nova wgd ltda; r l p comercio e servicos ltda; leandro ne…" tabindex="0" aria-label="Pregão participante 90009/2025"><td><b>90009/2025</b></td><td class="pl-ger" title="Batalhão Central de Manutenção e Suprimento"><b>160329</b><span class="pl-om" title="Batalhão Central de Manutenção e Suprimento">BCMS</span></td><td class="pl-obj" title="Manutenção Predial · Manutenção e Reparos — Principais itens: Instalação / Manutenção - Câmara Fria, Manutenção De Equipamentos De Cozinha Industrial">Manutenção Predial · Manutenção e Reparos (Instalação…</td><td class="num" data-v="36">36</td><td class="num" data-v="44321.60"><strong>R$ 44.321,60</strong></td><td style="white-space:nowrap">30/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90009/2025	Participante	160329 BCMS	Manutenção Predial · Manutenção e Reparos (Instalação / Manutenção - Câmara Fria, Manutenção De Equipamentos De Cozinha Industrial)	36	44321.60	30/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160307 · 90013/2025" data-pregao="90013/2025" data-papel="part" data-ano="2025" data-valor="16521.80" data-ger="160307" data-om="1º D Sup" data-search="90013/2025 160307 1º d sup 1º depósito de suprimento 2025 serviços - pessoa jurídica · serviços de ti (desinsetização / desratização / dedetização, serviço de pulverização e controle de pragas agrícolas) dedefone servicos e controle de pragas ltda" tabindex="0" aria-label="Pregão participante 90013/2025"><td><b>90013/2025</b></td><td class="pl-ger" title="1º Depósito de Suprimento"><b>160307</b><span class="pl-om" title="1º Depósito de Suprimento">1º D Sup</span></td><td class="pl-obj" title="Serviços - Pessoa Jurídica · Serviços de TI — Principais itens: Desinsetização / Desratização / Dedetização, Serviço De Pulverização E Controle De Pragas Agrícolas, Descupinização, Manutenção / Higienização De Reservatório De Água Potável">Serviços - Pessoa Jurídica · Serviços de TI (Desinset…</td><td class="num" data-v="6">6</td><td class="num" data-v="16521.80"><strong>R$ 16.521,80</strong></td><td style="white-space:nowrap">11/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90013/2025	Participante	160307 1º D Sup	Serviços - Pessoa Jurídica · Serviços de TI (Desinsetização / Desratização / Dedetização, Serviço De Pulverização E Controle De Pragas Agrícolas)	6	16521.80	11/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="732200 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="11880.00" data-ger="732200" data-om="" data-search="90002/2025 732200   2025 manutenção predial (tinta esmalte) gentileza comercio de materiais e servicos ltda" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>732200</b></td><td class="pl-obj" title="Manutenção Predial — Principais itens: Tinta Esmalte">Manutenção Predial (Tinta Esmalte)</td><td class="num" data-v="2">2</td><td class="num" data-v="11880.00"><strong>R$ 11.880,00</strong></td><td style="white-space:nowrap">16/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	732200 	Manutenção Predial (Tinta Esmalte)	2	11880.00	16/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="153149 · 90011/2025" data-pregao="90011/2025" data-papel="part" data-ano="2025" data-valor="5957.64" data-ger="153149" data-om="" data-search="90011/2025 153149   2025 manutenção e reparos (manutenção / higienização de reservatório de água potável) ambiental tec 2006 tecnologia em controle de pragas ltda" tabindex="0" aria-label="Pregão participante 90011/2025"><td><b>90011/2025</b></td><td class="pl-ger" title=""><b>153149</b></td><td class="pl-obj" title="Manutenção e Reparos — Principais itens: Manutenção / Higienização De Reservatório De Água Potável">Manutenção e Reparos (Manutenção / Higienização De Re…</td><td class="num" data-v="1">1</td><td class="num" data-v="5957.64"><strong>R$ 5.957,64</strong></td><td style="white-space:nowrap">27/01/2028</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90011/2025	Participante	153149 	Manutenção e Reparos (Manutenção / Higienização De Reservatório De Água Potável)	1	5957.64	27/01/2028	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160030 · 90013/2025" data-pregao="90013/2025" data-papel="part" data-ano="2025" data-valor="900.00" data-ger="160030" data-om="" data-search="90013/2025 160030   2025 sem categoria · limpeza e conservação (dexametasona, benzilpenicilina) cirurgica modelo comercio de materiais medicos e hospitalares ltda" tabindex="0" aria-label="Pregão participante 90013/2025"><td><b>90013/2025</b></td><td class="pl-ger" title=""><b>160030</b></td><td class="pl-obj" title="Sem categoria · Limpeza e Conservação — Principais itens: Dexametasona, Benzilpenicilina, Água Destilada">Sem categoria · Limpeza e Conservação (Dexametasona, …</td><td class="num" data-v="3">3</td><td class="num" data-v="900.00"><strong>R$ 900,00</strong></td><td style="white-space:nowrap">08/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90013/2025	Participante	160030 	Sem categoria · Limpeza e Conservação (Dexametasona, Benzilpenicilina)	3	900.00	08/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160264 · 90001/2024" data-pregao="90001/2024" data-papel="part" data-ano="2024" data-valor="191528.00" data-ger="160264" data-om="" data-search="90001/2024 160264   2024 manutenção automotiva (peça mecânica/elétrica - veículo automotivo) ms comercio e servicos de produtos industriais e automotivos ltda; scott servicos, comercio e distribuicao ltda" tabindex="0" aria-label="Pregão participante 90001/2024"><td><b>90001/2024</b></td><td class="pl-ger" title=""><b>160264</b></td><td class="pl-obj" title="Manutenção Automotiva — Principais itens: Peça Mecânica/Elétrica - Veículo Automotivo">Manutenção Automotiva (Peça Mecânica/Elétrica - Veícu…</td><td class="num" data-v="8">8</td><td class="num" data-v="191528.00"><strong>R$ 191.528,00</strong></td><td style="white-space:nowrap">06/01/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2024	Participante	160264 	Manutenção Automotiva (Peça Mecânica/Elétrica - Veículo Automotivo)	8	191528.00	06/01/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160150 · 90005/2024" data-pregao="90005/2024" data-papel="part" data-ano="2024" data-valor="13461.00" data-ger="160150" data-om="" data-search="90005/2024 160150   2024 manutenção automotiva (peça mecânica/elétrica - veículo automotivo) alianca carvalho comercio e servicos de produtos industriais e automotivos ltda" tabindex="0" aria-label="Pregão participante 90005/2024"><td><b>90005/2024</b></td><td class="pl-ger" title=""><b>160150</b></td><td class="pl-obj" title="Manutenção Automotiva — Principais itens: Peça Mecânica/Elétrica - Veículo Automotivo">Manutenção Automotiva (Peça Mecânica/Elétrica - Veícu…</td><td class="num" data-v="1">1</td><td class="num" data-v="13461.00"><strong>R$ 13.461,00</strong></td><td style="white-space:nowrap">27/01/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2024	Participante	160150 	Manutenção Automotiva (Peça Mecânica/Elétrica - Veículo Automotivo)	1	13461.00	27/01/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160315 · 90007/2024" data-pregao="90007/2024" data-papel="part" data-ano="2024" data-valor="2940.00" data-ger="160315" data-om="" data-search="90007/2024 160315   2024 material permanente (diversos) (cadeira) gentileza comercio de materiais e servicos ltda" tabindex="0" aria-label="Pregão participante 90007/2024"><td><b>90007/2024</b></td><td class="pl-ger" title=""><b>160315</b></td><td class="pl-obj" title="Material Permanente (diversos) — Principais itens: Cadeira">Material Permanente (diversos) (Cadeira)</td><td class="num" data-v="1">1</td><td class="num" data-v="2940.00"><strong>R$ 2.940,00</strong></td><td style="white-space:nowrap">09/04/2026</td><td><span class="tag tag-venc"><span aria-hidden="true">✕</span>Vencida</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90007/2024	Participante	160315 	Material Permanente (diversos) (Cadeira)	1	2940.00	09/04/2026	Vencida" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="vazio" id="sagVazio" style="display:none">
+        Nenhum pregão encontrado para os filtros selecionados.</p>
+    </section>
+  </div><!-- /tab-sag -->
+
   </div><!-- /painel -->
 
   <footer>
     Dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
-    Gerado em 12/10/2026 09:33 · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
+    Gerado em 13/10/2026 11:19 · Capacidade = Qtd. Saldo × Valor Unitário das atas registradas.<br>
     A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do item — confira antes de empenhar.
   </footer>
 </main>
@@ -1679,20 +1831,29 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
 
   aplica();
 
-  // ==================== ABAS + PLANEJAMENTO ====================
-  var tabCap=document.getElementById('tabCap'), tabPlan=document.getElementById('tabPlan'),
+  // ==================== ABAS (CAPACIDADE / PLANEJAMENTO / SAG) ====================
+  var tabCap=document.getElementById('tabCap'),
+      tabPlan=document.getElementById('tabPlan'),
+      tabSag=document.getElementById('tabSag'),
       painelCap=document.getElementById('tab-capacidade'),
-      painelPlan=document.getElementById('tab-planejamento');
-  function trocaAba(ehPlan){
-    tabPlan.setAttribute('aria-selected', ehPlan?'true':'false');
-    tabCap.setAttribute('aria-selected', ehPlan?'false':'true');
-    painelPlan.hidden=!ehPlan; painelCap.hidden=ehPlan;
+      painelPlan=document.getElementById('tab-planejamento'),
+      painelSag=document.getElementById('tab-sag');
+  function trocaAba(qual){
+    var ehCap = qual==='cap', ehPlan = qual==='plan', ehSag = qual==='sag';
+    if(tabCap) tabCap.setAttribute('aria-selected', ehCap?'true':'false');
+    if(tabPlan) tabPlan.setAttribute('aria-selected', ehPlan?'true':'false');
+    if(tabSag) tabSag.setAttribute('aria-selected', ehSag?'true':'false');
+    if(painelCap) painelCap.hidden=!ehCap;
+    if(painelPlan) painelPlan.hidden=!ehPlan;
+    if(painelSag) painelSag.hidden=!ehSag;
     if(ehPlan) aplicaPlanej();
+    if(ehSag) aplicaSag();
     window.scrollTo(0,0);
-    try{localStorage.setItem('bcms-aba', ehPlan?'plan':'cap');}catch(e){}
+    try{localStorage.setItem('bcms-aba', qual);}catch(e){}
   }
-  tabCap.onclick=function(){trocaAba(false);};
-  tabPlan.onclick=function(){trocaAba(true);};
+  if(tabCap) tabCap.onclick=function(){trocaAba('cap');};
+  if(tabPlan) tabPlan.onclick=function(){trocaAba('plan');};
+  if(tabSag) tabSag.onclick=function(){trocaAba('sag');};
 
   var planTb=document.getElementById('tbPlan'), planCorpo=planTb.tBodies[0];
   var planLinhas=[].slice.call(planCorpo.rows), planP='all', planBand=null;
@@ -1789,7 +1950,246 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       planCorpo.appendChild(frag);
     };});
   aplicaPlanej();                         // calcula os números já no carregamento
-  try{ if(localStorage.getItem('bcms-aba')==='plan') trocaAba(true); }catch(e){}
+
+  // ==================== LÓGICA PREENCHIMENTO SAG ====================
+  var tbSagGer=document.getElementById('tbSagGer'),
+      tbSagPart=document.getElementById('tbSagPart'),
+      sagLinhasGer=tbSagGer?[].slice.call(tbSagGer.tBodies[0].rows):[],
+      sagLinhasPart=tbSagPart?[].slice.call(tbSagPart.tBodies[0].rows):[],
+      blocoGer=document.getElementById('sagBlocoGer'),
+      blocoPart=document.getElementById('sagBlocoPart'),
+      sagP='all', sagAnoVal='all';
+
+  function aplicaSag(){
+    var busca=(document.getElementById('sagBusca')?document.getElementById('sagBusca').value:'').trim().toLowerCase();
+    var totGer=0, nGer=0, totPart=0, nPart=0;
+
+    sagLinhasGer.forEach(function(tr){
+      if(!tr.dataset.pregao) return;
+      var anoOk = sagAnoVal==='all' || tr.dataset.ano===sagAnoVal;
+      var buscaOk = !busca || (tr.dataset.search||'').indexOf(busca)!==-1;
+      var papelOk = sagP==='all' || sagP==='ger';
+      var vis = papelOk && anoOk && buscaOk;
+      tr.style.display = vis ? '' : 'none';
+      if(vis){ nGer++; totGer += parseFloat(tr.dataset.valor)||0; }
+    });
+
+    sagLinhasPart.forEach(function(tr){
+      if(!tr.dataset.pregao) return;
+      var anoOk = sagAnoVal==='all' || tr.dataset.ano===sagAnoVal;
+      var buscaOk = !busca || (tr.dataset.search||'').indexOf(busca)!==-1;
+      var papelOk = sagP==='all' || sagP==='part';
+      var vis = papelOk && anoOk && buscaOk;
+      tr.style.display = vis ? '' : 'none';
+      if(vis){ nPart++; totPart += parseFloat(tr.dataset.valor)||0; }
+    });
+
+    if(blocoGer) blocoGer.style.display = (sagP==='part' || nGer===0) ? (sagP==='part' ? 'none' : '') : '';
+    if(blocoPart) blocoPart.style.display = (sagP==='ger' || nPart===0) ? (sagP==='ger' ? 'none' : '') : '';
+
+    var elSubGer=document.getElementById('sagSubtotalGer');
+    if(elSubGer) elSubGer.textContent = 'Total: ' + brl(totGer) + ' (' + nGer + ')';
+    var elSubPart=document.getElementById('sagSubtotalPart');
+    if(elSubPart) elSubPart.textContent = 'Total: ' + brl(totPart) + ' (' + nPart + ')';
+
+    var elKpiTotVal=document.getElementById('sagCardTotVal');
+    if(elKpiTotVal) elKpiTotVal.textContent = brl(totGer + totPart);
+    var elKpiTotQtd=document.getElementById('sagCardTotQtd');
+    if(elKpiTotQtd) elKpiTotQtd.textContent = (nGer + nPart) + ' pregões';
+
+    var elKpiGerVal=document.getElementById('sagCardGerVal');
+    if(elKpiGerVal) elKpiGerVal.textContent = brl(totGer);
+    var elKpiGerQtd=document.getElementById('sagCardGerQtd');
+    if(elKpiGerQtd) elKpiGerQtd.textContent = nGer + ' pregões gerenciados';
+
+    var elKpiPartVal=document.getElementById('sagCardPartVal');
+    if(elKpiPartVal) elKpiPartVal.textContent = brl(totPart);
+    var elKpiPartQtd=document.getElementById('sagCardPartQtd');
+    if(elKpiPartQtd) elKpiPartQtd.textContent = nPart + ' cotas autorizadas';
+
+    var elVazio=document.getElementById('sagVazio');
+    if(elVazio) elVazio.style.display = (nGer===0 && nPart===0) ? '' : 'none';
+  }
+
+  [].forEach.call(document.querySelectorAll('#sagPapel button'), function(btn){
+    btn.onclick = function(){
+      [].forEach.call(document.querySelectorAll('#sagPapel button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      sagP = btn.dataset.p;
+      var cGer = document.getElementById('cardFiltroGer'), cPart = document.getElementById('cardFiltroPart');
+      if(cGer) cGer.setAttribute('aria-pressed', sagP==='ger'?'true':'false');
+      if(cPart) cPart.setAttribute('aria-pressed', sagP==='part'?'true':'false');
+      aplicaSag();
+    };
+  });
+
+  var cardFiltroGer = document.getElementById('cardFiltroGer');
+  if(cardFiltroGer){
+    cardFiltroGer.onclick = function(){
+      var novo = sagP==='ger' ? 'all' : 'ger';
+      var bt = document.querySelector('#sagPapel button[data-p="'+novo+'"]');
+      if(bt) bt.click();
+    };
+  }
+  var cardFiltroPart = document.getElementById('cardFiltroPart');
+  if(cardFiltroPart){
+    cardFiltroPart.onclick = function(){
+      var novo = sagP==='part' ? 'all' : 'part';
+      var bt = document.querySelector('#sagPapel button[data-p="'+novo+'"]');
+      if(bt) bt.click();
+    };
+  }
+
+  [].forEach.call(document.querySelectorAll('#sagAno button'), function(btn){
+    btn.onclick = function(){
+      [].forEach.call(document.querySelectorAll('#sagAno button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      sagAnoVal = btn.dataset.ano;
+      aplicaSag();
+    };
+  });
+
+  var inpSagBusca = document.getElementById('sagBusca');
+  if(inpSagBusca){ inpSagBusca.oninput = aplicaSag; }
+
+  document.addEventListener('click', function(e){
+    var bt = e.target.closest('.btn-copiar-linha');
+    if(!bt) return;
+    var texto = bt.dataset.copia;
+    if(!texto) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(texto).then(function(){
+        var orig = bt.textContent;
+        bt.textContent = '✓';
+        setTimeout(function(){ bt.textContent = orig; }, 1500);
+      });
+    } else {
+      prompt('Copie os dados abaixo:', texto);
+    }
+  });
+
+  var btSagCopiar = document.getElementById('btSagCopiar');
+  if(btSagCopiar){
+    btSagCopiar.onclick = function(){
+      var linhas = ['Pregão\tPapel\tGerenciador\tObjeto\tItens\tValor Homologado / Cota SAG (R$)\tVigência\tStatus'];
+      if(sagP==='all' || sagP==='ger'){
+        sagLinhasGer.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var obj = (tr.cells[1].getAttribute('title')||tr.cells[1].textContent).trim();
+            var itens = tr.cells[2].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[4].textContent.trim();
+            var st = tr.cells[5].textContent.trim();
+            linhas.push(pg + '\tGerenciador\t' + (tr.dataset.ger||'') + '\t' + obj + '\t' + itens + '\t' + val + '\t' + vig + '\t' + st);
+          }
+        });
+      }
+      if(sagP==='all' || sagP==='part'){
+        sagLinhasPart.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var ger = tr.cells[1].textContent.trim();
+            var obj = (tr.cells[2].getAttribute('title')||tr.cells[2].textContent).trim();
+            var itens = tr.cells[3].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[5].textContent.trim();
+            var st = tr.cells[6].textContent.trim();
+            linhas.push(pg + '\tParticipante\t' + ger + '\t' + obj + '\t' + itens + '\t' + val + '\t' + vig + '\t' + st);
+          }
+        });
+      }
+      if(linhas.length <= 1){ alert('Nenhum dado visível para copiar.'); return; }
+      var tsv = linhas.join('\n');
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(tsv).then(function(){
+          var orig = btSagCopiar.textContent;
+          btSagCopiar.textContent = '✓ Tabela Copiada!';
+          setTimeout(function(){ btSagCopiar.textContent = orig; }, 2000);
+        });
+      } else {
+        prompt('Copie a tabela abaixo para colar no SAG:', tsv);
+      }
+    };
+  }
+
+  var btSagExcel = document.getElementById('btSagExcel');
+  if(btSagExcel){
+    btSagExcel.onclick = function(){
+      var cab = ['Pregão', 'Papel SAG', 'Gerenciador', 'Objeto do Pregão', 'Qtd Itens', 'Valor Homologado / Cota SAG (R$)', 'Fim Vigência', 'Status'];
+      var linhas = [];
+      if(sagP==='all' || sagP==='ger'){
+        sagLinhasGer.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var obj = (tr.cells[1].getAttribute('title')||tr.cells[1].textContent).trim();
+            var itens = tr.cells[2].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[4].textContent.trim();
+            var st = tr.cells[5].textContent.trim();
+            linhas.push([pg, 'Gerenciador', tr.dataset.ger||'', obj, itens, val, vig, st]);
+          }
+        });
+      }
+      if(sagP==='all' || sagP==='part'){
+        sagLinhasPart.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            var pg = tr.cells[0].textContent.trim();
+            var ger = tr.cells[1].textContent.trim();
+            var obj = (tr.cells[2].getAttribute('title')||tr.cells[2].textContent).trim();
+            var itens = tr.cells[3].textContent.trim();
+            var val = tr.dataset.valor||'0';
+            var vig = tr.cells[5].textContent.trim();
+            var st = tr.cells[6].textContent.trim();
+            linhas.push([pg, 'Participante', ger, obj, itens, val, vig, st]);
+          }
+        });
+      }
+      if(!linhas.length){ alert('Nenhum pregão para exportar neste filtro.'); return; }
+      var hoje = new Date().toISOString().slice(0,10);
+      baixarExcel('preenchimento_sag_D C Mun_'+hoje, cab, linhas, [4,5]);
+    };
+  }
+
+  function bindOrdSag(tabela, listaLinhas){
+    if(!tabela) return;
+    var ordem = {col:-1, asc:false};
+    [].forEach.call(tabela.tHead.rows[0].cells, function(th, i){
+      if(i === tabela.tHead.rows[0].cells.length - 1) return;
+      th.style.cursor = 'pointer';
+      th.onclick = function(){
+        ordem.asc = ordem.col===i ? !ordem.asc : false;
+        ordem.col = i;
+        var isNum = th.classList.contains('num');
+        listaLinhas.sort(function(a, b){
+          var va, vb;
+          if(isNum){
+            va = parseFloat(a.cells[i].dataset.v||a.dataset.valor||0);
+            vb = parseFloat(b.cells[i].dataset.v||b.dataset.valor||0);
+          } else {
+            va = a.cells[i].textContent.toLowerCase();
+            vb = b.cells[i].textContent.toLowerCase();
+          }
+          return (va<vb ? -1 : va>vb ? 1 : 0) * (ordem.asc ? 1 : -1);
+        });
+        var frag = document.createDocumentFragment();
+        listaLinhas.forEach(function(tr){ frag.appendChild(tr); });
+        tabela.tBodies[0].appendChild(frag);
+      };
+    });
+  }
+  bindOrdSag(tbSagGer, sagLinhasGer);
+  bindOrdSag(tbSagPart, sagLinhasPart);
+
+  aplicaSag();
+
+  try{
+    var abaSalva = localStorage.getItem('bcms-aba');
+    if(abaSalva==='sag') trocaAba('sag');
+    else if(abaSalva==='plan') trocaAba('plan');
+    else if(window.location.hash==='#sag') trocaAba('sag');
+    else if(window.location.hash==='#planejamento') trocaAba('plan');
+  }catch(e){}
 
   // ==================== DETALHAMENTO (modal ao clicar) ====================
   var OMNOMES={"160329": {"s": "BCMS", "n": "Batalhão Central de Manutenção e Suprimento"}, "160238": {"s": "Ba Ap Log", "n": "Base de Apoio Logístico do Exército"}, "160307": {"s": "1º D Sup", "n": "1º Depósito de Suprimento"}, "160304": {"s": "BMSA", "n": "BMSA"}, "160246": {"s": "D C Mun", "n": "Depósito Central de Munição"}, "160321": {"s": "ECT", "n": "ECT"}};
