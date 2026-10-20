@@ -40,7 +40,11 @@ jobs:
         env:
           # Secret com o ID do Consolidado_Pregoes.xlsx no Google Drive.
           DRIVE_FILE_ID: ${{ secrets.DRIVE_FILE_ID }}
-        run: python gerar_dashboard.py
+        run: |
+          python gerar_dashboard.py
+          if [ -f "build_pregoes_dashboard.py" ]; then
+            python build_pregoes_dashboard.py
+          fi
 
       - name: Salvar histórico (commit se mudou)
         continue-on-error: true

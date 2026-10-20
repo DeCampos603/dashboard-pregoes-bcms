@@ -1145,7 +1145,49 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
   .tblwrap{overflow:visible} thead th{position:static}
   a{text-decoration:none;color:#000}
 }
+
+/* ==========================================================================
+   ENGENHARIA GOVTECH: CORREÇÃO DE BOTÕES, CONTROLES & 7 ESTADOS DE UI
+   ========================================================================== */
+button, .btn, .omds, .tab, .chip-pos, .modal-x, .flt-select, .flt-input {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  transition: transform var(--tr-fast, 150ms), background-color var(--tr-fast), border-color var(--tr-fast), box-shadow var(--tr-fast), color var(--tr-fast) !important;
+}
+
+button:active, .btn:active {
+  transform: translateY(1px) !important;
+}
+
+button:focus-visible, .btn:focus-visible, .tab:focus-visible, .omds:focus-visible {
+  outline: 2px solid var(--primary, #1C4A73) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(28, 74, 115, 0.2) !important;
+}
+
+button:disabled, .btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+button[aria-busy="true"], .btn[aria-busy="true"] {
+  cursor: wait !important;
+  opacity: 0.75 !important;
+}
+
+@media (max-width: 768px) {
+  button, .btn, .tab, .omds {
+    min-height: 48px !important;
+    padding: 0.65rem 1rem !important;
+  }
+}
+
 </style>
+  <link rel="stylesheet" href="design-tokens.css">
 </head>
 <body>
 <div class="bcms-bar" aria-hidden="true"></div>
@@ -1210,22 +1252,6 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
     <div class="pills" id="ativo"><span class="lbl">Filtros:</span><span id="ativoPills"></span></div>
   </section>
 
-  <section class="filtros" aria-label="Filtros">
-    <div class="filtros-grid">
-      %%SEL_CAT%%
-      %%SEL_ND%%
-      %%SEL_PG%%
-      %%SEL_FORN%%
-      %%SEL_TP%%
-    </div>
-    <div class="frow2">
-      <input id="busca" type="search" placeholder="Buscar item, fornecedor, pregão…"
-             aria-label="Buscar no texto dos itens">
-      <button class="btn" id="btLimpar">Limpar filtros</button>
-    </div>
-    <p class="sr" id="vivo" role="status" aria-live="polite"></p>
-  </section>
-
   <section class="kpis">
     <div class="kpi"><div class="lbl">Itens com saldo</div>
       <div class="v" id="kItens">%%N_ITENS%%</div>
@@ -1270,6 +1296,24 @@ footer{margin-top:30px;font-size:12px;color:var(--ink-muted);text-align:center;l
       %%SPARK%%
     </section>
   </div>
+
+  
+
+  <section class="filtros" aria-label="Filtros">
+    <div class="filtros-grid">
+      %%SEL_CAT%%
+      %%SEL_ND%%
+      %%SEL_PG%%
+      %%SEL_FORN%%
+      %%SEL_TP%%
+    </div>
+    <div class="frow2">
+      <input id="busca" type="search" placeholder="Buscar item, fornecedor, pregão…"
+             aria-label="Buscar no texto dos itens">
+      <button class="btn" id="btLimpar">Limpar filtros</button>
+    </div>
+    <p class="sr" id="vivo" role="status" aria-live="polite"></p>
+  </section>
 
   <section class="card">
     <h2>Itens <span class="cap" id="cont" style="font-family:var(--sans)"></span></h2>
@@ -2481,6 +2525,14 @@ def main() -> int:
             f.write(render(mu, hist, com_dados))
         print(f"[OK] {arq}: {fmt_brl(mu['cap_total'])} "
               f"({mu['n_itens']} itens, {mu['n_pregoes']} pregões)")
+    
+    # 3) Pós-processamento e compilação do portal de pregões (se disponível)
+    try:
+        import build_pregoes_dashboard
+        build_pregoes_dashboard.main()
+    except Exception as e:
+        print(f"[INFO] build_pregoes_dashboard: {e}")
+
     return 0
 
 

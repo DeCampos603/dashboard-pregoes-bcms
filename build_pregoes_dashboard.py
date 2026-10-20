@@ -22,8 +22,9 @@ ROOT_DIR = pathlib.Path(__file__).parent
 SITE_DIR = ROOT_DIR / "site"
 DATA_DIR = ROOT_DIR.parent / "Requisicoes-Empenho-BCMS" / "dados"
 
-PNCP_PATH = DATA_DIR / "pncp_cache.json"
-PREGOES_PATH = DATA_DIR / "pregoes.json"
+LOCAL_DATA = ROOT_DIR / "data"
+PNCP_PATH = LOCAL_DATA / "pncp_cache.json" if (LOCAL_DATA / "pncp_cache.json").exists() else (DATA_DIR / "pncp_cache.json")
+PREGOES_PATH = LOCAL_DATA / "pregoes.json" if (LOCAL_DATA / "pregoes.json").exists() else (DATA_DIR / "pregoes.json")
 TOKENS_PATH = SITE_DIR / "design-tokens.css"
 INDEX_PATH = SITE_DIR / "index.html"
 PREGOES_HTML_PATH = SITE_DIR / "pregoes.html"
