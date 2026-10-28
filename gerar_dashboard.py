@@ -579,9 +579,41 @@ def _tabela(itens: list[dict]) -> str:
     return "\n".join(linhas)
 
 
+def _carregar_titulos_pregoes() -> dict[str, dict]:
+    """Carrega catálogo com títulos oficiais do PNCP e especificações refinadas."""
+    caminhos = [
+        os.path.join(DATA, "titulos_pregoes.json"),
+        os.path.join(BASE, "..", "Requisicoes-Empenho-BCMS", "dados", "titulos_pregoes.json"),
+    ]
+    for p in caminhos:
+        if os.path.isfile(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+    return {}
+
+_CATALOGO_TITULOS = _carregar_titulos_pregoes()
+
+
 def _objeto_do_pregao(p: dict) -> str:
-    """'Objeto' derivado das categorias dos itens (a coluna Objeto é só 'x').
-    Categoria ausente vai para o fim, para nunca roubar a vez de uma real."""
+    """Retorna o título do pregão: preferencialmente o título oficial do PNCP / Catálogo."""
+    ger = str(p.get("ger", "")).strip()
+    pr = str(p.get("pregao", "")).strip()
+    if "/" in pr:
+        num, ano = pr.split("/")
+    else:
+        num, ano = pr, "2026"
+    num_clean = num.lstrip("0")
+    key = f"{ger}:{num_clean}:{ano}"
+
+    if key in _CATALOGO_TITULOS:
+        info = _CATALOGO_TITULOS[key]
+        tit = info.get("titulo_curto") or info.get("objeto_completo")
+        if tit:
+            return tit
+
     cats = sorted(p["cats"].items(), key=lambda x: (x[0] == AUSENTE, -x[1]))
     if not cats:
         return "—"
@@ -637,7 +669,23 @@ def _tabela_planejamento(planejamento: list) -> str:
 
 
 def _objeto_sag(p: dict) -> tuple[str, str]:
-    """Retorna (objeto_curto, objeto_completo_para_tooltip) sintetizado."""
+    """Retorna (objeto_curto, objeto_completo_para_tooltip)."""
+    ger = str(p.get("ger", "")).strip()
+    pr = str(p.get("pregao", "")).strip()
+    if "/" in pr:
+        num, ano = pr.split("/")
+    else:
+        num, ano = pr, "2026"
+    num_clean = num.lstrip("0")
+    key = f"{ger}:{num_clean}:{ano}"
+
+    if key in _CATALOGO_TITULOS:
+        info = _CATALOGO_TITULOS[key]
+        completo = info.get("objeto_completo") or ""
+        curto = info.get("titulo_curto") or completo
+        if completo:
+            return curto, completo
+
     cats = sorted(p["cats"].items(), key=lambda x: (x[0] == AUSENTE, -x[1]))
     cat_str = " · ".join([c[0] for c in cats[:2]]) if cats else "Diversos"
     catmats = sorted(p["catmats"].items(), key=lambda x: -x[1])
@@ -647,7 +695,7 @@ def _objeto_sag(p: dict) -> tuple[str, str]:
     else:
         curto = cat_str
     mats_all = [m[0].title() for m in catmats[:8] if m[0]]
-    detalhes = f"{cat_str} — Principais itens: {', '.join(mats_all)}" if mats_all else cat_str
+    detalhes = f"{cat_str} · Principais itens: {', '.join(mats_all)}" if mats_all else cat_str
     return curto, detalhes
 
 

@@ -56,7 +56,16 @@ def fmt_brl(val):
 
 def carregar_dados_consolidados():
     print("1. Carregando e cruzando bases do PNCP e Pregões...")
-    pncp_list = json.loads(PNCP_PATH.read_text(encoding="utf-8")).get("pregoes", []) if PNCP_PATH.exists() else []
+    pncp_list = []
+    for p_cand in (DATA_DIR / "pncp_cache.json", LOCAL_DATA / "pncp_cache.json"):
+        if p_cand.exists():
+            try:
+                lst = json.loads(p_cand.read_text(encoding="utf-8")).get("pregoes", [])
+                if lst:
+                    pncp_list = lst
+                    break
+            except Exception:
+                pass
     pregoes_dict = json.loads(PREGOES_PATH.read_text(encoding="utf-8")).get("pregoes", {}) if PREGOES_PATH.exists() else {}
 
     uasg_info = {
@@ -71,6 +80,7 @@ def carregar_dados_consolidados():
     }
 
     consolidated = []
+    vistos_keys = set()
     tot_est = 0.0
     tot_hom = 0.0
     desagios_list = []
@@ -82,6 +92,9 @@ def carregar_dados_consolidados():
         num = str(p.get("numero", "")).strip()
         ano = str(p.get("ano", "2026")).strip()
         full_num = f"{num}/{ano}"
+        vistos_keys.add(f"{ugg}:{full_num}")
+        if num.isdigit():
+            vistos_keys.add(f"{ugg}:{int(num)}/{ano}")
 
         ve = safe_float(p.get("valor_estimado"))
         vh = safe_float(p.get("valor_homologado"))
