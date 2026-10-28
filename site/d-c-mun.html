@@ -62,7 +62,9 @@ h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em
 
 /* barra de troca de OMDS */
 .omds-nav{position:sticky;top:66px;z-index:35;background:var(--surface);
-  border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:thin}
+  border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.omds-nav::-webkit-scrollbar,.tabs::-webkit-scrollbar,.seg::-webkit-scrollbar{display:none}
+@media(min-width:1025px){.hdr-in,.hdr-r{flex-wrap:nowrap!important}.hdr-r{flex-shrink:0}}
 @media(max-width:560px){.omds-nav{top:60px}}
 .omds-nav-in{max-width:1200px;margin:0 auto;padding:8px 20px;display:flex;gap:8px}
 .omds{display:inline-flex;align-items:center;gap:7px;flex:none;cursor:pointer;
@@ -106,7 +108,7 @@ a.omds:hover{border-color:var(--ink-muted);color:var(--ink)}
 
 /* abas (Capacidade / Planejamento) */
 .tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border);
-  overflow-x:auto;scrollbar-width:none}
+  overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
 .tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 16px 12px;
   cursor:pointer;font:14px var(--sans);color:var(--ink-muted);font-weight:600;
   white-space:nowrap;border-radius:8px 8px 0 0;transition:color .15s,border-color .15s,background .15s}

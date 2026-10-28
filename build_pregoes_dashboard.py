@@ -791,6 +791,21 @@ table.pregoes-table td.num {{
 /* ==========================================================================
    BREAKPOINTS RESPONSIVOS (1024px, 768px, 480px, 360px)
    ========================================================================== */
+@media (min-width: 1025px) {{
+  .topbar, .topbar-actions, .toolbar-actions {{
+    flex-wrap: nowrap !important;
+  }}
+  .topbar-actions {{
+    flex-shrink: 0 !important;
+  }}
+}}
+.tabs, .nav, .toptabs, .omds-nav {{
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}}
+.tabs::-webkit-scrollbar, .nav::-webkit-scrollbar, .toptabs::-webkit-scrollbar, .omds-nav::-webkit-scrollbar {{
+  display: none !important;
+}}
 @media (max-width: 1024px) {{
   .kpis-grid {{
     grid-template-columns: repeat(2, 1fr) !important;

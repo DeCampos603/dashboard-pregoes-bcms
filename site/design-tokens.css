@@ -220,3 +220,52 @@ html[data-theme="light"], :root[data-theme="light"] {
   --danger-bg:    var(--figma-rose-bg);
   --gold:         var(--figma-amber);
 }
+
+/* ==========================================================================
+   5. BLINDAGEM VISUAL V2 PRO (SCROLLBARS, TABULAR-NUMS & TOPBAR DESKTOP)
+   ========================================================================== */
+.tabs, .nav, .toptabs, .omds-nav, .seg {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.tabs::-webkit-scrollbar,
+.nav::-webkit-scrollbar,
+.toptabs::-webkit-scrollbar,
+.omds-nav::-webkit-scrollbar,
+.seg::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+table td.num,
+table th.num,
+.pregoes-table td.num,
+.pregoes-table th.num,
+.tb-sag td.num,
+.tb-sag th.num,
+.kpi .v,
+.kpi-value,
+.bval,
+.pl-card-n,
+.pl-card-cap,
+.sag-kpi-val,
+.desagio-pill {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+@media (min-width: 1025px) {
+  .topbar,
+  .topbar-actions,
+  .hdr-in,
+  .hdr-r,
+  .toolbar-actions {
+    flex-wrap: nowrap !important;
+  }
+  .topbar-actions,
+  .hdr-r {
+    flex-shrink: 0 !important;
+  }
+}
+
