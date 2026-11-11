@@ -66,8 +66,8 @@ suas atas) quando for incluída em `lista_uasgs.txt` — e isso depende de acess
 O gerador **já é parametrizado por ambiente** — nenhuma unidade está fixa no código:
 
 ```bash
-UASG_ALVO=160238 NOME_UNIDADE="Base de Apoio Logístico do Exército" \
-NOME_CURTO="Ba Ap Log Ex" py -3 gerar_dashboard.py
+UASG_ALVO=160238 NOME_UNIDADE="Base de Apoio Logístico" \
+NOME_CURTO="Ba Ap Log" py -3 gerar_dashboard.py
 ```
 
 Isso gera **hoje**, sem nenhuma alteração de código, um painel completo da Base.

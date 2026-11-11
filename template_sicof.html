@@ -1,0 +1,3087 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark" style="--unit-accent:%%ACCENT%%;--unit-accent-rgb:%%UNIT_RGB%%">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Capacidade de Empenho — Atas %%UNIDADE_CURTA%% · SICOF 3.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   SICOF 3.0 DESIGN SYSTEM & TOKENS (WCAG 2.2 AAA + 60FPS GPU ACCELERATION)
+   ========================================================================== */
+:root {
+  --motion-instant: 100ms;
+  --motion-snappy: 180ms;
+  --motion-base: 280ms;
+  --motion-slow: 450ms;
+  --motion-ease: cubic-bezier(0.16, 1.0, 0.3, 1.0);
+
+  /* Paleta Executiva Noturna (Default) */
+  --bg-deep: #070913;
+  --bg-surface: rgba(14, 21, 37, 0.72);
+  --bg-surface-hover: rgba(22, 33, 58, 0.85);
+  --bg-card: rgba(16, 24, 43, 0.65);
+  --bg-card-elevated: rgba(23, 34, 60, 0.75);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-focus: var(--unit-accent, #38bdf8);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-accent: var(--unit-accent, #38bdf8);
+  --text-emerald: #34d399;
+  --text-amber: #fbbf24;
+  --text-rose: #fb7185;
+
+  /* Identidade Visual Dinâmica por Unidade */
+  --unit-accent: #38bdf8;
+  --unit-accent-rgb: 56, 189, 248;
+  --unit-glow: rgba(var(--unit-accent-rgb), 0.25);
+  --unit-border: rgba(var(--unit-accent-rgb), 0.45);
+  --unit-bg-tint: rgba(var(--unit-accent-rgb), 0.08);
+
+  /* Status Tokens */
+  --success: #35c08f;
+  --success-fill: #10b981;
+  --warning: #fbbf24;
+  --warning-fill: #f59e0b;
+  --danger: #fb7185;
+  --danger-fill: #ef4444;
+
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --r: 16px;
+  --r-sm: 10px;
+}
+
+/* ==========================================================================
+   TEMA BRANCO / ALTO CONTRASTE (WCAG 2.2 AAA & EXECUTIVE LIGHT)
+   ========================================================================== */
+html[data-theme="light"] {
+  --bg-deep: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-elevated: #ffffff;
+
+  --border-subtle: #cbd5e1;
+  --border-strong: #94a3b8;
+  --border-focus: var(--unit-accent, #0284c7);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-accent: var(--unit-accent, #0284c7);
+  --text-emerald: #047857;
+  --text-amber: #b45309;
+  --text-rose: #be123c;
+
+  --unit-glow: rgba(var(--unit-accent-rgb), 0.18);
+  --unit-border: rgba(var(--unit-accent-rgb), 0.55);
+  --unit-bg-tint: rgba(var(--unit-accent-rgb), 0.05);
+
+  --success: #047857;
+  --success-fill: #059669;
+  --warning: #b45309;
+  --warning-fill: #d97706;
+  --danger: #be123c;
+  --danger-fill: #dc2626;
+
+  --glass-blur: blur(0px);
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  line-height: 1.5;
+  background-color: var(--bg-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  #motion-canvas { display: none !important; }
+}
+
+/* Fundo Animado WebGL Canvas 60fps */
+#motion-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--motion-slow) var(--motion-ease);
+}
+html[data-theme="light"] #motion-canvas {
+  display: none !important;
+}
+
+/* Barra de Leitura Superior com Scroll Progress */
+.reading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3.5px;
+  background: linear-gradient(90deg, var(--unit-accent), #10b981, #6366f1);
+  transform-origin: 0% 50%;
+  z-index: 9999;
+  animation: scrollProgress linear;
+  animation-timeline: scroll(root block);
+}
+@keyframes scrollProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.app-container {
+  max-width: 1540px;
+  margin: 0 auto;
+  padding: 1.25rem 2rem 5rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   HEADER EXECUTIVO COMPACTO
+   ========================================================================== */
+.executive-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.75rem;
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 1.5rem;
+}
+.header-branding {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(var(--unit-accent-rgb), 0.25), rgba(16, 185, 129, 0.15));
+  border: 1px solid var(--unit-border);
+  border-radius: 12px;
+  color: var(--text-accent);
+  font-weight: 800;
+  font-size: 1.15rem;
+  box-shadow: 0 0 16px var(--unit-glow);
+}
+.brand-title h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+.brand-title p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.chip-pos {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.chip-pos b {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.52rem 0.95rem;
+  border-radius: var(--r-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--motion-snappy) var(--motion-ease);
+  line-height: 1;
+}
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.btn-theme-toggle {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+.btn-theme-toggle:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12));
+  border-color: var(--unit-accent);
+  box-shadow: 0 0 16px var(--unit-glow);
+  transform: translateY(-2px);
+}
+html[data-theme="light"] .btn-theme-toggle {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1.5px solid #0f172a !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* ==========================================================================
+   VITRINE HERÁLDICA DE OMDS & BANNER DA UNIDADE ATIVA
+   ========================================================================== */
+.omds-showcase-section {
+  margin-bottom: 2rem;
+}
+.showcase-header {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.showcase-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.showcase-header p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.logos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.logo-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--border-subtle);
+  border-top: 3.5px solid var(--om-accent, var(--text-accent));
+  border-radius: 18px;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--motion-base) var(--motion-ease),
+              border-color var(--motion-base) var(--motion-ease),
+              box-shadow var(--motion-base) var(--motion-ease),
+              background var(--motion-base) var(--motion-ease);
+  user-select: none;
+}
+.logo-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(var(--om-rgb, 56, 189, 248), 0.6);
+  box-shadow: 0 10px 26px -2px rgba(var(--om-rgb, 56, 189, 248), 0.35);
+}
+.logo-card.is-active {
+  background: linear-gradient(145deg, rgba(var(--om-rgb, 56, 189, 248), 0.18), rgba(15, 23, 42, 0.92));
+  border-color: var(--om-accent, var(--text-accent)) !important;
+  box-shadow: 0 0 28px -2px rgba(var(--om-rgb, 56, 189, 248), 0.5), inset 0 0 14px rgba(var(--om-rgb, 56, 189, 248), 0.18) !important;
+  transform: translateY(-2px);
+}
+.logo-card.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 15%;
+  right: 15%;
+  height: 4px;
+  background: var(--om-accent, var(--text-accent));
+  border-radius: 999px;
+  box-shadow: 0 0 14px var(--om-accent, var(--text-accent));
+}
+.logo-card-off {
+  opacity: 0.5;
+  cursor: default;
+}
+.logo-img-wrap {
+  width: 76px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  transition: transform var(--motion-snappy) cubic-bezier(0.34, 1.56, 0.64, 1.0);
+}
+.logo-card:hover .logo-img-wrap {
+  transform: scale(1.08);
+}
+.omds-crest-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+.logo-card-sigla {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+.logo-card-nome {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.logo-card-badge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+}
+
+/* Banner de Destaque da Unidade Ativa */
+.unit-overview-banner {
+  background: linear-gradient(135deg, rgba(var(--unit-accent-rgb), 0.12), rgba(11, 17, 32, 0.92));
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--unit-border);
+  border-radius: 20px;
+  padding: 1.5rem 1.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  box-shadow: 0 8px 32px var(--unit-glow);
+}
+.unit-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1;
+}
+.unit-banner-info {
+  min-width: 0;
+  word-break: break-word;
+}
+.unit-banner-logo-wrap {
+  width: 82px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid var(--unit-border);
+  box-shadow: 0 0 20px var(--unit-glow);
+  padding: 0.4rem;
+}
+.unit-banner-logo-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+.unit-banner-info h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+.unit-banner-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.45rem;
+}
+.unit-tags-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.tag-pill {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.tag-pill b {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   NAVEGAÇÃO POR ABAS SICOF 3.0 (DRAG-TO-SCROLL & HORIZONTAL BAR)
+   ========================================================================== */
+.sicof-tabs-nav {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.45rem;
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  margin-bottom: 1.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.sicof-tabs-nav::-webkit-scrollbar { display: none; }
+.sicof-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--motion-snappy) var(--motion-ease);
+}
+.sicof-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+.sicof-tab-btn[aria-selected="true"] {
+  background: var(--unit-accent);
+  color: #030712;
+  box-shadow: 0 4px 16px var(--unit-glow);
+}
+html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
+  color: #ffffff;
+}
+
+/* Painéis de Conteúdo das Abas */
+.tab-content-panel {
+  display: block;
+  animation: fadeInTab var(--motion-base) var(--motion-ease);
+}
+.tab-content-panel[hidden] {
+  display: none !important;
+}
+@keyframes fadeInTab {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   BENTO GRID HERO & CARDS DE KPIS
+   ========================================================================== */
+.bento-hero-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 1024px) {
+  .bento-hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bento-card-main {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 640px) {
+  .bento-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.bento-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r);
+  padding: 1.35rem 1.5rem;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--motion-base) var(--motion-ease),
+              border-color var(--motion-base) var(--motion-ease),
+              box-shadow var(--motion-base) var(--motion-ease);
+}
+.bento-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.4);
+}
+.bento-card-main {
+  grid-row: span 2;
+  border-left: 4.5px solid var(--unit-accent);
+  background: linear-gradient(145deg, rgba(var(--unit-accent-rgb), 0.1), var(--bg-card));
+}
+.hero-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.hero-big {
+  font-size: clamp(1.8rem, 4.2vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  margin-bottom: 0.4rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.hero-cap {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 1.25rem;
+}
+.meter {
+  display: flex;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+}
+.mseg {
+  height: 100%;
+  transition: width var(--motion-slow) var(--motion-ease);
+}
+.mseg-vig { background: var(--success-fill); }
+.mseg-v30 { background: var(--warning-fill); }
+.mleg {
+  list-style: none;
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.mleg li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.mleg b {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+.key {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.key-vig { background: var(--success-fill); }
+.key-v30 { background: var(--warning-fill); }
+
+.pills {
+  margin-top: 1rem;
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.pills.on { display: flex; }
+.pill {
+  background: var(--unit-accent);
+  color: #030712;
+  border-radius: 999px;
+  padding: 0.22rem 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+html[data-theme="light"] .pill { color: #ffffff; }
+
+/* Bento KPI Mini Cards */
+.bento-kpi-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.bento-kpi-val {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  margin: 0.45rem 0 0.2rem 0;
+}
+.bento-kpi-val.warn { color: var(--warning); }
+.bento-kpi-val.bad { color: var(--danger); }
+.bento-kpi-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   PAINÉIS DE GRÁFICOS ANALÍTICOS (BARRAS HORIZONTAIS, VENCENDO & EVOLUÇÃO)
+   ========================================================================== */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 900px) {
+  .grid2 { grid-template-columns: 1fr; }
+}
+.card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r);
+  padding: 1.35rem 1.5rem;
+  box-shadow: var(--glass-shadow);
+  min-width: 0;
+}
+.card h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+.card .cap {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1.1rem;
+}
+
+/* Barras Horizontais com Pódio Top 3 */
+.brow {
+  display: grid;
+  grid-template-columns: minmax(110px, 175px) 1fr 96px;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.45rem 0.65rem;
+  margin: 0 -0.45rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background var(--motion-snappy) var(--motion-ease);
+}
+.brow:hover, .brow:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+}
+.blabel {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.rank-pos {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.1rem 0.38rem;
+  border-radius: 4px;
+  line-height: 1.2;
+  flex: none;
+}
+.rank-1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+.rank-2 { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+.rank-3 { background: rgba(217, 119, 6, 0.18); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.35); }
+.btrack {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+.bfill {
+  height: 100%;
+  background: var(--unit-accent);
+  border-radius: 999px;
+  transition: width var(--motion-slow) var(--motion-ease);
+}
+.bfill-top {
+  filter: brightness(1.15) saturate(1.2);
+  box-shadow: 0 0 10px var(--unit-glow);
+}
+.bval {
+  font-size: 0.78rem;
+  text-align: right;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+.bval-num { font-weight: 700; color: var(--text-primary); }
+.bval-pct { font-size: 0.68rem; color: var(--text-muted); }
+.vazio {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+/* ==========================================================================
+   FILTROS MULTI-DIMENSIONAIS COM COMBOBOX PESQUISÁVEL
+   ========================================================================== */
+.filtros {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--glass-shadow);
+}
+.filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.85rem;
+}
+.fl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.fl > span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fl select, #busca, .cb-in, #sagBusca {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 0.55rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  transition: all var(--motion-snappy) var(--motion-ease);
+}
+.fl select:focus, #busca:focus, .cb-in:focus, #sagBusca:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 12px var(--unit-glow);
+}
+.cb { position: relative; }
+.cb-in { padding-right: 28px; text-overflow: ellipsis; }
+.cb-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cb-clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+.cb-list {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+.cb-opt {
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+.cb-opt:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+.cb-opt[aria-selected="true"] {
+  background: var(--unit-bg-tint);
+  color: var(--unit-accent);
+  font-weight: 700;
+}
+.cb-vazio {
+  padding: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.frow2 {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.85rem;
+}
+#busca { flex: 1; min-width: 220px; }
+
+/* Segmented Switches */
+.seg {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.seg button {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 0.4rem 0.95rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--motion-snappy) var(--motion-ease);
+}
+.seg button:hover {
+  color: var(--text-primary);
+}
+.seg button[aria-pressed="true"] {
+  background: var(--unit-accent);
+  color: #030712;
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--unit-glow);
+}
+html[data-theme="light"] .seg button[aria-pressed="true"] {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   TABELAS DE DADOS EXECUTIVAS (WCAG 2.2 AAA + STICKY HEADERS)
+   ========================================================================== */
+.tblwrap {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+th, td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  z-index: 2;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1.5px solid var(--border-strong);
+}
+thead th:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+tbody tr {
+  transition: background var(--motion-snappy) var(--motion-ease);
+}
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+td.num, th.num {
+  text-align: right;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+td.desc {
+  max-width: 320px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+td.forn {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+td.cat, td.nd {
+  white-space: nowrap;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tag-vig { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.tag-v30 { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+.tag-venc { background: rgba(239, 68, 68, 0.18); color: #fb7185; border: 1px solid rgba(239, 68, 68, 0.35); }
+.tag-semata, .tag-semdados { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+.tbl-foot {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* ==========================================================================
+   ABA DE PLANEJAMENTO & BANDAS HORIZONTAIS
+   ========================================================================== */
+.pl-bandas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 768px) {
+  .pl-bandas { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .pl-bandas { grid-template-columns: 1fr; }
+}
+.pl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-left: 4.5px solid var(--bc, var(--text-muted));
+  border-radius: var(--r-sm);
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  transition: all var(--motion-snappy) var(--motion-ease);
+  width: 100%;
+}
+.pl-card:hover { background: rgba(255, 255, 255, 0.05); }
+.pl-card[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--bc, var(--unit-accent)), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.pl-card.b-30 { --bc: var(--danger-fill); }
+.pl-card.b-90 { --bc: var(--warning-fill); }
+.pl-card.b-180 { --bc: #38bdf8; }
+.pl-card.b-max { --bc: var(--success-fill); }
+.pl-card-n {
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1;
+  font-family: var(--font-mono);
+  color: var(--bc, var(--text-primary));
+}
+.pl-card-lb { font-size: 0.74rem; color: var(--text-muted); }
+.pl-card-cap { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font-mono); }
+.pl-bandas.tem-sel .pl-card:not([aria-pressed="true"]) { opacity: 0.45; }
+.pl-dias { display: block; font-size: 0.7rem; font-weight: 700; margin-top: 1px; }
+.pl-dias.d-venc { color: var(--danger); }
+.pl-dias.d-30 { color: var(--warning); }
+.pl-dias.d-ok { color: var(--text-muted); }
+.pl-om { font-size: 0.74rem; font-weight: 700; color: var(--text-accent); }
+.pl-papel { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; margin-top: 1px; }
+.pl-papel.p-ger { color: var(--unit-accent); }
+.pl-papel.p-part { color: var(--text-muted); }
+
+/* ==========================================================================
+   ABA DE PRESTAÇÃO DE CONTAS SAG
+   ========================================================================== */
+.sag-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 800px) {
+  .sag-kpis { grid-template-columns: 1fr; }
+}
+.sag-kpi-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 1.15rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--motion-snappy) var(--motion-ease);
+}
+.sag-kpi-card.sag-kpi-tot { border-left: 4.5px solid var(--unit-accent); cursor: default; }
+.sag-kpi-card.sag-kpi-ger { border-left: 4.5px solid #8b5cf6; }
+.sag-kpi-card.sag-kpi-part { border-left: 4.5px solid #0ea5e9; }
+.sag-kpi-card:hover { background: rgba(255, 255, 255, 0.05); }
+.sag-kpi-card[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--unit-accent); }
+.sag-kpi-val { font-size: 1.75rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-primary); }
+.sag-kpi-lb { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
+.sag-kpi-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+.sag-bloco {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 1.25rem 1.35rem;
+  margin-bottom: 1.25rem;
+}
+.sag-bloco-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.sag-bloco-tit {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.sag-bloco-tit h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+.sag-bloco-total {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+.sag-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sag-tag-ger { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.35); }
+.sag-tag-part { background: rgba(14, 165, 233, 0.18); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.35); }
+.btn-copiar-linha {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: all var(--motion-snappy);
+}
+.btn-copiar-linha:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   ABA DE RANQUEAMENTO DAS 6 OMDS
+   ========================================================================== */
+.ranking-leaderboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 1.15rem;
+  margin-bottom: 1.75rem;
+}
+.rank-item-card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r);
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+  transition: all var(--motion-base) var(--motion-ease);
+}
+.rank-item-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.rank-item-card.is-current-om {
+  border-color: var(--unit-accent);
+  box-shadow: 0 0 24px -4px var(--unit-glow);
+}
+.rank-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.rank-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+.rank-pos-badge {
+  font-size: 1.15rem;
+  font-weight: 800;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+.rank-om-crest {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rank-om-crest img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.rank-om-info {
+  flex: 1;
+  min-width: 0;
+}
+.rank-om-sigla {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-om-uasg {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.rank-current-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  background: var(--unit-accent);
+  color: #030712;
+  box-shadow: 0 2px 8px var(--unit-glow);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+html[data-theme="light"] .rank-current-tag {
+  color: #ffffff;
+}
+.rank-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  animation: rankPulse 2s ease-in-out infinite;
+}
+@keyframes rankPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+.rank-metric-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.55rem 0.8rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  min-width: 0;
+}
+.rank-metric-main {
+  min-width: 0;
+}
+.rank-metric-lbl {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+.rank-val-num {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  display: block;
+}
+.rank-val-pct-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.22rem 0.55rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.rank-track-wrap {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+  overflow: hidden;
+}
+.rank-track-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width var(--motion-slow) var(--motion-ease);
+}
+.rank-card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.55rem;
+}
+.rank-card-footer b { color: var(--text-primary); font-family: var(--font-mono); }
+.btn-rank-link {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: 6px;
+  text-decoration: none;
+}
+.btn-rank-link:hover {
+  background: var(--unit-accent);
+  color: #030712;
+}
+
+/* ==========================================================================
+   MODAL DE DETALHES & RAIO-X DO FORNECEDOR
+   ========================================================================== */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(4, 7, 15, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 16px;
+  overflow-y: auto;
+}
+.modal-bg[hidden] { display: none !important; }
+.modal {
+  position: relative;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 20px;
+  max-width: 820px;
+  width: 100%;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  padding: 24px 28px;
+  animation: modalIn var(--motion-snappy) var(--motion-ease);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--motion-snappy);
+}
+.modal-x:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+.modal h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-right: 40px;
+  color: var(--text-primary);
+}
+.modal .m-sub {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 1.25rem;
+}
+.m-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1.5rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 600px) {
+  .m-grid { grid-template-columns: 1fr; }
+}
+.m-f .k {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+.m-f .v {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+.m-f.wide { grid-column: 1 / -1; }
+.m-sec {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-accent);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1rem;
+}
+.m-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.m-badge.p-ger { background: var(--unit-bg-tint); color: var(--unit-accent); }
+.m-badge.p-part { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); }
+.m-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  font-weight: 700;
+  color: var(--unit-accent);
+  text-decoration: none;
+}
+.m-link:hover { text-decoration: underline; }
+
+/* Tooltip */
+.tip {
+  position: fixed;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: var(--r-sm);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+  max-width: 300px;
+}
+.tip.on { opacity: 1; }
+.tip .tv { font-weight: 800; font-family: var(--font-mono); color: var(--unit-accent); display: block; }
+.tip .tl { color: var(--text-secondary); display: block; margin-top: 2px; }
+
+footer {
+  margin-top: 3rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.7;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div class="reading-bar" aria-hidden="true"></div>
+<canvas id="motion-canvas"></canvas>
+
+<div class="app-container">
+  <!-- HEADER EXECUTIVO -->
+  <header class="executive-header">
+    <div class="header-branding">
+      <div class="brand-badge">3.0</div>
+      <div class="brand-title">
+        <h1>Capacidade de Empenho</h1>
+        <p>SICOF 3.0 · <span id="uNome">%%UNIDADE%%</span> · <span id="uUasg">UASG %%UASG%%</span></p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="chip-pos">Posição <b>%%POSICAO%%</b></span>
+      <a href="pregoes.html" class="btn btn-secondary" title="Abrir Portal Geral de Pregões e Licitações PNCP">🏛️ Portal PNCP</a>
+      <button type="button" class="btn btn-secondary" id="btn-toggle-shader" title="Alternar animação WebGL 60fps de fundo">✨ Shader 60fps</button>
+      <button type="button" class="btn btn-theme-toggle" id="btTheme" aria-label="Alternar tema claro/escuro">☀️ Tema Branco</button>
+    </div>
+  </header>
+
+  <!-- VITRINE HERÁLDICA DE OMDS -->
+  <section class="omds-showcase-section" aria-label="Organizações Militares">
+    <div class="showcase-header">
+      <div>
+        <h2>Organizações Militares Diretamente Subordinadas (OMDS)</h2>
+        <p>Selecione uma unidade para analisar sua capacidade de empenho e atas registradas</p>
+      </div>
+    </div>
+    <div class="logos-grid">%%OMDS_NAV%%</div>
+
+    <!-- BANNER DE RESUMO DA UNIDADE ATIVA -->
+    <div class="unit-overview-banner">
+      <div class="unit-banner-left">
+        <div class="unit-banner-logo-wrap">
+          <img id="emblema" src="%%EMBLEMA%%" alt="Brasão %%UNIDADE_CURTA%%">
+        </div>
+        <div class="unit-banner-info">
+          <h2>%%UNIDADE%%</h2>
+          <p>UASG %%UASG%% · Base de Apoio Logístico do Exército</p>
+          <div class="unit-tags-row">
+            <span class="tag-pill">Capacidade Total: <b>%%CAP_TOTAL%%</b></span>
+            <span class="tag-pill"><b>%%N_PREGOES%%</b> pregões ativos</span>
+            <span class="tag-pill"><b>%%N_ITENS%%</b> itens c/ saldo</span>
+            <span class="tag-pill">SAG Mapeado: <b>%%TOT_SAG_GERAL%%</b></span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-secondary" id="btBannerCsv" title="Exportar tabela de itens em Excel (.xlsx)">⬇ Exportar Excel</button>
+        <a href="pregoes.html" class="btn btn-secondary">Ver no PNCP ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVEGAÇÃO DE ABAS SICOF 3.0 -->
+  <nav class="sicof-tabs-nav" role="tablist" aria-label="Seções do Dashboard">
+    <button class="sicof-tab-btn" id="tabCap" role="tab" aria-selected="true" aria-controls="tab-capacidade">
+      📊 Capacidade de Empenho
+    </button>
+    <button class="sicof-tab-btn" id="tabPlan" role="tab" aria-selected="false" aria-controls="tab-planejamento">
+      📅 Planejamento & Vencimentos (%%N_PLANEJ%%)
+    </button>
+    <button class="sicof-tab-btn" id="tabSag" role="tab" aria-selected="false" aria-controls="tab-sag">
+      📋 Prestação de Contas SAG (%%N_SAG_TOTAL%%)
+    </button>
+    <button class="sicof-tab-btn" id="tabRank" role="tab" aria-selected="false" aria-controls="tab-ranking">
+      🏆 Ranqueamento das OMDS (6 OM)
+    </button>
+  </nav>
+
+  <!-- ======================================================================
+       ABA 1: CAPACIDADE DE EMPENHO DISPONÍVEL
+       ====================================================================== -->
+  <div id="tab-capacidade" class="tab-content-panel" role="tabpanel">
+    <!-- Bento Hero Grid -->
+    <div class="bento-hero-grid">
+      <!-- Card Principal de Capacidade -->
+      <div class="bento-card bento-card-main">
+        <div>
+          <p class="hero-label" id="heroLabel">Capacidade de empenho disponível</p>
+          <p class="hero-big" id="heroBig">%%CAP_TOTAL%%</p>
+          <p class="hero-cap">Saldo das atas × valor unitário registrado — volume monetário que pode ser empenhado de imediato sem necessidade de nova licitação.</p>
+        </div>
+        <div>
+          <div class="meter" role="img" id="meter" aria-label="Composição de atas vigentes e com vencimento em até 30 dias">
+            <div class="mseg mseg-vig" id="segVig" style="width:%%PCT_VIG_M%%%" title="Vigentes"></div>
+            <div class="mseg mseg-v30" id="segV30" style="width:%%PCT_V30_M%%%" title="≤30 dias"></div>
+          </div>
+          <ul class="mleg">
+            <li><span class="key key-vig" aria-hidden="true"></span>Vigentes: <b id="heroVig">%%CAP_VIG%%</b></li>
+            <li><span class="key key-v30" aria-hidden="true"></span>Vencem em ≤30 dias: <b id="heroV30">%%CAP_V30%%</b> (<span id="heroPct">%%PCT_V30%%</span>)</li>
+          </ul>
+          <div class="pills" id="ativo"><span class="lbl" style="font-size:0.75rem;color:var(--text-muted)">Filtros ativos:</span><span id="ativoPills"></span></div>
+        </div>
+      </div>
+
+      <!-- Bento KPI 1: Itens -->
+      <div class="bento-card">
+        <div class="bento-kpi-lbl">📦 Itens com Saldo</div>
+        <div class="bento-kpi-val" id="kItens">%%N_ITENS%%</div>
+        <div class="bento-kpi-hint">linhas de ata com saldo remanescente</div>
+      </div>
+
+      <!-- Bento KPI 2: Pregões -->
+      <div class="bento-card">
+        <div class="bento-kpi-lbl">📋 Pregões Ativos</div>
+        <div class="bento-kpi-val" id="kPregoes">%%N_PREGOES%%</div>
+        <div class="bento-kpi-hint">certames com atas utilizáveis</div>
+      </div>
+
+      <!-- Bento KPI 3: Vencendo em 30d -->
+      <div class="bento-card">
+        <div class="bento-kpi-lbl">⚠️ Vence em ≤30 dias</div>
+        <div class="bento-kpi-val warn" id="kV30">%%CAP_V30%%</div>
+        <div class="bento-kpi-hint">urgência operacional: empenhar ou perder</div>
+      </div>
+
+      <!-- Bento KPI 4: Já Perdido -->
+      <div class="bento-card">
+        <div class="bento-kpi-lbl">🛑 Saldo Já Vencido</div>
+        <div class="bento-kpi-val bad" id="kVenc">%%CAP_VENC%%</div>
+        <div class="bento-kpi-hint">saldo expirado em atas já encerradas</div>
+      </div>
+    </div>
+
+    <!-- Gráficos Analíticos de Distribuição -->
+    <div class="grid2">
+      <section class="card">
+        <h2>Onde está a capacidade</h2>
+        <p class="cap">Por tipo de material ou serviço — 12 maiores · <b>clique na barra para filtrar</b></p>
+        <div id="barCat">%%BARRAS_CAT%%</div>
+      </section>
+      <section class="card">
+        <h2>Por pregão</h2>
+        <p class="cap">UASG gerenciadora · número — 12 maiores · <b>clique na barra para filtrar</b></p>
+        <div id="barPg">%%BARRAS_PREGAO%%</div>
+      </section>
+    </div>
+
+    <!-- Vencimentos Próximos & Evolução -->
+    <div class="grid2">
+      <section class="card">
+        <h2>Vencendo em até 60 dias</h2>
+        <p class="cap">Prioridade máxima de empenho antes do vencimento do registro de preços</p>
+        <div class="tblwrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fim vigência</th>
+                <th>Pregão</th>
+                <th class="num">Itens</th>
+                <th class="num">Capacidade</th>
+              </tr>
+            </thead>
+            <tbody id="tbVenc">%%VENC60%%</tbody>
+          </table>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Evolução Histórica da Capacidade</h2>
+        <p class="cap">Curva da capacidade total de empenho a cada coleta do extrator</p>
+        %%SPARK%%
+      </section>
+    </div>
+
+    <!-- FILTROS MULTI-DIMENSIONAIS (Posicionados logo acima da tabela de itens) -->
+    <section class="filtros" aria-label="Filtros de Itens">
+      <div class="filtros-grid">
+        %%SEL_CAT%%
+        %%SEL_ND%%
+        %%SEL_PG%%
+        %%SEL_FORN%%
+        %%SEL_TP%%
+      </div>
+      <div class="frow2">
+        <input id="busca" type="search" placeholder="Buscar por descrição do item, fornecedor, pregão ou CNPJ…" aria-label="Buscar no texto dos itens">
+        <button type="button" class="btn btn-secondary" id="btLimpar">Limpar filtros</button>
+      </div>
+      <p class="sr" id="vivo" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- TABELA DE ITENS COM SALDO -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem">
+        <div>
+          <h2>Itens Disponíveis <span class="cap" id="cont" style="margin:0;font-family:var(--font-mono)"></span></h2>
+          <p class="cap" style="margin:0">Clique numa linha para ver todos os detalhes e o <b>Raio-X do Fornecedor</b> · Clique no cabeçalho para ordenar</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
+          <div class="seg" id="segSit" role="group" aria-label="Situação da ata">
+            <button type="button" data-f="ativos" aria-pressed="true">Válidas</button>
+            <button type="button" data-f="v30" aria-pressed="false">≤30 dias</button>
+            <button type="button" data-f="all" aria-pressed="false">Todas</button>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btPregao" aria-pressed="false" hidden></button>
+          <button type="button" class="btn btn-secondary" id="btCsvItens" title="Exportar dados visíveis para Excel (.xlsx)">⬇ Exportar Excel</button>
+        </div>
+      </div>
+      <div class="tblwrap">
+        <table id="tb">
+          <thead>
+            <tr>
+              <th>Pregão</th>
+              <th>Ger.</th>
+              <th class="num">Item</th>
+              <th>Descrição do Item</th>
+              <th>Categoria</th>
+              <th>ND sug.</th>
+              <th>Fornecedor</th>
+              <th>Fim vig.</th>
+              <th>Situação</th>
+              <th class="num">Saldo</th>
+              <th class="num">Vlr. unit.</th>
+              <th class="num">Valor total</th>
+              <th><span class="sr">Link</span></th>
+            </tr>
+          </thead>
+          <tbody>
+%%TABELA%%
+          </tbody>
+        </table>
+      </div>
+      <p class="vazio" id="semResultado" style="display:none">Nenhum item encontrado para esta combinação de filtros.</p>
+      <div class="tbl-foot"><button type="button" class="btn btn-secondary" id="btMais" style="display:none"></button></div>
+    </section>
+  </div><!-- /tab-capacidade -->
+
+  <!-- ======================================================================
+       ABA 2: PLANEJAMENTO DE NOVAS CONTRATAÇÕES & VENCIMENTOS
+       ====================================================================== -->
+  <div id="tab-planejamento" class="tab-content-panel" role="tabpanel" hidden>
+    <div class="bento-card bento-card-main" style="border-left-color:var(--warning-fill);margin-bottom:1.5rem">
+      <p class="hero-label">Planejamento & Renovação de Contratações</p>
+      <p class="hero-big" id="planTitulo">—</p>
+      <p class="hero-cap">Atas agrupadas por pregão e ordenadas pelo vencimento mais próximo. Permite à equipe de contratações se antecipar e abrir novos certames antes que os registros de preços vigentes expirem.</p>
+    </div>
+
+    <section class="card">
+      <div class="pl-bandas" id="planBandas" role="group" aria-label="Resumo por horizonte de vencimento">
+        <button type="button" class="pl-card b-30" data-band="b30" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vencendo em ≤30 dias</span>
+          <span class="pl-card-cap" data-cap>—</span>
+        </button>
+        <button type="button" class="pl-card b-90" data-band="b90" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vencem em 31–90 dias</span>
+          <span class="pl-card-cap" data-cap>—</span>
+        </button>
+        <button type="button" class="pl-card b-180" data-band="b180" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vencem em 91–180 dias</span>
+          <span class="pl-card-cap" data-cap>—</span>
+        </button>
+        <button type="button" class="pl-card b-max" data-band="bmax" aria-pressed="false">
+          <span class="pl-card-n" data-n>0</span>
+          <span class="pl-card-lb">vigentes > 180 dias</span>
+          <span class="pl-card-cap" data-cap>—</span>
+        </button>
+      </div>
+
+      <div class="frow2" style="margin:0 0 1rem;align-items:center">
+        <div class="seg" id="planPapel" role="group" aria-label="Papel da unidade no pregão">
+          <button type="button" data-p="all" aria-pressed="true">Todos</button>
+          <button type="button" data-p="ger" aria-pressed="false">Gerenciador</button>
+          <button type="button" data-p="part" aria-pressed="false">Participante</button>
+        </div>
+        <span class="cap" style="margin:0" id="planResumo"></span>
+        <button type="button" class="btn btn-secondary" id="btPlanCsv" style="margin-left:auto" title="Exportar planejamento para Excel (.xlsx)">⬇ Exportar Excel</button>
+      </div>
+
+      <div class="tblwrap">
+        <table id="tbPlan">
+          <thead>
+            <tr>
+              <th>Vencimento</th>
+              <th>Pregão</th>
+              <th>Ger.</th>
+              <th>Objeto (categorias)</th>
+              <th class="num">Itens</th>
+              <th class="num">Capacidade</th>
+              <th>Fornecedor(es)</th>
+            </tr>
+          </thead>
+          <tbody>
+%%TABELA_PLANEJ%%
+          </tbody>
+        </table>
+      </div>
+      <p class="vazio" id="planVazio" style="display:none">Nenhum pregão vencendo neste horizonte de tempo.</p>
+    </section>
+  </div><!-- /tab-planejamento -->
+
+  <!-- ======================================================================
+       ABA 3: PRESTAÇÃO DE CONTAS SAG
+       ====================================================================== -->
+  <div id="tab-sag" class="tab-content-panel" role="tabpanel" hidden>
+    <div class="bento-card bento-card-main" style="border-left-color:#8b5cf6;margin-bottom:1.5rem">
+      <p class="hero-label">Sistema de Acompanhamento da Gestão (SAG)</p>
+      <p class="hero-big" id="sagTitulo">%%TOT_SAG_GERAL%%</p>
+      <p class="hero-cap">Consolidado oficial para prestação de contas no SAG: <b>pregões gerenciadores</b> (valor global homologado do certame) e <b>pregões participantes</b> (cota de participação autorizada da OM).</p>
+    </div>
+
+    <section class="card">
+      <div class="sag-kpis" role="group" aria-label="Resumo dos Valores SAG">
+        <div class="sag-kpi-card sag-kpi-tot">
+          <span class="sag-kpi-val" id="sagCardTotVal">%%TOT_SAG_GERAL%%</span>
+          <span class="sag-kpi-lb">Total Mapeado no SAG</span>
+          <span class="sag-kpi-sub" id="sagCardTotQtd">%%N_SAG_TOTAL%% pregões no painel</span>
+        </div>
+        <button type="button" class="sag-kpi-card sag-kpi-ger" id="cardFiltroGer" data-papel="ger" aria-pressed="false" title="Filtrar apenas pregões gerenciadores">
+          <span class="sag-kpi-val" id="sagCardGerVal">%%TOT_SAG_GER%%</span>
+          <span class="sag-kpi-lb">👑 Gerenciador (Pregão Total)</span>
+          <span class="sag-kpi-sub" id="sagCardGerQtd">%%N_SAG_GER%% pregões gerenciados</span>
+        </button>
+        <button type="button" class="sag-kpi-card sag-kpi-part" id="cardFiltroPart" data-papel="part" aria-pressed="false" title="Filtrar apenas pregões participantes">
+          <span class="sag-kpi-val" id="sagCardPartVal">%%TOT_SAG_PART%%</span>
+          <span class="sag-kpi-lb">🤝 Participante (Cota da OM)</span>
+          <span class="sag-kpi-sub" id="sagCardPartQtd">%%N_SAG_PART%% cotas autorizadas</span>
+        </button>
+      </div>
+
+      <div class="frow2" style="margin:1rem 0;align-items:center;gap:0.75rem">
+        <div class="seg" id="sagPapel" role="group" aria-label="Filtrar por papel no SAG">
+          <button type="button" data-p="all" aria-pressed="true">Todos (%%N_SAG_TOTAL%%)</button>
+          <button type="button" data-p="ger" aria-pressed="false">👑 Gerenciadores (%%N_SAG_GER%%)</button>
+          <button type="button" data-p="part" aria-pressed="false">🤝 Participantes (%%N_SAG_PART%%)</button>
+        </div>
+        <div class="seg" id="sagAno" role="group" aria-label="Filtrar por ano">
+          <button type="button" data-ano="all" aria-pressed="true">Todos Anos</button>
+          <button type="button" data-ano="2026" aria-pressed="false">2026</button>
+          <button type="button" data-ano="2025" aria-pressed="false">2025</button>
+          <button type="button" data-ano="2024" aria-pressed="false">2024</button>
+        </div>
+        <input id="sagBusca" type="search" placeholder="Buscar pregão, objeto ou UASG…" style="max-width:280px;flex:1" aria-label="Buscar no SAG">
+        <div style="margin-left:auto;display:flex;gap:0.5rem">
+          <button type="button" class="btn btn-secondary" id="btSagCopiar" title="Copiar linhas visíveis tabuladas para colar direto no Excel do SAG">📋 Copiar Tabela</button>
+          <button type="button" class="btn btn-secondary" id="btSagExcel" title="Baixar lista em planilha Excel (.xlsx)">⬇ Exportar Excel</button>
+        </div>
+      </div>
+
+      <p class="cap" id="sagAvisoFiltro">Organizado por pregões gerenciadores e participações. Clique no ícone 📋 para copiar linha individual ou no botão acima para copiar tudo.</p>
+
+      <!-- BLOCO 1: GERENCIADORES -->
+      <div id="sagBlocoGer" class="sag-bloco">
+        <div class="sag-bloco-hdr">
+          <div class="sag-bloco-tit">
+            <span class="sag-tag sag-tag-ger">👑 Gerenciador</span>
+            <h3>Pregões Gerenciados pela Unidade</h3>
+          </div>
+          <span class="sag-bloco-total" id="sagSubtotalGer">Total: %%TOT_SAG_GER%% (%%N_SAG_GER%%)</span>
+        </div>
+        <div class="tblwrap">
+          <table id="tbSagGer">
+            <thead>
+              <tr>
+                <th style="width:130px">Pregão</th>
+                <th>Objeto do Pregão</th>
+                <th class="num" style="width:85px">Itens</th>
+                <th class="num" style="width:175px">Total Homologado (R$)</th>
+                <th style="width:115px">Vigência</th>
+                <th style="width:110px">Status</th>
+                <th style="width:55px;text-align:center">Copiar</th>
+              </tr>
+            </thead>
+            <tbody>
+%%TABELA_SAG_GER%%
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BLOCO 2: PARTICIPANTES -->
+      <div id="sagBlocoPart" class="sag-bloco">
+        <div class="sag-bloco-hdr">
+          <div class="sag-bloco-tit">
+            <span class="sag-tag sag-tag-part">🤝 Participante</span>
+            <h3>Pregões com Participação da Unidade</h3>
+          </div>
+          <span class="sag-bloco-total" id="sagSubtotalPart">Total: %%TOT_SAG_PART%% (%%N_SAG_PART%%)</span>
+        </div>
+        <div class="tblwrap">
+          <table id="tbSagPart">
+            <thead>
+              <tr>
+                <th style="width:130px">Pregão</th>
+                <th style="width:150px">Gerenciador</th>
+                <th>Objeto do Pregão</th>
+                <th class="num" style="width:85px">Itens Cota</th>
+                <th class="num" style="width:175px">Cota OM (R$)</th>
+                <th style="width:115px">Vigência</th>
+                <th style="width:110px">Status</th>
+                <th style="width:55px;text-align:center">Copiar</th>
+              </tr>
+            </thead>
+            <tbody>
+%%TABELA_SAG_PART%%
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="vazio" id="sagVazio" style="display:none">Nenhum pregão encontrado para os filtros selecionados.</p>
+    </section>
+  </div><!-- /tab-sag -->
+
+  <!-- ======================================================================
+       ABA 4: RANQUEAMENTO & COMPARATIVO DAS 6 OMDS
+       ====================================================================== -->
+  <div id="tab-ranking" class="tab-content-panel" role="tabpanel" hidden>
+    <div class="bento-card bento-card-main" style="border-left-color:#f59e0b;margin-bottom:1.5rem">
+      <p class="hero-label">Rede de Suprimento da Base de Apoio Logístico do Exército</p>
+      <p class="hero-big">%%TOT_REDE%%</p>
+      <p class="hero-cap">Volume monetário global de capacidade de empenho disponível na rede logística das 6 Organizações Militares Diretamente Subordinadas (OMDS). Compare o volume de atas ativas e prestação de contas SAG.</p>
+    </div>
+
+    <!-- Leaderboard Cards Grid -->
+    <div class="ranking-leaderboard-grid" id="ranking-items-container">
+%%RANKING_CARDS%%
+    </div>
+
+    <!-- Tabela Comparativa Detalhada -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem">
+        <div>
+          <h2>Quadro Comparativo Consolidado das OMDS</h2>
+          <p class="cap" style="margin:0">Clique no nome de qualquer unidade para abrir seu respectivo painel completo</p>
+        </div>
+      </div>
+      <div class="tblwrap">
+        <table id="tbRanking">
+          <thead>
+            <tr>
+              <th style="width:65px">Pos.</th>
+              <th>Organização Militar</th>
+              <th>UASG</th>
+              <th class="num">Capacidade Total</th>
+              <th class="num">Volume SAG</th>
+              <th class="num">Pregões</th>
+              <th class="num">Itens Saldo</th>
+              <th class="num">Vencendo ≤30d</th>
+              <th style="width:90px;text-align:center">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-table-body">
+%%RANKING_TABLE%%
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div><!-- /tab-ranking -->
+
+  <!-- FOOTER GOVTECH -->
+  <footer>
+    Dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
+    Gerado em %%GERADO%% · SICOF 3.0 Design System · Capacidade = Qtd. Saldo × Valor Unitário das atas homologadas.<br>
+    A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do CATMAT — confira antes de emitir a nota de empenho.
+  </footer>
+</div><!-- /app-container -->
+
+<!-- TOOLTIP FLUTUANTE -->
+<div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+
+<!-- MODAL EXECUTIVO & RAIO-X DO FORNECEDOR -->
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTit">
+    <button type="button" class="modal-x" id="modalX" aria-label="Fechar modal">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+   ENGINE JAVASCRIPT: WEBGL SHADER 60FPS, CONTROLES & TABELAS
+   ========================================================================== -->
+<script>
+(function(){
+  "use strict";
+
+  // ------------------------------------------------------------- 1. TEMA & PREFERÊNCIAS
+  var root = document.documentElement, KEY_THEME = 'bcms-pregoes-theme', KEY_SHADER = 'sicof-shader-enabled';
+  try {
+    var savedTheme = localStorage.getItem(KEY_THEME);
+    if(savedTheme) root.dataset.theme = savedTheme;
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) root.dataset.theme = 'dark';
+    else root.dataset.theme = 'light';
+  } catch(e){}
+
+  var btTheme = document.getElementById('btTheme');
+  function atualizaBtnTema(){
+    if(!btTheme) return;
+    var ehEscuro = root.dataset.theme === 'dark';
+    btTheme.textContent = ehEscuro ? '☀️ Tema Branco' : '🌙 Modo Escuro';
+  }
+  atualizaBtnTema();
+
+  if(btTheme){
+    btTheme.onclick = function(){
+      root.dataset.theme = (root.dataset.theme === 'dark') ? 'light' : 'dark';
+      try{ localStorage.setItem(KEY_THEME, root.dataset.theme); }catch(e){}
+      atualizaBtnTema();
+      if(window.motionEngine) window.motionEngine.atualizarTema();
+    };
+  }
+
+  // ------------------------------------------------------------- 2. WEBGL MOTION BACKGROUND 60FPS
+  class MotionBackground {
+    constructor(canvasId) {
+      this.canvas = document.getElementById(canvasId);
+      if(!this.canvas) return;
+      this.gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl");
+      this.isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      this.enabled = true;
+      try {
+        var shSave = localStorage.getItem(KEY_SHADER);
+        if(shSave === 'false') this.enabled = false;
+      }catch(e){}
+
+      this.mouse = { x: 0.5, y: 0.5 };
+      this.startTime = performance.now();
+      this.frameId = null;
+
+      // Cor RGB derivada da unidade ativa
+      var rgbArr = [%%UNIT_RGB%%];
+      this.accentR = rgbArr[0] / 255;
+      this.accentG = rgbArr[1] / 255;
+      this.accentB = rgbArr[2] / 255;
+
+      if(this.gl && !this.isReducedMotion && this.enabled && root.dataset.theme === 'dark') {
+        this.init();
+      }
+    }
+
+    init() {
+      var gl = this.gl;
+      var vs = `attribute vec2 a_p; void main(){ gl_Position = vec4(a_p, 0.0, 1.0); }`;
+      var fs = `precision mediump float;
+        uniform float u_time;
+        uniform vec2 u_res;
+        uniform vec2 u_mouse;
+        uniform vec3 u_col;
+
+        vec3 mod289(vec3 x){ return x - floor(x*(1.0/289.0))*289.0; }
+        vec2 mod289(vec2 x){ return x - floor(x*(1.0/289.0))*289.0; }
+        vec3 permute(vec3 x){ return mod289(((x*34.0)+1.0)*x); }
+
+        float snoise(vec2 v){
+          const vec4 C = vec4(0.2113248654, 0.3660254037, -0.5773502691, 0.0243902439);
+          vec2 i = floor(v + dot(v, C.yy));
+          vec2 x0 = v - i + dot(i, C.xx);
+          vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod289(i);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+          m = m*m; m = m*m;
+          vec3 x = 2.0*fract(p*C.www)-1.0;
+          vec3 h = abs(x)-0.5;
+          vec3 ox = floor(x+0.5);
+          vec3 a0 = x - ox;
+          m *= 1.792842914 - 0.85373472*(a0*a0 + h*h);
+          vec3 g;
+          g.x = a0.x*x0.x + h.x*x0.y;
+          g.yz = a0.yz*x12.xz + h.yz*x12.yw;
+          return 130.0*dot(m, g);
+        }
+
+        void main(){
+          vec2 st = gl_FragCoord.xy / u_res.xy;
+          float t = u_time * 0.06;
+          vec2 mo = (u_mouse - 0.5) * 0.12;
+          float n1 = snoise(st*1.6 + vec2(t*0.4, t*0.2) + mo);
+          float n2 = snoise(st*2.4 - vec2(t*0.3, -t*0.15) + n1*0.25);
+
+          vec3 cBase = vec3(0.027, 0.035, 0.075);
+          vec3 cNavy = vec3(0.055, 0.094, 0.188);
+          vec3 color = mix(cBase, cNavy, smoothstep(-0.6, 0.7, n1));
+          color += u_col * (smoothstep(0.68, 0.98, n1 + n2*0.5) * 0.22);
+          float vig = 1.0 - length((st - 0.5)*1.25);
+          color *= clamp(vig, 0.45, 1.0);
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `;
+
+      function compile(type, src){
+        var s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+      }
+      var p = gl.createProgram();
+      gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      this.prog = p;
+
+      var buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+
+      var pos = gl.getAttribLocation(p, "a_p");
+      gl.enableVertexAttribArray(pos);
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+      this.uTime = gl.getUniformLocation(p, "u_time");
+      this.uRes = gl.getUniformLocation(p, "u_res");
+      this.uMouse = gl.getUniformLocation(p, "u_mouse");
+      this.uCol = gl.getUniformLocation(p, "u_col");
+
+      this.resize = this.resize.bind(this);
+      window.addEventListener("resize", this.resize);
+      this.resize();
+
+      window.addEventListener("pointermove", (e) => {
+        this.mouse.x = e.clientX / window.innerWidth;
+        this.mouse.y = 1.0 - (e.clientY / window.innerHeight);
+      });
+
+      this.render = this.render.bind(this);
+      this.render();
+    }
+
+    resize() {
+      if(!this.canvas) return;
+      var w = window.innerWidth, h = window.innerHeight;
+      this.canvas.width = Math.floor(w / 1.5);
+      this.canvas.height = Math.floor(h / 1.5);
+      if(this.gl) this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    render() {
+      if(!this.gl || !this.prog || !this.enabled || root.dataset.theme === 'light') return;
+      var gl = this.gl;
+      gl.useProgram(this.prog);
+      gl.uniform1f(this.uTime, (performance.now() - this.startTime) * 0.001);
+      gl.uniform2f(this.uRes, this.canvas.width, this.canvas.height);
+      gl.uniform2f(this.uMouse, this.mouse.x, this.mouse.y);
+      gl.uniform3f(this.uCol, this.accentR, this.accentG, this.accentB);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      this.frameId = requestAnimationFrame(this.render);
+    }
+
+    atualizarTema() {
+      if(root.dataset.theme === 'light') {
+        if(this.frameId) cancelAnimationFrame(this.frameId);
+        if(this.canvas) this.canvas.style.display = 'none';
+      } else if(this.enabled) {
+        if(this.canvas) this.canvas.style.display = 'block';
+        if(!this.prog) this.init();
+        else this.render();
+      }
+    }
+
+    toggle() {
+      this.enabled = !this.enabled;
+      try{ localStorage.setItem(KEY_SHADER, String(this.enabled)); }catch(e){}
+      if(this.enabled) {
+        this.atualizarTema();
+      } else {
+        if(this.frameId) cancelAnimationFrame(this.frameId);
+        if(this.canvas) this.canvas.style.display = 'none';
+      }
+    }
+  }
+
+  window.motionEngine = new MotionBackground("motion-canvas");
+  var btnToggleShader = document.getElementById("btn-toggle-shader");
+  if(btnToggleShader){
+    btnToggleShader.onclick = function(){
+      window.motionEngine.toggle();
+      btnToggleShader.style.opacity = window.motionEngine.enabled ? '1' : '0.5';
+    };
+  }
+
+  // ------------------------------------------------------------- 3. NAVEGAÇÃO DE ABAS
+  var tabCap = document.getElementById('tabCap'),
+      tabPlan = document.getElementById('tabPlan'),
+      tabSag = document.getElementById('tabSag'),
+      tabRank = document.getElementById('tabRank'),
+      paneCap = document.getElementById('tab-capacidade'),
+      panePlan = document.getElementById('tab-planejamento'),
+      paneSag = document.getElementById('tab-sag'),
+      paneRank = document.getElementById('tab-ranking');
+
+  function trocaAba(qual){
+    var ehCap = qual==='cap', ehPlan = qual==='plan', ehSag = qual==='sag', ehRank = qual==='rank';
+    if(tabCap) tabCap.setAttribute('aria-selected', ehCap?'true':'false');
+    if(tabPlan) tabPlan.setAttribute('aria-selected', ehPlan?'true':'false');
+    if(tabSag) tabSag.setAttribute('aria-selected', ehSag?'true':'false');
+    if(tabRank) tabRank.setAttribute('aria-selected', ehRank?'true':'false');
+
+    if(paneCap) paneCap.hidden = !ehCap;
+    if(panePlan) panePlan.hidden = !ehPlan;
+    if(paneSag) paneSag.hidden = !ehSag;
+    if(paneRank) paneRank.hidden = !ehRank;
+
+    if(ehPlan && window.aplicaPlanej) window.aplicaPlanej();
+    if(ehSag && window.aplicaSag) window.aplicaSag();
+
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    try{ localStorage.setItem('bcms-aba', qual); }catch(e){}
+  }
+
+  if(tabCap) tabCap.onclick = function(){ trocaAba('cap'); };
+  if(tabPlan) tabPlan.onclick = function(){ trocaAba('plan'); };
+  if(tabSag) tabSag.onclick = function(){ trocaAba('sag'); };
+  if(tabRank) tabRank.onclick = function(){ trocaAba('rank'); };
+
+  // ------------------------------------------------------------- 4. EXCEL .XLSX PURO EM JAVASCRIPT
+  function _crc32(buf){
+    var t=_crc32.t; if(!t){t=_crc32.t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}}
+    var crc=-1; for(var i=0;i<buf.length;i++) crc=(crc>>>8)^t[(crc^buf[i])&255]; return (crc^-1)>>>0;
+  }
+  function _u8(s){ return new TextEncoder().encode(s); }
+  function _zip(files){
+    var parts=[],cen=[],off=0;
+    function u16(n){return [n&255,(n>>8)&255];}
+    function u32(n){return [n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];}
+    files.forEach(function(f){
+      var nm=_u8(f.name),crc=_crc32(f.data),sz=f.data.length,lho=off;
+      var lh=new Uint8Array([].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nm.length),u16(0)));
+      parts.push(lh,nm,f.data); off+=lh.length+nm.length+sz;
+      cen.push(new Uint8Array([].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(lho))),nm);
+    });
+    var cs=0; cen.forEach(function(c){cs+=c.length;});
+    var eo=new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cs),u32(off),u16(0)));
+    var all=parts.concat(cen,[eo]),tot=0; all.forEach(function(a){tot+=a.length;});
+    var out=new Uint8Array(tot),p=0; all.forEach(function(a){out.set(a,p);p+=a.length;}); return out;
+  }
+  function _xe(s){ return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function baixarExcel(nome, cab, linhas, colsNum){
+    colsNum=colsNum||[];
+    function col(i){ return String.fromCharCode(65+i); }
+    var todas=[cab].concat(linhas), rows='';
+    todas.forEach(function(r,ri){
+      var cs='';
+      r.forEach(function(v,ci){
+        if(v===''||v==null) return;
+        var ref=col(ci)+(ri+1);
+        if(ri>0 && colsNum.indexOf(ci)>=0 && !isNaN(parseFloat(v)))
+          cs+='<c r="'+ref+'"><v>'+parseFloat(v)+'</v></c>';
+        else
+          cs+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+_xe(v)+'</t></is></c>';
+      });
+      rows+='<row r="'+(ri+1)+'">'+cs+'</row>';
+    });
+    var sheet='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+rows+'</sheetData></worksheet>';
+    var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/></Types>';
+    var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    var wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Dados" sheetId="1" r:id="rId1"/></sheets></workbook>';
+    var wbr='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>';
+    var zip=_zip([
+      {name:'[Content_Types].xml',data:_u8(ct)},
+      {name:'_rels/.rels',data:_u8(rels)},
+      {name:'xl/workbook.xml',data:_u8(wb)},
+      {name:'xl/_rels/workbook.xml.rels',data:_u8(wbr)},
+      {name:'xl/worksheets/sheet1.xml',data:_u8(sheet)}
+    ]);
+    var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    var url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url; a.download=nome+'.xlsx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  }
+
+  // ------------------------------------------------------------- 5. LÓGICA DE CAPACIDADE & FILTROS
+  var LOTE = 120;
+  var tb = document.getElementById('tb'), corpo = tb.tBodies[0];
+  var dados = [].slice.call(corpo.rows).map(function(tr){
+    return {
+      tr: tr, st: tr.dataset.st, cat: tr.dataset.cat, nd: tr.dataset.nd,
+      pg: tr.dataset.pg, tipo: tr.dataset.tipo, forn: tr.dataset.forn||'',
+      key: tr.dataset.key, cap: parseFloat(tr.dataset.cap)||0,
+      saldo: parseFloat(tr.dataset.saldo)||0, fim: parseFloat(tr.dataset.fimts)||0,
+      txt: tr.textContent.toLowerCase()
+    };
+  });
+
+  var fCat=document.getElementById('fCat'), fNd=document.getElementById('fNd'),
+      fPg=document.getElementById('fPg'), fTp=document.getElementById('fTp'),
+      fForn=document.getElementById('fForn'), busca=document.getElementById('busca'),
+      btMais=document.getElementById('btMais'), btPregao=document.getElementById('btPregao'),
+      status='ativos', verTudo=false, verTudoKey='', mostrando=LOTE, filtrados=[];
+
+  function brl(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+  function curto(v){
+    if(Math.abs(v)>=1e6) return 'R$ '+(v/1e6).toFixed(2).replace('.',',')+' mi';
+    if(Math.abs(v)>=1e3) return 'R$ '+Math.round(v/1e3)+' mil';
+    return brl(v);
+  }
+  function txt(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+  function elem(tag,cls,texto){
+    var e=document.createElement(tag); if(cls) e.className=cls;
+    if(texto!=null) e.textContent=texto; return e;
+  }
+
+  // Tooltip
+  var tip = document.getElementById('tip');
+  function mostraTip(ev,lab,val){
+    tip.textContent='';
+    tip.appendChild(elem('span','tv',val));
+    tip.appendChild(elem('span','tl',lab));
+    tip.classList.add('on');
+    var r=(ev.currentTarget||ev.target).getBoundingClientRect();
+    var x=(ev.clientX||r.left+r.width/2), y=r.top;
+    tip.style.left=Math.min(Math.max(10,x-tip.offsetWidth/2),innerWidth-tip.offsetWidth-10)+'px';
+    tip.style.top=Math.max(8,y-tip.offsetHeight-10)+'px';
+  }
+  function escondeTip(){ tip.classList.remove('on'); }
+
+  function barras(el, mapa, tipoFiltro){
+    if(!el) return;
+    var arr=Object.keys(mapa).map(function(k){return [k,mapa[k].cap,mapa[k].val];})
+              .sort(function(a,b){return b[1]-a[1];}).slice(0,12);
+    el.textContent='';
+    if(!arr.length){ el.appendChild(elem('p','vazio','Sem dados para este filtro.')); return; }
+    var topo=arr[0][1]||1, totalGeral=arr.reduce(function(acc,x){return acc+x[1];},0)||1;
+    arr.forEach(function(p,idx){
+      var row=elem('div','brow'); row.tabIndex=0; row.setAttribute('role','button');
+      var lblDiv=elem('div','blabel');
+      if(idx<3){
+        var rk=elem('span','rank-pos rank-'+(idx+1),(idx+1)+'º');
+        lblDiv.appendChild(rk);
+      }
+      lblDiv.appendChild(document.createTextNode(p[0]));
+      row.appendChild(lblDiv);
+      var tr=elem('div','btrack'), fl=elem('div','bfill'+(idx<3?' bfill-top':''));
+      fl.style.width=Math.max(p[1]/topo*100,1.5).toFixed(1)+'%';
+      tr.appendChild(fl); row.appendChild(tr);
+      var valDiv=elem('div','bval');
+      valDiv.appendChild(elem('span','bval-num',curto(p[1])));
+      valDiv.appendChild(elem('span','bval-pct',((p[1]/totalGeral)*100).toFixed(1)+'%'));
+      row.appendChild(valDiv);
+
+      var lab=p[0], val=brl(p[1]), fval=p[2];
+      row.addEventListener('pointermove',function(e){mostraTip(e,lab,val);});
+      row.addEventListener('pointerleave',escondeTip);
+      row.addEventListener('focus',function(e){mostraTip(e,lab,val);});
+      row.addEventListener('blur',escondeTip);
+      row.addEventListener('click',function(){escondeTip(); aplicaFiltro(tipoFiltro,fval);});
+      el.appendChild(row);
+    });
+  }
+
+  function aplicaFiltro(tipo, val){
+    var sel = (tipo==='cat') ? fCat : (tipo==='pg') ? fPg : null;
+    if(sel){ sel.value=val; if(sel._refletirCombo) sel._refletirCombo(); }
+    aplica();
+    var card = document.getElementById('tb');
+    if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function montarCombo(sel){
+    if(!sel) return;
+    var wrap=document.createElement('div'); wrap.className='cb';
+    var inp=document.createElement('input'); inp.type='text'; inp.className='cb-in';
+    inp.setAttribute('role','combobox'); inp.setAttribute('aria-expanded','false'); inp.autocomplete='off';
+    var lista=document.createElement('ul'); lista.className='cb-list'; lista.hidden=true;
+    var clr=document.createElement('button'); clr.type='button'; clr.className='cb-clear'; clr.textContent='×'; clr.hidden=true;
+    var opts=[].slice.call(sel.options).map(function(o){return {val:o.value, txt:o.text};});
+    inp.placeholder=opts.length?opts[0].txt:'';
+
+    function textoDe(val){
+      for(var i=0;i<opts.length;i++) if(opts[i].val===val) return opts[i].txt;
+      return '';
+    }
+    function refletir(){
+      inp.value = sel.value==='' ? '' : textoDe(sel.value);
+      clr.hidden = sel.value==='';
+    }
+    function renderOpts(filtro){
+      lista.textContent='';
+      var f=(filtro||'').toLowerCase(), achou=0;
+      opts.forEach(function(o){
+        if(f && (o.txt+' '+o.val).toLowerCase().indexOf(f)===-1) return;
+        achou++;
+        var li=document.createElement('li'); li.className='cb-opt'; li.textContent=o.txt;
+        if(o.val===sel.value) li.setAttribute('aria-selected','true');
+        li.addEventListener('mousedown',function(e){e.preventDefault(); escolher(o.val);});
+        lista.appendChild(li);
+      });
+      if(!achou){ var li=document.createElement('li'); li.className='cb-vazio'; li.textContent='Nada encontrado'; lista.appendChild(li); }
+    }
+    function abrir(){ renderOpts(''); lista.hidden=false; inp.setAttribute('aria-expanded','true'); }
+    function fechar(){ lista.hidden=true; inp.setAttribute('aria-expanded','false'); refletir(); }
+    function escolher(val){ sel.value=val; sel.dispatchEvent(new Event('change')); refletir(); fechar(); }
+
+    inp.addEventListener('focus',function(){ inp.select(); abrir(); });
+    inp.addEventListener('input',function(){ lista.hidden=false; clr.hidden=inp.value===''; renderOpts(inp.value); });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){ fechar(); inp.blur(); }
+      else if(e.key==='Enter'){ var o=lista.querySelector('.cb-opt'); if(o){ e.preventDefault(); escolher(o.dataset.val); } }
+    });
+    inp.addEventListener('blur',function(){ setTimeout(fechar,140); });
+    clr.addEventListener('click',function(){ escolher(''); inp.focus(); });
+
+    sel._refletirCombo=refletir;
+    sel.style.display='none';
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(inp); wrap.appendChild(clr); wrap.appendChild(lista); wrap.appendChild(sel);
+    refletir();
+  }
+
+  function pinta(){
+    filtrados.forEach(function(d,i){ d.tr.style.display = i<mostrando ? '' : 'none'; });
+    var resta = filtrados.length - mostrando;
+    if(btMais){
+      btMais.style.display = resta>0 ? '' : 'none';
+      if(resta>0) btMais.textContent = 'Mostrar mais '+Math.min(resta,LOTE)+' (de '+resta.toLocaleString('pt-BR')+' restantes)';
+    }
+    var semR = document.getElementById('semResultado');
+    if(semR) semR.style.display = filtrados.length ? 'none' : '';
+  }
+
+  function aplica(reset){
+    if(reset!==false) mostrando = LOTE;
+    var vc=fCat?fCat.value:'', vn=fNd?fNd.value:'', vp=fPg?fPg.value:'',
+        vt=fTp?fTp.value:'', vf=fForn?fForn.value:'',
+        termo=busca?busca.value.trim().toLowerCase():'';
+
+    if(vp!==verTudoKey) verTudo=false;
+    var capV=0, capW=0, capVenc=0, cats={}, pgs={}, chaves={}, nItens=0;
+    var lim=Date.now()/1000 + 60*86400, venc={};
+    filtrados=[];
+
+    dados.forEach(function(d){
+      var okDim = (!vc||d.cat===vc) && (!vn||d.nd===vn) && (!vp||d.key===vp)
+                && (!vt||d.tipo===vt) && (!vf||d.forn===vf) && (!termo||d.txt.indexOf(termo)>-1);
+      var temItem = d.saldo>0 && d.st!=='semdados';
+      var okS = d.st!=='venc' && ((status==='all') || (status==='ativos' && (d.st==='vig'||d.st==='v30'))
+              || (status==='v30' && d.st==='v30'));
+      var naLista = verTudo ? (okDim && d.st!=='venc') : (okDim && temItem && okS);
+      d.tr.style.display = naLista ? '' : 'none';
+      if(naLista) filtrados.push(d);
+
+      if(!okDim || !(d.cap>0)) return;
+      if(d.st==='venc'){ capVenc+=d.cap; return; }
+      if(d.st==='vig'){ capV+=d.cap; } else if(d.st==='v30'){ capW+=d.cap; } else { return; }
+      nItens++; chaves[d.key]=1;
+      (cats[d.cat]=cats[d.cat]||{cap:0,val:d.cat}).cap+=d.cap;
+      (pgs[d.key]=pgs[d.key]||{cap:0,val:d.key}).cap+=d.cap;
+      if(d.fim && d.fim<lim){
+        var k=d.fim+'|'+d.key, v=venc[k]||(venc[k]={cap:0,n:0,fim:d.fim,key:d.key});
+        v.cap+=d.cap; v.n++;
+      }
+    });
+    pinta();
+
+    var total = capV + capW;
+    txt('heroBig', brl(total)); txt('heroVig', brl(capV)); txt('heroV30', brl(capW));
+    txt('heroPct', (total?(capW/total*100).toFixed(1).replace('.',','):'0,0')+'%');
+    var sVig=document.getElementById('segVig'), sV30=document.getElementById('segV30');
+    if(sVig) sVig.style.width=(total?capV/total*100:0).toFixed(2)+'%';
+    if(sV30) sV30.style.width=(total?capW/total*100:0).toFixed(2)+'%';
+
+    txt('kItens', nItens.toLocaleString('pt-BR'));
+    txt('kPregoes', Object.keys(chaves).length.toLocaleString('pt-BR'));
+    txt('kV30', brl(capW)); txt('kVenc', brl(capVenc));
+    txt('cont', '· '+filtrados.length.toLocaleString('pt-BR')+' listados');
+    txt('vivo', filtrados.length.toLocaleString('pt-BR')+' itens; capacidade '+brl(total));
+
+    barras(document.getElementById('barCat'), cats, 'cat');
+    barras(document.getElementById('barPg'), pgs, 'pg');
+
+    var alvo = document.getElementById('tbVenc');
+    if(alvo){
+      alvo.textContent='';
+      var vs=Object.keys(venc).map(function(k){return venc[k];}).sort(function(a,b){return a.fim-b.fim;}).slice(0,12);
+      if(!vs.length){
+        var tr0=document.createElement('tr'), td0=elem('td','vazio','Nenhuma ata vencendo nos próximos 60 dias.');
+        td0.colSpan=4; tr0.appendChild(td0); alvo.appendChild(tr0);
+      } else vs.forEach(function(v){
+        var d=new Date(v.fim*1000), tr=document.createElement('tr');
+        tr.appendChild(elem('td',null,('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear()));
+        tr.appendChild(elem('td',null,v.key));
+        tr.appendChild(elem('td','num',String(v.n)));
+        var tdc=elem('td','num'); tdc.appendChild(elem('strong',null,brl(v.cap)));
+        tr.appendChild(tdc); alvo.appendChild(tr);
+      });
+    }
+
+    var box=document.getElementById('ativo'), alvoP=document.getElementById('ativoPills');
+    if(alvoP){
+      alvoP.textContent='';
+      var pills=[];
+      if(vc) pills.push(vc); if(vn) pills.push('ND '+vn);
+      if(vp) pills.push('Pregão '+vp); if(vt) pills.push(vt);
+      if(vf){ var nomeF=vf.indexOf(' - ')>-1?vf.split(' - ').slice(1).join(' - '):vf;
+              pills.push('Empresa: '+(nomeF.length>34?nomeF.slice(0,33)+'…':nomeF)); }
+      if(termo) pills.push('“'+busca.value.trim()+'”');
+      pills.forEach(function(p){ alvoP.appendChild(elem('span','pill',p)); });
+      if(box) box.classList.toggle('on', pills.length>0);
+    }
+    txt('heroLabel', pills && pills.length ? 'Capacidade de empenho (filtrada)' : 'Capacidade de empenho disponível');
+
+    if(btPregao){
+      if(vp){
+        btPregao.hidden=false;
+        btPregao.setAttribute('aria-pressed', verTudo?'true':'false');
+        btPregao.textContent = verTudo ? '✓ Mostrando o pregão completo' : 'Mostrar todos os itens do pregão';
+      } else {
+        btPregao.hidden=true;
+      }
+    }
+  }
+
+  [fCat,fNd,fPg,fForn,fTp].forEach(function(s){ if(s) s.addEventListener('change',function(){aplica();}); });
+  if(busca) busca.addEventListener('input',function(){aplica();});
+  [fCat,fNd,fPg,fForn].forEach(montarCombo);
+
+  [].forEach.call(document.querySelectorAll('#segSit button'),function(b){
+    b.onclick=function(){
+      [].forEach.call(document.querySelectorAll('#segSit button'),function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true'); status=b.dataset.f; verTudo=false; aplica();
+    };
+  });
+
+  if(btPregao){
+    btPregao.onclick=function(){
+      verTudo=!verTudo; verTudoKey=fPg.value; aplica();
+      document.getElementById('tb').scrollIntoView({behavior:'smooth', block:'start'});
+    };
+  }
+
+  var btLimpar = document.getElementById('btLimpar');
+  if(btLimpar){
+    btLimpar.onclick=function(){
+      if(fCat) fCat.value=''; if(fNd) fNd.value=''; if(fPg) fPg.value='';
+      if(fForn) fForn.value=''; if(fTp) fTp.value=''; if(busca) busca.value='';
+      [fCat,fNd,fPg,fForn].forEach(function(s){ if(s && s._refletirCombo) s._refletirCombo(); });
+      [].forEach.call(document.querySelectorAll('#segSit button'),function(x){
+        x.setAttribute('aria-pressed', x.dataset.f==='ativos'?'true':'false');
+      });
+      status='ativos'; aplica();
+    };
+  }
+  if(btMais) btMais.onclick=function(){ mostrando+=LOTE; pinta(); };
+
+  function exportarItensExcel(){
+    if(!filtrados.length){ alert('Não há itens no filtro atual para exportar.'); return; }
+    var cab=['Pregao','UASG_Gerenciadora','Item','Descricao','CATMAT_Nome','CATMAT_Codigo',
+             'Categoria','ND_Sugerida','Subitem','Confianca_ND','Fornecedor','Nr_Ata',
+             'Inicio_Vigencia','Fim_Vigencia','Situacao','Qtd_Homologada','Qtd_Autorizada',
+             'Saldo','Valor_Unitario','Valor_Total_Homologado','Capacidade_saldoxunit','Link'];
+    var linhas=filtrados.map(function(d){
+      var tr=d.tr, x=tr.dataset;
+      return [tr.cells[0].textContent.trim(), tr.cells[1].textContent.trim(),
+              tr.cells[2].textContent.trim(), x.desc||'', x.catmat||'', x.cod||'',
+              x.cat||'', x.nd||'', x.sub||'', x.conf||'', x.forn||'', x.nrata||'',
+              x.ini||'', x.fim||'', x.stlabel||'', x.qhom||'', x.qaut||'', x.saldo||'',
+              x.vu||'', x.vtot||'', x.cap||'', x.link||''];
+    });
+    var hoje=new Date().toISOString().slice(0,10);
+    baixarExcel('capacidade_itens_%%UNIDADE_CURTA%%_'+hoje, cab, linhas, [15,16,17,18,19,20]);
+  }
+  var btCsvItens = document.getElementById('btCsvItens');
+  if(btCsvItens) btCsvItens.onclick = exportarItensExcel;
+  var btBannerCsv = document.getElementById('btBannerCsv');
+  if(btBannerCsv) btBannerCsv.onclick = exportarItensExcel;
+
+  // Ordenação de colunas da tabela de itens
+  var ord={col:-1,asc:false};
+  if(tb && tb.tHead){
+    [].forEach.call(tb.tHead.rows[0].cells,function(th,i){
+      th.onclick=function(){
+        ord.asc = ord.col===i ? !ord.asc : false; ord.col=i;
+        var isNum = th.classList.contains('num') || i===7;
+        dados.sort(function(a,b){
+          var ca=a.tr.cells[i], cb=b.tr.cells[i], va, vb;
+          if(isNum){ va=parseFloat(ca.dataset.v||0)||0; vb=parseFloat(cb.dataset.v||0)||0; }
+          else { va=ca.textContent.toLowerCase(); vb=cb.textContent.toLowerCase(); }
+          return (va<vb?-1:va>vb?1:0)*(ord.asc?1:-1);
+        });
+        var frag=document.createDocumentFragment();
+        dados.forEach(function(d){ frag.appendChild(d.tr); });
+        corpo.appendChild(frag);
+        aplica(false);
+      };
+    });
+  }
+  aplica();
+
+  // ------------------------------------------------------------- 6. ABA DE PLANEJAMENTO
+  var planTb=document.getElementById('tbPlan'), planCorpo=planTb?planTb.tBodies[0]:null;
+  var planLinhas=planCorpo?[].slice.call(planCorpo.rows):[], planP='all', planBand=null;
+  function diasDe(ts){ return Math.ceil((ts*1000 - Date.now())/86400000); }
+  function bandaDe(d){ return d<=30?'b30':d<=90?'b90':d<=180?'b180':'bmax'; }
+  var BANDA_LB={b30:'vencendo em ≤30 dias', b90:'vencendo em 31–90 dias',
+                b180:'vencendo em 91–180 dias', bmax:'vigentes (mais de 180 dias)'};
+
+  window.aplicaPlanej = function(){
+    var tot={b30:{n:0,c:0},b90:{n:0,c:0},b180:{n:0,c:0},bmax:{n:0,c:0}};
+    var n=0, cap=0, nGer=0, nPart=0;
+    planLinhas.forEach(function(tr){
+      var ts=parseFloat(tr.dataset.fimts)||0, dias=diasDe(ts);
+      var span=tr.querySelector('.pl-dias');
+      if(span){
+        if(dias<0){ span.textContent='venceu há '+(-dias)+' d'; span.className='pl-dias d-venc'; }
+        else if(dias===0){ span.textContent='vence hoje'; span.className='pl-dias d-venc'; }
+        else if(dias<=30){ span.textContent='em '+dias+' dias'; span.className='pl-dias d-30'; }
+        else { span.textContent='em '+dias+' dias'; span.className='pl-dias d-ok'; }
+      }
+      var band=bandaDe(dias), capv=parseFloat(tr.cells[5].dataset.v)||0;
+      var okP = planP==='all' || tr.dataset.papel===planP;
+      if(okP){ tot[band].n++; tot[band].c+=capv; }
+      var ok = okP && (planBand===null || band===planBand);
+      tr.style.display = ok?'':'none';
+      if(ok){ n++; cap+=capv; if(tr.dataset.papel==='ger') nGer++; else nPart++; }
+    });
+    [].forEach.call(document.querySelectorAll('#planBandas .pl-card'),function(c){
+      var b=c.dataset.band;
+      c.querySelector('[data-n]').textContent=tot[b].n.toLocaleString('pt-BR');
+      c.querySelector('[data-cap]').textContent=tot[b].c>0?brl(tot[b].c):'sem saldo';
+    });
+    var pBandas = document.getElementById('planBandas');
+    if(pBandas) pBandas.classList.toggle('tem-sel', planBand!==null);
+    var pVazio = document.getElementById('planVazio');
+    if(pVazio) pVazio.style.display = n?'none':'';
+    var papelTxt = planP==='ger'?' · só gerenciados pelo BCMS' : planP==='part'?' · só participações (carona)' : (' · '+nGer+' geren. + '+nPart+' partic.');
+    txt('planResumo', n.toLocaleString('pt-BR')+' pregões · '+brl(cap)+' em capacidade'+papelTxt);
+    txt('planTitulo', planBand===null ? n.toLocaleString('pt-BR')+' pregões com atas a renovar' : n.toLocaleString('pt-BR')+' pregões '+BANDA_LB[planBand]);
+  };
+
+  [].forEach.call(document.querySelectorAll('#planBandas .pl-card'),function(b){
+    b.onclick=function(){
+      var jaSel = b.getAttribute('aria-pressed')==='true';
+      [].forEach.call(document.querySelectorAll('#planBandas .pl-card'),function(x){ x.setAttribute('aria-pressed','false'); });
+      if(jaSel){ planBand=null; } else { b.setAttribute('aria-pressed','true'); planBand=b.dataset.band; }
+      window.aplicaPlanej();
+    };
+  });
+  [].forEach.call(document.querySelectorAll('#planPapel button'),function(b){
+    b.onclick=function(){
+      [].forEach.call(document.querySelectorAll('#planPapel button'),function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true'); planP=b.dataset.p; window.aplicaPlanej();
+    };
+  });
+
+  var btPlanCsv = document.getElementById('btPlanCsv');
+  if(btPlanCsv){
+    btPlanCsv.onclick=function(){
+      var cab=['Vencimento','Situacao','Pregao','UASG_Gerenciadora','Papel','Objeto','Itens','Capacidade_saldo_R$','Fornecedores'];
+      var linhas=[];
+      planLinhas.forEach(function(tr){
+        if(tr.style.display==='none') return;
+        var venc=(tr.cells[0].querySelector('b')||{}).textContent||'';
+        var sit=(tr.querySelector('.pl-dias')||{}).textContent||'';
+        var pg=tr.cells[1].textContent.trim();
+        var ger=tr.cells[2].dataset.ger||(tr.cells[2].querySelector('b')||tr.cells[2]).textContent.trim();
+        var papel=tr.dataset.papel==='ger'?'Gerenciador':'Participante';
+        var obj=(tr.cells[3].getAttribute('title')||tr.cells[3].textContent).trim();
+        var itens=tr.cells[4].dataset.v||tr.cells[4].textContent.trim();
+        var capv=tr.cells[5].dataset.v||'0';
+        var forn=(tr.cells[6].getAttribute('title')||tr.cells[6].textContent).trim();
+        linhas.push([venc,sit,pg,ger,papel,obj,itens,capv,forn]);
+      });
+      if(!linhas.length){ alert('Nada para exportar neste filtro.'); return; }
+      var hoje=new Date().toISOString().slice(0,10);
+      baixarExcel('planejamento_atas_%%UNIDADE_CURTA%%_'+hoje, cab, linhas, [6,7]);
+    };
+  }
+
+  // Ordenação de colunas do planejamento
+  var pord={col:-1,asc:false};
+  if(planTb && planTb.tHead){
+    [].forEach.call(planTb.tHead.rows[0].cells,function(th,i){
+      th.onclick=function(){
+        pord.asc = pord.col===i ? !pord.asc : false; pord.col=i;
+        var isNum = th.classList.contains('num');
+        planLinhas.sort(function(a,b){
+          var va,vb;
+          if(i===0){ va=parseFloat(a.dataset.fimts)||0; vb=parseFloat(b.dataset.fimts)||0; }
+          else if(isNum){ va=parseFloat(a.cells[i].dataset.v||0)||0; vb=parseFloat(b.cells[i].dataset.v||0)||0; }
+          else { va=a.cells[i].textContent.toLowerCase(); vb=b.cells[i].textContent.toLowerCase(); }
+          return (va<vb?-1:va>vb?1:0)*(pord.asc?1:-1);
+        });
+        var frag=document.createDocumentFragment();
+        planLinhas.forEach(function(tr){ frag.appendChild(tr); });
+        planCorpo.appendChild(frag);
+      };
+    });
+  }
+  window.aplicaPlanej();
+
+  // ------------------------------------------------------------- 7. ABA DO SAG
+  var tbSagGer = document.getElementById('tbSagGer'),
+      tbSagPart = document.getElementById('tbSagPart'),
+      sagLinhasGer = tbSagGer?[].slice.call(tbSagGer.tBodies[0].rows):[],
+      sagLinhasPart = tbSagPart?[].slice.call(tbSagPart.tBodies[0].rows):[],
+      blocoGer = document.getElementById('sagBlocoGer'),
+      blocoPart = document.getElementById('sagBlocoPart'),
+      sagP='all', sagAnoVal='all';
+
+  window.aplicaSag = function(){
+    var busca = (document.getElementById('sagBusca')?document.getElementById('sagBusca').value:'').trim().toLowerCase();
+    var totGer=0, nGer=0, totPart=0, nPart=0;
+
+    sagLinhasGer.forEach(function(tr){
+      if(!tr.dataset.pregao) return;
+      var anoOk = sagAnoVal==='all' || tr.dataset.ano===sagAnoVal;
+      var buscaOk = !busca || (tr.dataset.search||'').indexOf(busca)!==-1;
+      var papelOk = sagP==='all' || sagP==='ger';
+      var vis = papelOk && anoOk && buscaOk;
+      tr.style.display = vis ? '' : 'none';
+      if(vis){ nGer++; totGer += parseFloat(tr.dataset.valor)||0; }
+    });
+
+    sagLinhasPart.forEach(function(tr){
+      if(!tr.dataset.pregao) return;
+      var anoOk = sagAnoVal==='all' || tr.dataset.ano===sagAnoVal;
+      var buscaOk = !busca || (tr.dataset.search||'').indexOf(busca)!==-1;
+      var papelOk = sagP==='all' || sagP==='part';
+      var vis = papelOk && anoOk && buscaOk;
+      tr.style.display = vis ? '' : 'none';
+      if(vis){ nPart++; totPart += parseFloat(tr.dataset.valor)||0; }
+    });
+
+    if(blocoGer) blocoGer.style.display = (sagP==='part' || nGer===0) ? (sagP==='part' ? 'none' : '') : '';
+    if(blocoPart) blocoPart.style.display = (sagP==='ger' || nPart===0) ? (sagP==='ger' ? 'none' : '') : '';
+
+    txt('sagSubtotalGer', 'Total: ' + brl(totGer) + ' (' + nGer + ')');
+    txt('sagSubtotalPart', 'Total: ' + brl(totPart) + ' (' + nPart + ')');
+    txt('sagCardTotVal', brl(totGer + totPart));
+    txt('sagCardTotQtd', (nGer + nPart) + ' pregões no painel');
+    txt('sagCardGerVal', brl(totGer));
+    txt('sagCardGerQtd', nGer + ' pregões gerenciados');
+    txt('sagCardPartVal', brl(totPart));
+    txt('sagCardPartQtd', nPart + ' cotas autorizadas');
+
+    var elVazio = document.getElementById('sagVazio');
+    if(elVazio) elVazio.style.display = (nGer===0 && nPart===0) ? '' : 'none';
+  };
+
+  [].forEach.call(document.querySelectorAll('#sagPapel button'), function(btn){
+    btn.onclick = function(){
+      [].forEach.call(document.querySelectorAll('#sagPapel button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      sagP = btn.dataset.p;
+      var cGer = document.getElementById('cardFiltroGer'), cPart = document.getElementById('cardFiltroPart');
+      if(cGer) cGer.setAttribute('aria-pressed', sagP==='ger'?'true':'false');
+      if(cPart) cPart.setAttribute('aria-pressed', sagP==='part'?'true':'false');
+      window.aplicaSag();
+    };
+  });
+
+  var cardFiltroGer = document.getElementById('cardFiltroGer');
+  if(cardFiltroGer){
+    cardFiltroGer.onclick = function(){
+      var novo = sagP==='ger' ? 'all' : 'ger';
+      var bt = document.querySelector('#sagPapel button[data-p="'+novo+'"]');
+      if(bt) bt.click();
+    };
+  }
+  var cardFiltroPart = document.getElementById('cardFiltroPart');
+  if(cardFiltroPart){
+    cardFiltroPart.onclick = function(){
+      var novo = sagP==='part' ? 'all' : 'part';
+      var bt = document.querySelector('#sagPapel button[data-p="'+novo+'"]');
+      if(bt) bt.click();
+    };
+  }
+
+  [].forEach.call(document.querySelectorAll('#sagAno button'), function(btn){
+    btn.onclick = function(){
+      [].forEach.call(document.querySelectorAll('#sagAno button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      sagAnoVal = btn.dataset.ano;
+      window.aplicaSag();
+    };
+  });
+
+  var inpSagBusca = document.getElementById('sagBusca');
+  if(inpSagBusca) inpSagBusca.oninput = window.aplicaSag;
+
+  document.addEventListener('click', function(e){
+    var bt = e.target.closest('.btn-copiar-linha');
+    if(!bt) return;
+    var texto = bt.dataset.copia;
+    if(!texto) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(texto).then(function(){
+        var orig = bt.textContent; bt.textContent = '✓';
+        setTimeout(function(){ bt.textContent = orig; }, 1500);
+      });
+    } else {
+      prompt('Copie os dados abaixo:', texto);
+    }
+  });
+
+  var btSagCopiar = document.getElementById('btSagCopiar');
+  if(btSagCopiar){
+    btSagCopiar.onclick = function(){
+      var linhas = ['Pregão\tPapel\tGerenciador\tObjeto\tItens\tValor Homologado / Cota SAG (R$)\tVigência\tStatus'];
+      if(sagP==='all' || sagP==='ger'){
+        sagLinhasGer.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            linhas.push(tr.cells[0].textContent.trim() + '\tGerenciador\t' + (tr.dataset.ger||'') + '\t' +
+              (tr.cells[1].getAttribute('title')||tr.cells[1].textContent).trim() + '\t' +
+              tr.cells[2].textContent.trim() + '\t' + (tr.dataset.valor||'0') + '\t' +
+              tr.cells[4].textContent.trim() + '\t' + tr.cells[5].textContent.trim());
+          }
+        });
+      }
+      if(sagP==='all' || sagP==='part'){
+        sagLinhasPart.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            linhas.push(tr.cells[0].textContent.trim() + '\tParticipante\t' + tr.cells[1].textContent.trim() + '\t' +
+              (tr.cells[2].getAttribute('title')||tr.cells[2].textContent).trim() + '\t' +
+              tr.cells[3].textContent.trim() + '\t' + (tr.dataset.valor||'0') + '\t' +
+              tr.cells[5].textContent.trim() + '\t' + tr.cells[6].textContent.trim());
+          }
+        });
+      }
+      if(linhas.length <= 1){ alert('Nenhum dado visível para copiar.'); return; }
+      var tsv = linhas.join('\n');
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(tsv).then(function(){
+          var orig = btSagCopiar.textContent; btSagCopiar.textContent = '✓ Copiado!';
+          setTimeout(function(){ btSagCopiar.textContent = orig; }, 2000);
+        });
+      } else {
+        prompt('Copie a tabela abaixo para colar no SAG:', tsv);
+      }
+    };
+  }
+
+  var btSagExcel = document.getElementById('btSagExcel');
+  if(btSagExcel){
+    btSagExcel.onclick = function(){
+      var cab = ['Pregão', 'Papel SAG', 'Gerenciador', 'Objeto do Pregão', 'Qtd Itens', 'Valor Homologado / Cota SAG (R$)', 'Fim Vigência', 'Status'];
+      var linhas = [];
+      if(sagP==='all' || sagP==='ger'){
+        sagLinhasGer.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            linhas.push([tr.cells[0].textContent.trim(), 'Gerenciador', tr.dataset.ger||'', (tr.cells[1].getAttribute('title')||tr.cells[1].textContent).trim(), tr.cells[2].textContent.trim(), tr.dataset.valor||'0', tr.cells[4].textContent.trim(), tr.cells[5].textContent.trim()]);
+          }
+        });
+      }
+      if(sagP==='all' || sagP==='part'){
+        sagLinhasPart.forEach(function(tr){
+          if(tr.style.display!=='none' && tr.dataset.pregao){
+            linhas.push([tr.cells[0].textContent.trim(), 'Participante', tr.cells[1].textContent.trim(), (tr.cells[2].getAttribute('title')||tr.cells[2].textContent).trim(), tr.cells[3].textContent.trim(), tr.dataset.valor||'0', tr.cells[5].textContent.trim(), tr.cells[6].textContent.trim()]);
+          }
+        });
+      }
+      if(!linhas.length){ alert('Nenhum pregão para exportar neste filtro.'); return; }
+      var hoje = new Date().toISOString().slice(0,10);
+      baixarExcel('preenchimento_sag_%%UNIDADE_CURTA%%_'+hoje, cab, linhas, [4,5]);
+    };
+  }
+
+  function bindOrdSag(tabela, listaLinhas){
+    if(!tabela) return;
+    var ordem = {col:-1, asc:false};
+    [].forEach.call(tabela.tHead.rows[0].cells, function(th, i){
+      if(i === tabela.tHead.rows[0].cells.length - 1) return;
+      th.onclick = function(){
+        ordem.asc = ordem.col===i ? !ordem.asc : false; ordem.col = i;
+        var isNum = th.classList.contains('num');
+        listaLinhas.sort(function(a, b){
+          var va, vb;
+          if(isNum){ va = parseFloat(a.cells[i].dataset.v||a.dataset.valor||0); vb = parseFloat(b.cells[i].dataset.v||b.dataset.valor||0); }
+          else { va = a.cells[i].textContent.toLowerCase(); vb = b.cells[i].textContent.toLowerCase(); }
+          return (va<vb ? -1 : va>vb ? 1 : 0) * (ordem.asc ? 1 : -1);
+        });
+        var frag = document.createDocumentFragment();
+        listaLinhas.forEach(function(tr){ frag.appendChild(tr); });
+        tabela.tBodies[0].appendChild(frag);
+      };
+    });
+  }
+  bindOrdSag(tbSagGer, sagLinhasGer);
+  bindOrdSag(tbSagPart, sagLinhasPart);
+  window.aplicaSag();
+
+  // ------------------------------------------------------------- 8. MODAL DE DETALHAMENTO & RAIO-X
+  var OMNOMES = %%OMNOMES%%;
+  var modal = document.getElementById('modal'), modalBody = document.getElementById('modalBody'), ultimoFoco = null;
+
+  function mk(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+  function campo(k,v,wide){ var f=mk('div','m-f'+(wide?' wide':'')); f.appendChild(mk('span','k',k)); f.appendChild(mk('span','v',(v==null||v==='')?'—':v)); return f; }
+  function money(x){ var n=parseFloat(x); return isFinite(n)?brl(n):'—'; }
+  function qtd(x){ var n=parseFloat(x); return isFinite(n)?n.toLocaleString('pt-BR'):'—'; }
+  function abrirModal(){ ultimoFoco=document.activeElement; modal.hidden=false; document.body.style.overflow='hidden'; document.getElementById('modalX').focus(); }
+  function fecharModal(){ modal.hidden=true; document.body.style.overflow=''; if(ultimoFoco&&ultimoFoco.focus) ultimoFoco.focus(); }
+
+  document.getElementById('modalX').onclick = fecharModal;
+  modal.addEventListener('click', function(e){ if(e.target===modal) fecharModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&!modal.hidden) fecharModal(); });
+
+  function detalheItem(tr){
+    var d=tr.dataset; modalBody.textContent='';
+    var h=mk('h3',null,'Item '+(tr.cells[2].textContent.trim()||'—')); h.id='modalTit'; modalBody.appendChild(h);
+    modalBody.appendChild(mk('p','m-sub',(d.catmat||'sem CATMAT')+(d.cod?(' · código '+d.cod):'')));
+    var om=OMNOMES[tr.cells[1].textContent.trim()], ger=tr.cells[1].textContent.trim()+(om?(' · '+om.n):'');
+    var g=mk('div','m-grid');
+    g.appendChild(campo('Descrição', d.desc, true));
+    g.appendChild(campo('Pregão', tr.cells[0].textContent.trim()));
+    g.appendChild(campo('UASG gerenciadora', ger));
+    g.appendChild(campo('Categoria', d.cat));
+    g.appendChild(campo('Material ou serviço', d.tipo));
+    g.appendChild(campo('ND sugerida', d.nd));
+    g.appendChild(campo('Subitem sugerido', d.sub));
+    g.appendChild(campo('Confiança da ND', d.conf));
+
+    var campoForn = campo('Fornecedor', d.forn, true);
+    var matchCnpj = (d.forn || '').match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+    if(matchCnpj){
+      var cnpjStr = matchCnpj[0].replace(/\D/g, '');
+      var btnRaiox = mk('button', 'btn', '🔍 Raio-X do Fornecedor');
+      btnRaiox.style.cssText = 'margin-top: 8px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 6px 14px; font-weight: 700; cursor: pointer;';
+      btnRaiox.onclick = function(){
+        modalBody.innerHTML = '';
+        var backBtn = mk('button', 'btn btn-secondary', '← Voltar ao Item');
+        backBtn.style.cssText = 'margin-bottom: 12px;';
+        backBtn.onclick = function(){ detalheItem(tr); };
+        modalBody.appendChild(backBtn);
+        var ifrm = mk('iframe');
+        ifrm.src = 'https://raiox-fornecedor-api.onrender.com/?cnpj=' + cnpjStr;
+        ifrm.style.cssText = 'width: 100%; height: 75vh; border: 1px solid var(--border-subtle); border-radius: 12px; background: #ffffff;';
+        modalBody.appendChild(ifrm);
+      };
+      campoForn.appendChild(btnRaiox);
+    }
+    g.appendChild(campoForn);
+    modalBody.appendChild(g);
+
+    modalBody.appendChild(mk('div','m-sec','Ata e vigência'));
+    var g2=mk('div','m-grid');
+    g2.appendChild(campo('Nº da ata', d.nrata));
+    g2.appendChild(campo('Situação', d.stlabel));
+    g2.appendChild(campo('Início da vigência', d.ini));
+    g2.appendChild(campo('Fim da vigência', d.fim));
+    modalBody.appendChild(g2);
+
+    modalBody.appendChild(mk('div','m-sec','Quantidades e valores'));
+    var g3=mk('div','m-grid');
+    g3.appendChild(campo('Qtd. homologada', qtd(d.qhom)));
+    g3.appendChild(campo('Qtd. autorizada', qtd(d.qaut)));
+    g3.appendChild(campo('Saldo', qtd(d.saldo)));
+    g3.appendChild(campo('Valor unitário', money(d.vu)));
+    g3.appendChild(campo('Valor total homologado', money(d.vtot)));
+    g3.appendChild(campo('Capacidade (saldo × unit.)', money(d.cap)));
+    modalBody.appendChild(g3);
+
+    if((d.link||'').indexOf('http')===0){
+      var a=mk('a','m-link','Abrir item no Compras.gov.br ↗');
+      a.href=d.link; a.target='_blank'; a.rel='noopener'; modalBody.appendChild(a);
+    }
+  }
+
+  function detalhePregao(tr){
+    var d=tr.dataset; modalBody.textContent='';
+    var pg=tr.cells[1].textContent.trim();
+    var h=mk('h3',null,'Pregão '+pg); h.id='modalTit'; modalBody.appendChild(h);
+    var om=OMNOMES[d.ger], nomeOm=om?om.n:(d.omnome||'');
+    var sub=mk('p','m-sub'); sub.appendChild(document.createTextNode('Gerenciadora: UASG '+d.ger+(nomeOm?(' · '+nomeOm):'')+' · '));
+    sub.appendChild(mk('span','m-badge '+(d.papel==='ger'?'p-ger':'p-part'), d.papel==='ger'?'Gerenciador':'Participante'));
+    modalBody.appendChild(sub);
+    var venc=(tr.cells[0].querySelector('b')||{}).textContent||'';
+    var dias=(tr.querySelector('.pl-dias')||{}).textContent||'';
+    var g=mk('div','m-grid');
+    g.appendChild(campo('Vencimento mais próximo', venc+(dias?(' — '+dias):'')));
+    g.appendChild(campo('Papel no pregão', d.papel==='ger'?'Gerenciador (conduz o certame)':'Participante (carona)'));
+    g.appendChild(campo('Objeto (categorias)', d.obj, true));
+    g.appendChild(campo('Itens no pregão', tr.cells[4].textContent.trim()));
+    g.appendChild(campo('Capacidade (saldo)', (tr.cells[5].querySelector('strong')||tr.cells[5]).textContent.trim()));
+    g.appendChild(campo('Fornecedor(es)', d.forns, true));
+    modalBody.appendChild(g);
+
+    var itensPg=[].slice.call(document.querySelectorAll('#tb tbody tr')).filter(function(r){
+      var ts=parseFloat(r.dataset.fimts)||0;
+      return r.dataset.key===d.key && (r.dataset.st==='vig'||r.dataset.st==='v30') && ts>0 && diasDe(ts)>=0;
+    });
+    itensPg.sort(function(a,b){ return (parseFloat(b.dataset.cap)||0)-(parseFloat(a.dataset.cap)||0); });
+    modalBody.appendChild(mk('div','m-sec','Itens deste pregão ('+itensPg.length+')'));
+    if(itensPg.length){
+      var wrap=mk('div','tblwrap'), t=mk('table'), thead=mk('thead'), htr=mk('tr');
+      ['Item','Descrição','Categoria','Saldo','Vlr. unit.','Valor total','Fim vig.'].forEach(function(x,ix){
+        htr.appendChild(mk('th',ix>=3&&ix<=5?'num':null,x));
+      });
+      thead.appendChild(htr); t.appendChild(thead);
+      var tb=mk('tbody');
+      itensPg.forEach(function(r){
+        var row=mk('tr');
+        row.appendChild(mk('td','num', r.cells[2].textContent.trim()));
+        row.appendChild(mk('td',null, r.dataset.desc||r.cells[3].textContent.trim()));
+        row.appendChild(mk('td',null, r.dataset.cat||''));
+        row.appendChild(mk('td','num', qtd(r.dataset.saldo)));
+        row.appendChild(mk('td','num', money(r.dataset.vu)));
+        row.appendChild(mk('td','num', money(r.dataset.cap)));
+        row.appendChild(mk('td',null, r.dataset.fim||''));
+        tb.appendChild(row);
+      });
+      t.appendChild(tb); wrap.appendChild(t); modalBody.appendChild(wrap);
+    } else {
+      modalBody.appendChild(mk('p','cap','Os itens deste pregão não estão na lista (sem saldo ou já vencidos).'));
+    }
+  }
+
+  function ligarDetalhe(sel, fn){
+    var corpoT = document.querySelector(sel);
+    if(!corpoT) return;
+    corpoT.addEventListener('click', function(e){
+      if(e.target.closest('a') || e.target.closest('button')) return;
+      var tr=e.target.closest('tr'); if(!tr||!tr.dataset.key) return;
+      fn(tr); abrirModal();
+    });
+    corpoT.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' && e.key!==' ') return;
+      var tr=e.target.closest('tr'); if(!tr||!tr.dataset.key) return;
+      e.preventDefault(); fn(tr); abrirModal();
+    });
+  }
+  ligarDetalhe('#tb tbody', detalheItem);
+  ligarDetalhe('#tbPlan tbody', detalhePregao);
+
+  // Restaura aba salva ou por #hash
+  try {
+    var abaSalva = localStorage.getItem('bcms-aba');
+    if(window.location.hash==='#sag') trocaAba('sag');
+    else if(window.location.hash==='#planejamento') trocaAba('plan');
+    else if(window.location.hash==='#ranking') trocaAba('rank');
+    else if(abaSalva) trocaAba(abaSalva);
+  } catch(e){}
+
+})();
+</script>
+</body>
+</html>

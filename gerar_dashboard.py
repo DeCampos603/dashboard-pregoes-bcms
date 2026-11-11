@@ -60,17 +60,17 @@ AUSENTE = "Informação ausente"
 # ⚠️ Confirme os nomes oficiais de BMSA e ECT.
 UNIDADES = [
     {"sigla": "BCMS",    "nome": "Batalhão Central de Manutenção e Suprimento",
-     "uasg": "160329", "logo": "BCMS.png",  "accent": "#DB2819"},
+     "uasg": "160329", "logo": "BCMS.png",  "accent": "#ef4444", "rgb": "239, 68, 68", "id": "BCMS"},
     {"sigla": "Ba Ap Log", "nome": "Base de Apoio Logístico do Exército",
-     "uasg": "160238", "logo": "BaApLog.png", "accent": "#D83030"},
+     "uasg": "160238", "logo": "BaApLog.png", "accent": "#3b82f6", "rgb": "59, 130, 246", "id": "BAAPLOG"},
     {"sigla": "1º D Sup", "nome": "1º Depósito de Suprimento",
-     "uasg": "160307", "logo": "1DSUP.png", "accent": "#DE2B30"},
-    {"sigla": "BMSA",    "nome": "BMSA",
-     "uasg": "160304", "logo": "BMSA.png",  "accent": "#DB2819"},
+     "uasg": "160307", "logo": "1DSUP.png", "accent": "#10b981", "rgb": "16, 185, 129", "id": "DSUP1"},
+    {"sigla": "BMSA",    "nome": "Batalhão de Manutenção e Suprimento de Armamento",
+     "uasg": "160304", "logo": "BMSA.png",  "accent": "#8b5cf6", "rgb": "139, 92, 246", "id": "BMSA"},
     {"sigla": "D C Mun", "nome": "Depósito Central de Munição",
-     "uasg": "160246", "logo": "DCMUN.png", "accent": "#047CC0"},
-    {"sigla": "ECT",     "nome": "ECT",
-     "uasg": "160321", "logo": "Ect.png",   "accent": "#B33338"},
+     "uasg": "160246", "logo": "DCMUN.png", "accent": "#0ea5e9", "rgb": "14, 165, 233", "id": "DCMUN"},
+    {"sigla": "ECT",     "nome": "Estabelecimento Central de Transportes",
+     "uasg": "160321", "logo": "Ect.png",   "accent": "#f59e0b", "rgb": "245, 158, 11", "id": "ECT"},
 ]
 
 # UASG → sigla das OMDS que conhecemos (o consolidado só traz o número da UASG
@@ -86,7 +86,7 @@ def unidade_ativa() -> dict:
         if u["uasg"] == UASG_ALVO:
             return u
     return {"sigla": NOME_CURTO, "nome": NOME_UNIDADE, "uasg": UASG_ALVO,
-            "logo": "BCMS.png", "accent": "#DB2819"}
+            "logo": "BCMS.png", "accent": "#ef4444", "rgb": "239, 68, 68", "id": "BCMS"}
 
 
 def unidades_json() -> str:
@@ -107,41 +107,77 @@ def pagina_da_unidade(u: dict) -> str:
     return "index.html" if u["uasg"] == UASG_PRIMARIO else f"{_slug(u)}.html"
 
 
-def omds_nav_html(com_dados: set, atual_uasg: str) -> str:
-    """Barra de OMDS: cada unidade COM dados vira um link para sua página; as sem
-    dados ficam como chip apagado ('aguardando coleta'). Navegação por link —
-    cada página já vem pronta (tema/brasão/dados no servidor), sem troca por JS."""
-    chips = []
+def omds_nav_html(com_dados, atual_uasg: str) -> str:
+    """Vitrine Heráldica SICOF 3.0 de OMDS: cada unidade COM dados vira um card
+    interativo para sua página; as sem dados ficam como card apagado ('aguardando coleta')."""
+    cards = []
+    is_dict = isinstance(com_dados, dict)
     for u in UNIDADES:
         tem = u["uasg"] in com_dados
         eh_atual = u["uasg"] == atual_uasg
-        logo = (f'<img src="assets/logos/{esc(u["logo"])}" alt="" loading="lazy" '
-                f'onerror="this.style.display=\'none\'"><span>{esc(u["sigla"])}</span>')
-        if tem:
-            chips.append(
-                f'<a class="omds" href="{pagina_da_unidade(u)}" '
-                f'aria-current="{"true" if eh_atual else "false"}" '
-                f'title="{esc(u["nome"])}">{logo}</a>')
+        active_cls = " is-active" if eh_atual else ""
+        uid = u.get("id", u["sigla"])
+        mu_u = com_dados.get(u["uasg"]) if is_dict else None
+        if mu_u:
+            badge_txt = f"{fmt_short(mu_u['cap_total'])} • {mu_u['n_pregoes']} pregões"
+            badge_cls = "badge-emerald" if eh_atual else "badge-cyan"
+        elif tem:
+            badge_txt = f"UASG {u['uasg']}"
+            badge_cls = "badge-cyan"
         else:
-            chips.append(
-                f'<span class="omds omds-off" aria-current="false" '
-                f'title="{esc(u["nome"])} — aguardando coleta">{logo}'
-                f'<span class="omds-selo" title="Aguardando coleta">•</span></span>')
-    return "".join(chips)
+            badge_txt = "⏳ Aguardando coleta"
+            badge_cls = "badge-amber"
+
+        inner = (
+            f'<div class="logo-img-wrap">'
+            f'<img src="assets/logos/{esc(u["logo"])}" alt="Brasão de {esc(u["sigla"])}" '
+            f'class="omds-crest-img" loading="lazy" onerror="this.style.display=\'none\'">'
+            f'</div>'
+            f'<div class="logo-card-sigla"><span>{esc(u["sigla"])}</span></div>'
+            f'<div class="logo-card-nome" title="{esc(u["nome"])}">{esc(u["nome"])}</div>'
+            f'<div class="logo-card-badge {badge_cls}">{esc(badge_txt)}</div>'
+        )
+        if tem:
+            cards.append(
+                f'<a class="logo-card omds{active_cls}" data-unit-id="{esc(uid)}" '
+                f'style="--om-accent:{u["accent"]};--om-rgb:{u.get("rgb","56, 189, 248")}" '
+                f'href="{pagina_da_unidade(u)}" '
+                f'aria-current="{"true" if eh_atual else "false"}" '
+                f'title="{esc(u["nome"])} (UASG {esc(u["uasg"])})">{inner}</a>')
+        else:
+            cards.append(
+                f'<span class="logo-card omds omds-off" data-unit-id="{esc(uid)}" '
+                f'style="--om-accent:{u["accent"]};--om-rgb:{u.get("rgb","56, 189, 248")}" '
+                f'aria-current="false" '
+                f'title="{esc(u["nome"])} — aguardando coleta">{inner}</span>')
+    return "".join(cards)
 
 
 # ---------------------------------------------------------------- utilidades
 def num(v):
-    """Converte célula em float (aceita '1.234,56'); None se não numérico."""
+    """Converte célula em float de forma resiliente (aceita '1.234,56' e '10.52'); None se não numérico."""
     if v is None or isinstance(v, bool):
         return None
     if isinstance(v, (int, float)):
         return float(v)
-    s = str(v).strip()
+    s = str(v).replace("R$", "").replace(" ", "").strip()
     if not s or s == AUSENTE:
         return None
+    # Se contiver ambos ponto e vírgula: '1.234,56' (BR) ou '1,234.56' (US)
+    if "." in s and "," in s:
+        if s.rfind(",") > s.rfind("."):
+            s = s.replace(".", "").replace(",", ".")
+        else:
+            s = s.replace(",", "")
+    elif "," in s:
+        s = s.replace(",", ".")
+    elif "." in s:
+        # Se contiver múltiplos pontos, é separador de milhar: '1.234.567' -> '1234567'
+        if s.count(".") > 1:
+            s = s.replace(".", "")
+        # Caso contrário, float() padrão interpreta '10.52' corretamente
     try:
-        return float(s.replace(".", "").replace(",", "."))
+        return float(s)
     except ValueError:
         return None
 
@@ -264,6 +300,10 @@ def etl(linhas: list[dict]) -> dict:
         if d:
             datas_coleta.append(d)
         saldo, vu = num(r.get("Qtd. Saldo")), num(r.get("Val. Unitário"))
+        # Auto-correção de anomalia de extração (Item 1 de 90010/2024 - Locação de ônibus):
+        # Valor unitário digitado/extraído no consolidado como 10520 em vez de 10.52 (sem separador decimal)
+        if vu is not None and vu == 10520 and ("90010" in str(r.get("Pregão") or "") or "ônibus" in str(r.get("Descrição detalhada") or "").lower()):
+            vu = 10.52
         cap = round(saldo * vu, 2) if (saldo is not None and vu is not None) else None
         # Qtd Homologada corrigida (÷10000 se a coluna estiver corrompida) e
         # Valor Total recalculado dela × valor unitário (a coluna do arquivo tem
@@ -483,22 +523,59 @@ def atualizar_historico(m: dict) -> list[dict]:
 
 def sparkline(hist: list[dict]) -> str:
     if len(hist) < 2:
-        return '<p class="muted">O histórico acumula a partir da 2ª atualização.</p>'
+        pos_atual = hist[0]["posicao"] if hist else "Posição atual"
+        val_atual = fmt_short(hist[0]["cap_total"]) if hist else "—"
+        return (
+            '<div class="spark-empty-state">'
+            '<svg viewBox="0 0 560 120" role="img" aria-label="Evolução da capacidade" style="width:100%;height:120px;overflow:visible">'
+            '<defs><linearGradient id="gradSparkEmpty" x1="0" y1="0" x2="0" y2="1">'
+            '<stop offset="0%" stop-color="var(--unit-accent)" stop-opacity="0.28"/>'
+            '<stop offset="100%" stop-color="var(--unit-accent)" stop-opacity="0.0"/>'
+            '</linearGradient></defs>'
+            '<line x1="16" y1="25" x2="544" y2="25" stroke="rgba(148,163,184,0.14)" stroke-dasharray="4 4"/>'
+            '<line x1="16" y1="60" x2="544" y2="60" stroke="rgba(148,163,184,0.14)" stroke-dasharray="4 4"/>'
+            '<line x1="16" y1="95" x2="544" y2="95" stroke="rgba(148,163,184,0.2)" stroke-width="1"/>'
+            '<path d="M 16 60 L 544 60 L 544 95 L 16 95 Z" fill="url(#gradSparkEmpty)"/>'
+            '<line x1="16" y1="60" x2="544" y2="60" stroke="var(--unit-accent)" stroke-width="2.5" stroke-dasharray="6 4"/>'
+            '<circle cx="280" cy="60" r="6" fill="var(--unit-accent)" class="chart-point"/>'
+            '</svg>'
+            f'<div class="spark-leg"><span> Ponto inicial: <strong>{esc(pos_atual)} ({esc(val_atual)})</strong></span>'
+            '<span>A curva histórica acumula a partir da 2ª coleta</span></div></div>'
+        )
     vals = [h["cap_total"] for h in hist]
     vmin, vmax = min(vals), max(vals)
     faixa = (vmax - vmin) or 1
-    W, H = 560, 90
+    W, H = 560, 120
     pts = []
+    coords = []
     for i, v in enumerate(vals):
-        x = 8 + i * (W - 16) / (len(vals) - 1)
-        y = H - 12 - (v - vmin) / faixa * (H - 28)
+        x = 16 + i * (W - 32) / (len(vals) - 1)
+        y = H - 20 - (v - vmin) / faixa * (H - 42)
         pts.append(f"{x:.1f},{y:.1f}")
-    return (f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Evolução da capacidade" '
-            f'preserveAspectRatio="none" style="width:100%;height:{H}px">'
-            f'<polyline points="{" ".join(pts)}" fill="none" stroke="var(--primary)" '
-            f'stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>'
-            f'<div class="spark-leg"><span>{hist[0]["posicao"]} · {fmt_short(vals[0])}</span>'
-            f'<span>{hist[-1]["posicao"]} · {fmt_short(vals[-1])}</span></div>')
+        coords.append((x, y, hist[i]["posicao"], v))
+    area_d = f"M {coords[0][0]:.1f} {H-16} L " + " L ".join(pts) + f" L {coords[-1][0]:.1f} {H-16} Z"
+    circles = "".join(
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="4.5" fill="var(--unit-accent)" class="chart-point">'
+        f'<title>{esc(pos)}: {fmt_brl(val)}</title></circle>'
+        for cx, cy, pos, val in coords
+    )
+    return (
+        f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Evolução da capacidade" '
+        f'preserveAspectRatio="none" style="width:100%;height:{H}px;overflow:visible">'
+        f'<defs><linearGradient id="gradSparkArea" x1="0" y1="0" x2="0" y2="1">'
+        f'<stop offset="0%" stop-color="var(--unit-accent)" stop-opacity="0.34"/>'
+        f'<stop offset="100%" stop-color="var(--unit-accent)" stop-opacity="0.0"/>'
+        f'</linearGradient></defs>'
+        f'<line x1="16" y1="22" x2="{W-16}" y2="22" stroke="rgba(148,163,184,0.14)" stroke-dasharray="4 4"/>'
+        f'<line x1="16" y1="{H//2}" x2="{W-16}" y2="{H//2}" stroke="rgba(148,163,184,0.14)" stroke-dasharray="4 4"/>'
+        f'<line x1="16" y1="{H-16}" x2="{W-16}" y2="{H-16}" stroke="rgba(148,163,184,0.22)" stroke-width="1"/>'
+        f'<path d="{area_d}" fill="url(#gradSparkArea)"/>'
+        f'<polyline points="{" ".join(pts)}" fill="none" stroke="var(--unit-accent)" '
+        f'stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'
+        f'{circles}</svg>'
+        f'<div class="spark-leg"><span>Início: <strong>{esc(hist[0]["posicao"])} · {fmt_short(vals[0])}</strong></span>'
+        f'<span>Atual: <strong>{esc(hist[-1]["posicao"])} · {fmt_short(vals[-1])}</strong></span></div>'
+    )
 
 
 # ---------------------------------------------------------------- render
@@ -765,9 +842,115 @@ def _tabela_sag_participados(participados: list) -> str:
     return "\n".join(linhas) if linhas else '<tr><td colspan="8" class="muted">Nenhum pregão participante encontrado.</td></tr>'
 
 
-def render(m: dict, hist: list[dict], com_dados: set) -> str:
-    tpl = _TEMPLATE
+def _ranking_omds(com_dados, atual_uasg: str) -> tuple[str, str, str]:
+    """Gera cards e tabela do Ranqueamento Comparativo das 6 OMDS."""
+    if not isinstance(com_dados, dict) or not com_dados:
+        return (
+            '<p class="vazio">Ranqueamento consolidado indisponível nesta visão.</p>',
+            '<tr><td colspan="9" class="muted">Dados comparativos indisponíveis.</td></tr>',
+            "R$ 0,00"
+        )
+    
+    lista = []
+    tot_rede = 0.0
+    for u in UNIDADES:
+        uasg = u["uasg"]
+        if uasg in com_dados:
+            mu = com_dados[uasg]
+            cap = mu.get("cap_total", 0.0)
+            tot_rede += cap
+            lista.append({
+                "u": u,
+                "mu": mu,
+                "cap": cap,
+                "sag": mu.get("tot_sag_geral", 0.0),
+                "pregoes": mu.get("n_pregoes", 0),
+                "itens": mu.get("n_itens", 0),
+                "v30": mu.get("cap_v30", 0.0),
+            })
+    
+    lista.sort(key=lambda x: -x["cap"])
+    cards = []
+    tabela = []
+    podium_icons = ["🥇", "🥈", "🥉", "4º", "5º", "6º"]
+    
+    for idx, item in enumerate(lista):
+        u = item["u"]
+        mu = item["mu"]
+        eh_atual = (u["uasg"] == atual_uasg)
+        link = pagina_da_unidade(u)
+        pct = (item["cap"] / tot_rede * 100) if tot_rede > 0 else 0
+        medalha = podium_icons[idx] if idx < len(podium_icons) else f"{idx+1}º"
+        
+        active_tag_html = '<span class="rank-current-tag"><span class="rank-pulse-dot" aria-hidden="true"></span>Unidade Ativa</span>' if eh_atual else ""
+        cards.append(
+            f'<div class="rank-item-card{" is-current-om" if eh_atual else ""}" '
+            f'data-uasg="{u["uasg"]}" data-cap="{item["cap"]:.2f}" data-sag="{item["sag"]:.2f}" '
+            f'data-pregoes="{item["pregoes"]}" data-itens="{item["itens"]}" '
+            f'onclick="window.location.href=\'{link}\'">'
+            f'<div class="rank-card-header">'
+            f'  <div class="rank-header-left">'
+            f'    <div class="rank-pos-badge rank-{idx+1}">{medalha}</div>'
+            f'    <div class="rank-om-crest"><img src="assets/logos/{u["logo"]}" alt="{esc(u["sigla"])}"></div>'
+            f'    <div class="rank-om-info">'
+            f'      <div class="rank-om-sigla">{esc(u["sigla"])}</div>'
+            f'      <div class="rank-om-uasg">UASG {u["uasg"]}</div>'
+            f'    </div>'
+            f'  </div>'
+            f'  {active_tag_html}'
+            f'</div>'
+            f'<div class="rank-metric-block">'
+            f'  <div class="rank-metric-main">'
+            f'    <span class="rank-metric-lbl">Capacidade Saldo Total</span>'
+            f'    <span class="rank-val-num">{fmt_brl(item["cap"])}</span>'
+            f'  </div>'
+            f'  <span class="rank-val-pct-badge">{pct:.1f}% da rede</span>'
+            f'</div>'
+            f'<div class="rank-track-wrap">'
+            f'  <div class="rank-track-bar" style="width:{max(pct, 2.0):.1f}%;background:{u["accent"]}"></div>'
+            f'</div>'
+            f'<div class="rank-card-footer">'
+            f'  <span>📦 <b>{item["itens"]}</b> itens c/ saldo</span>'
+            f'  <span>📋 <b>{item["pregoes"]}</b> pregões</span>'
+            f'  <span>🤝 SAG: <b>{fmt_short(item["sag"])}</b></span>'
+            f'</div>'
+            f'</div>'
+        )
+        
+        tabela.append(
+            f'<tr class="{"rank-row-current" if eh_atual else ""}" onclick="window.location.href=\'{link}\'">'
+            f'<td class="rank-col-pos"><span class="rank-pos-badge rank-{idx+1}">{medalha}</span></td>'
+            f'<td class="rank-col-om">'
+            f'  <div style="display:flex;align-items:center;gap:10px">'
+            f'    <img src="assets/logos/{u["logo"]}" alt="{esc(u["sigla"])}" style="width:28px;height:28px;object-fit:contain">'
+            f'    <div><strong>{esc(u["sigla"])}</strong><br><small class="muted" style="font-size:11px">{esc(u["nome"], 36)}</small></div>'
+            f'  </div>'
+            f'</td>'
+            f'<td>{u["uasg"]}</td>'
+            f'<td class="num" data-v="{item["cap"]:.2f}"><strong>{fmt_brl(item["cap"])}</strong></td>'
+            f'<td class="num" data-v="{item["sag"]:.2f}">{fmt_brl(item["sag"])}</td>'
+            f'<td class="num" data-v="{item["pregoes"]}">{item["pregoes"]}</td>'
+            f'<td class="num" data-v="{item["itens"]}">{item["itens"]}</td>'
+            f'<td class="num" data-v="{item["v30"]:.2f}">{fmt_brl(item["v30"])}</td>'
+            f'<td style="text-align:center"><a href="{link}" class="btn btn-sm btn-rank-link">Acessar ↗</a></td>'
+            f'</tr>'
+        )
+        
+    return "\n".join(cards), "\n".join(tabela), fmt_brl(tot_rede)
+
+
+def carregar_template() -> str:
+    caminho = os.path.join(BASE, "template_sicof.html")
+    if os.path.exists(caminho):
+        with open(caminho, "r", encoding="utf-8") as f:
+            return f.read()
+    return _TEMPLATE
+
+
+def render(m: dict, hist: list[dict], com_dados) -> str:
+    tpl = carregar_template()
     ativa = unidade_ativa()
+    rank_cards, rank_table, tot_rede = _ranking_omds(com_dados, ativa["uasg"])
     subs = {
         "%%POSICAO%%": m["posicao"],
         "%%GERADO%%": m["hoje"].strftime("%d/%m/%Y %H:%M"),
@@ -776,6 +959,8 @@ def render(m: dict, hist: list[dict], com_dados: set) -> str:
         "%%UNIDADE_CURTA%%": ativa["sigla"],
         "%%EMBLEMA%%": f'assets/logos/{ativa["logo"]}',
         "%%ACCENT%%": ativa["accent"],
+        "%%UNIT_RGB%%": ativa.get("rgb", "239, 68, 68"),
+        "%%UNIT_ID%%": ativa.get("id", "BCMS"),
         "%%OMDS_NAV%%": omds_nav_html(com_dados, ativa["uasg"]),
         "%%TABELA_PLANEJ%%": _tabela_planejamento(m["planejamento"]),
         "%%N_PLANEJ%%": fmt_int(len(m["planejamento"])),
@@ -813,13 +998,16 @@ def render(m: dict, hist: list[dict], com_dados: set) -> str:
         "%%SEL_TP%%": _select("fTp", "Material ou serviço", m["op_tipo"], "Ambos"),
         "%%VENC60%%": "".join(
             f'<tr><td>{fim.strftime("%d/%m/%Y")}</td><td>{esc(pregao)}</td>'
-            f'<td>{esc(ger)}</td><td class="num">{v["n"]}</td>'
+            f'<td class="num">{v["n"]}</td>'
             f'<td class="num"><strong>{fmt_brl(v["cap"])}</strong></td></tr>'
             for (fim, pregao, ger), v in m["venc60"]) or
-            '<tr><td colspan="5" class="muted">Nenhuma ata vencendo nos próximos 60 dias.</td></tr>',
+            '<tr><td colspan="4" class="muted">Nenhuma ata vencendo nos próximos 60 dias.</td></tr>',
+        "%%RANKING_CARDS%%": rank_cards,
+        "%%RANKING_TABLE%%": rank_table,
+        "%%TOT_REDE%%": tot_rede,
     }
     for k, v in subs.items():
-        tpl = tpl.replace(k, v)
+        tpl = tpl.replace(k, str(v))
     return tpl
 
 
@@ -2572,7 +2760,7 @@ def main() -> int:
         hist = atualizar_historico(mu) if u["uasg"] == UASG_PRIMARIO else []
         arq = pagina_da_unidade(u)
         with open(os.path.join(SITE, arq), "w", encoding="utf-8") as f:
-            f.write(render(mu, hist, com_dados))
+            f.write(render(mu, hist, resultados))
         print(f"[OK] {arq}: {fmt_brl(mu['cap_total'])} "
               f"({mu['n_itens']} itens, {mu['n_pregoes']} pregões)")
     
