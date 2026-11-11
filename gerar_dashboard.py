@@ -515,6 +515,7 @@ def atualizar_historico(m: dict) -> list[dict]:
     hist = [h for h in hist if h.get("posicao") != chave]
     hist.append({"posicao": chave, "cap_total": round(m["cap_total"], 2),
                  "cap_v30": round(m["cap_v30"], 2), "itens": m["n_itens"]})
+    hist.sort(key=lambda h: data_br(h.get("posicao")) or datetime.min)
     hist = hist[-120:]
     with open(caminho, "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, indent=1)
@@ -2714,6 +2715,24 @@ button[aria-busy="true"], .btn[aria-busy="true"] {
 """
 
 
+def _max_data_coleta(linhas: list[dict]):
+    datas = [d for d in (data_br(r.get("Data_Coleta")) for r in linhas) if d]
+    return max(datas) if datas else None
+
+
+def _ultima_posicao_historico():
+    caminho = os.path.join(DATA, "history.json")
+    if not os.path.exists(caminho):
+        return None
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            hist = json.load(f)
+        datas = [d for d in (data_br(h.get("posicao")) for h in hist) if d]
+        return max(datas) if datas else None
+    except (json.JSONDecodeError, OSError, TypeError):
+        return None
+
+
 # ---------------------------------------------------------------- main
 def main() -> int:
     global UASG_ALVO, NOME_UNIDADE, NOME_CURTO, UASG_PRIMARIO
@@ -2731,6 +2750,21 @@ def main() -> int:
         fobj = baixar_do_drive(fid)
 
     linhas = carregar_linhas(fobj)        # lê a planilha UMA vez
+
+    if not local and os.path.exists(os.path.join(SITE, "index.html")):
+        data_xlsx = _max_data_coleta(linhas)
+        data_hist = _ultima_posicao_historico()
+        if data_xlsx and data_hist and data_xlsx < data_hist:
+            print(
+                f"[AVISO] Planilha do Drive ({data_xlsx:%d/%m/%Y}) é mais antiga que a posição "
+                f"já publicada ({data_hist:%d/%m/%Y}). Preservando site/ atual para evitar regressão."
+            )
+            try:
+                import build_pregoes_dashboard
+                build_pregoes_dashboard.main()
+            except Exception as e:
+                print(f"[INFO] build_pregoes_dashboard: {e}")
+            return 0
 
     # 1) ETL de cada OMDS (mesmas linhas, filtro por UASG). Guarda as que têm dados.
     resultados: dict = {}
