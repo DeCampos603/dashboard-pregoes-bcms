@@ -108,6 +108,7 @@ html[data-theme="light"] {
 
 html {
   font-family: var(--font-sans);
+  font-size: clamp(13px, 12.2px + 0.12vw, 14.5px);
   background-color: var(--bg-deep);
   color: var(--text-primary);
   scroll-behavior: smooth;
@@ -164,9 +165,9 @@ html[data-theme="light"] #motion-canvas {
 }
 
 .app-container {
-  max-width: 1540px;
+  max-width: min(97vw, 1800px);
   margin: 0 auto;
-  padding: 1.25rem 2rem 5rem 2rem;
+  padding: 0.9rem 1.25rem 3.5rem 1.25rem;
   position: relative;
   z-index: 1;
 }
@@ -179,43 +180,43 @@ html[data-theme="light"] #motion-canvas {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem 1.75rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
   background: var(--bg-surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: var(--glass-shadow);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .header-branding {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 .brand-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   background: linear-gradient(135deg, rgba(var(--unit-accent-rgb), 0.25), rgba(16, 185, 129, 0.15));
   border: 1px solid var(--unit-border);
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--text-accent);
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1rem;
   box-shadow: 0 0 16px var(--unit-glow);
 }
 .brand-title h1 {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 .brand-title p {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 .header-actions {
@@ -277,34 +278,44 @@ html[data-theme="light"] .btn-theme-toggle {
   border: 1.5px solid #0f172a !important;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
 }
+html[data-theme="light"] .btn-secondary {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+html[data-theme="light"] .btn-secondary:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
 
 /* ==========================================================================
    VITRINE HERÁLDICA DE OMDS & BANNER DA UNIDADE ATIVA
    ========================================================================== */
 .omds-showcase-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 .showcase-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.65rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
 }
 .showcase-header h2 {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 .showcase-header p {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 .logos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 .logo-card {
   position: relative;
@@ -314,8 +325,8 @@ html[data-theme="light"] .btn-theme-toggle {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-top: 3.5px solid var(--om-accent, var(--text-accent));
-  border-radius: 18px;
-  padding: 1.25rem 1rem;
+  border-radius: 14px;
+  padding: 0.85rem 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -339,6 +350,10 @@ html[data-theme="light"] .btn-theme-toggle {
   box-shadow: 0 0 28px -2px rgba(var(--om-rgb, 56, 189, 248), 0.5), inset 0 0 14px rgba(var(--om-rgb, 56, 189, 248), 0.18) !important;
   transform: translateY(-2px);
 }
+html[data-theme="light"] .logo-card.is-active {
+  background: linear-gradient(145deg, rgba(var(--om-rgb, 56, 189, 248), 0.14), #ffffff) !important;
+  box-shadow: 0 6px 20px -2px rgba(var(--om-rgb, 56, 189, 248), 0.28) !important;
+}
 .logo-card.is-active::after {
   content: '';
   position: absolute;
@@ -355,12 +370,12 @@ html[data-theme="light"] .btn-theme-toggle {
   cursor: default;
 }
 .logo-img-wrap {
-  width: 76px;
-  height: 84px;
+  width: 56px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.5rem;
   transition: transform var(--motion-snappy) cubic-bezier(0.34, 1.56, 0.64, 1.0);
 }
 .logo-card:hover .logo-img-wrap {
@@ -405,19 +420,23 @@ html[data-theme="light"] .btn-theme-toggle {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--unit-border);
-  border-radius: 20px;
-  padding: 1.5rem 1.85rem;
+  border-radius: 16px;
+  padding: 0.95rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  box-shadow: 0 8px 32px var(--unit-glow);
+  gap: 1rem;
+  box-shadow: 0 8px 28px var(--unit-glow);
+}
+html[data-theme="light"] .unit-overview-banner {
+  background: linear-gradient(135deg, rgba(var(--unit-accent-rgb), 0.10), #ffffff);
+  box-shadow: 0 6px 20px var(--unit-glow);
 }
 .unit-banner-left {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.95rem;
   flex-wrap: wrap;
   min-width: 0;
   flex: 1;
@@ -427,17 +446,17 @@ html[data-theme="light"] .btn-theme-toggle {
   word-break: break-word;
 }
 .unit-banner-logo-wrap {
-  width: 82px;
-  height: 90px;
+  width: 60px;
+  height: 66px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   border: 1.5px solid var(--unit-border);
-  box-shadow: 0 0 20px var(--unit-glow);
-  padding: 0.4rem;
+  box-shadow: 0 0 18px var(--unit-glow);
+  padding: 0.3rem;
 }
 .unit-banner-logo-wrap img {
   max-width: 100%;
@@ -446,16 +465,16 @@ html[data-theme="light"] .btn-theme-toggle {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 .unit-banner-info h2 {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 .unit-banner-info p {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 .unit-tags-row {
   display: flex;
@@ -481,14 +500,14 @@ html[data-theme="light"] .btn-theme-toggle {
    ========================================================================== */
 .sicof-tabs-nav {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.45rem;
+  gap: 0.35rem;
+  padding: 0.35rem;
   background: var(--bg-surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  margin-bottom: 1.75rem;
+  border-radius: 14px;
+  margin-bottom: 1.15rem;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -497,14 +516,14 @@ html[data-theme="light"] .btn-theme-toggle {
 .sicof-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
   background: transparent;
   border: none;
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 0.88rem;
+  font-size: 0.83rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -541,10 +560,10 @@ html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
    ========================================================================== */
 .bento-hero-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-columns: 1.55fr 1fr 1fr;
   grid-template-rows: auto auto;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
 }
 @media (max-width: 1024px) {
   .bento-hero-grid {
@@ -565,7 +584,7 @@ html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.35rem 1.5rem;
+  padding: 0.95rem 1.15rem;
   box-shadow: var(--glass-shadow);
   display: flex;
   flex-direction: column;
@@ -595,21 +614,21 @@ html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
   margin-bottom: 0.25rem;
 }
 .hero-big {
-  font-size: clamp(1.8rem, 4.2vw, 3.2rem);
+  font-size: clamp(1.4rem, 2vw, 2.05rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 .hero-cap {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  line-height: 1.45;
-  margin-bottom: 1.25rem;
+  line-height: 1.4;
+  margin-bottom: 0.95rem;
 }
 .meter {
   display: flex;
@@ -681,12 +700,12 @@ html[data-theme="light"] .pill { color: #ffffff; }
   gap: 0.4rem;
 }
 .bento-kpi-val {
-  font-size: 1.85rem;
+  font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  margin: 0.45rem 0 0.2rem 0;
+  margin: 0.3rem 0 0.15rem 0;
 }
 .bento-kpi-val.warn { color: var(--warning); }
 .bento-kpi-val.bad { color: var(--danger); }
@@ -701,8 +720,8 @@ html[data-theme="light"] .pill { color: #ffffff; }
 .grid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
 }
 @media (max-width: 900px) {
   .grid2 { grid-template-columns: 1fr; }
@@ -713,20 +732,20 @@ html[data-theme="light"] .pill { color: #ffffff; }
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.35rem 1.5rem;
+  padding: 0.95rem 1.1rem;
   box-shadow: var(--glass-shadow);
   min-width: 0;
 }
 .card h2 {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 .card .cap {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.85rem;
 }
 
 /* Barras Horizontais com Pódio Top 3 */
@@ -809,14 +828,14 @@ html[data-theme="light"] .pill { color: #ffffff; }
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.1rem;
   box-shadow: var(--glass-shadow);
 }
 .filtros-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 0.7rem;
 }
 .fl {
   display: flex;
@@ -924,9 +943,11 @@ html[data-theme="light"] .pill { color: #ffffff; }
 /* Segmented Switches */
 .seg {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-subtle);
-  border-radius: 999px;
+  border-radius: 16px;
   padding: 3px;
   gap: 2px;
 }
@@ -934,10 +955,10 @@ html[data-theme="light"] .pill { color: #ffffff; }
   background: transparent;
   border: none;
   border-radius: 999px;
-  padding: 0.4rem 0.95rem;
+  padding: 0.35rem 0.8rem;
   cursor: pointer;
   font-family: var(--font-sans);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-secondary);
   transition: all var(--motion-snappy) var(--motion-ease);
@@ -956,7 +977,7 @@ html[data-theme="light"] .seg button[aria-pressed="true"] {
 }
 
 /* ==========================================================================
-   TABELAS DE DADOS EXECUTIVAS (WCAG 2.2 AAA + STICKY HEADERS)
+   TABELAS DE DADOS EXECUTIVAS (WCAG 2.2 AAA + AJUSTE FULL-WIDTH RESPONSIVO)
    ========================================================================== */
 .tblwrap {
   overflow-x: auto;
@@ -968,11 +989,11 @@ html[data-theme="light"] .seg button[aria-pressed="true"] {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   text-align: left;
 }
 th, td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.48rem 0.42rem;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -982,11 +1003,12 @@ thead th {
   background: var(--bg-surface);
   z-index: 2;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.69rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  letter-spacing: 0.03em;
+  white-space: normal;
+  line-height: 1.2;
   cursor: pointer;
   user-select: none;
   border-bottom: 1.5px solid var(--border-strong);
@@ -1004,32 +1026,225 @@ tbody tr:hover {
 td.num, th.num {
   text-align: right;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 td.desc {
-  max-width: 320px;
+  min-width: 120px;
+  max-width: 280px;
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.3;
+  overflow-wrap: break-word;
 }
 td.forn {
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 95px;
+  max-width: 170px;
+  white-space: normal;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  font-size: 0.74rem;
   color: var(--text-secondary);
 }
-td.cat, td.nd {
-  white-space: nowrap;
-  font-size: 0.78rem;
+td.cat {
+  white-space: normal;
+  line-height: 1.25;
+  max-width: 120px;
+  overflow-wrap: break-word;
+  font-size: 0.74rem;
   color: var(--text-muted);
+}
+td.nd {
+  white-space: nowrap;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+.pl-obj {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+#tb {
+  font-size: 0.76rem;
+}
+#tb th, #tb td {
+  padding: 0.44rem 0.32rem;
+}
+#tb td:nth-child(1),
+#tb td:nth-child(2),
+#tb td:nth-child(3),
+#tb td:nth-child(8),
+#tb td:nth-child(13) {
+  white-space: nowrap;
+}
+@media (max-width: 1380px) and (min-width: 900px) {
+  #tb {
+    font-size: 0.71rem;
+  }
+  #tb th, #tb td {
+    padding: 0.38rem 0.22rem;
+  }
+  #tb thead th {
+    font-size: 0.65rem;
+    letter-spacing: 0.015em;
+  }
+  #tb td.desc {
+    min-width: 105px;
+    max-width: 195px;
+  }
+  #tb td.cat {
+    max-width: 92px;
+    font-size: 0.69rem;
+  }
+  #tb td.forn {
+    min-width: 82px;
+    max-width: 128px;
+    font-size: 0.69rem;
+  }
+  #tb td.nd {
+    font-size: 0.69rem;
+  }
+  #tb .tag {
+    padding: 0.1rem 0.36rem;
+    font-size: 0.64rem;
+    gap: 0.2rem;
+  }
+  #tbSagGer th, #tbSagGer td,
+  #tbSagPart th, #tbSagPart td,
+  #tbPlan th, #tbPlan td,
+  #tbRanking th, #tbRanking td {
+    padding: 0.4rem 0.28rem;
+    font-size: 0.73rem;
+  }
+}
+@media (max-width: 899px) {
+  #tb, #tbPlan, #tbSagGer, #tbSagPart, #tbRanking {
+    display: block;
+  }
+  #tb thead, #tbPlan thead, #tbSagGer thead, #tbSagPart thead, #tbRanking thead {
+    display: none;
+  }
+  #tb tbody, #tbPlan tbody, #tbSagGer tbody, #tbSagPart tbody, #tbRanking tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.5rem;
+  }
+  #tb tbody tr, #tbPlan tbody tr, #tbSagGer tbody tr, #tbSagPart tbody tr, #tbRanking tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.65rem;
+    padding: 0.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+  }
+  #tb tbody td, #tbPlan tbody td, #tbSagGer tbody td, #tbSagPart tbody td, #tbRanking tbody td {
+    border: none;
+    padding: 0;
+    text-align: left !important;
+    white-space: normal !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere;
+  }
+  #tb tbody td::before, #tbPlan tbody td::before, #tbSagGer tbody td::before, #tbSagPart tbody td::before, #tbRanking tbody td::before {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 0.1rem;
+  }
+  #tb tbody td[colspan]::before, #tbPlan tbody td[colspan]::before,
+  #tbSagGer tbody td[colspan]::before, #tbSagPart tbody td[colspan]::before,
+  #tbRanking tbody td[colspan]::before {
+    display: none;
+  }
+  #tb tbody td[colspan], #tbPlan tbody td[colspan],
+  #tbSagGer tbody td[colspan], #tbSagPart tbody td[colspan],
+  #tbRanking tbody td[colspan] {
+    grid-column: 1 / -1;
+    text-align: center !important;
+    padding: 0.5rem 0;
+  }
+  /* Itens (#tb) */
+  #tb tbody td:nth-child(4), #tb tbody td:nth-child(7) { grid-column: 1 / -1; }
+  #tb tbody td:nth-child(1)::before { content: "Pregão"; }
+  #tb tbody td:nth-child(2)::before { content: "Ger."; }
+  #tb tbody td:nth-child(3)::before { content: "Item"; }
+  #tb tbody td:nth-child(4)::before { content: "Descrição do Item"; }
+  #tb tbody td:nth-child(5)::before { content: "Categoria"; }
+  #tb tbody td:nth-child(6)::before { content: "ND sug."; }
+  #tb tbody td:nth-child(7)::before { content: "Fornecedor"; }
+  #tb tbody td:nth-child(8)::before { content: "Fim vig."; }
+  #tb tbody td:nth-child(9)::before { content: "Situação"; }
+  #tb tbody td:nth-child(10)::before { content: "Saldo"; }
+  #tb tbody td:nth-child(11)::before { content: "Vlr. unit."; }
+  #tb tbody td:nth-child(12)::before { content: "Valor total"; }
+  #tb tbody td:nth-child(13)::before { content: "Compras.gov"; }
+  /* Planejamento (#tbPlan) */
+  #tbPlan tbody td:nth-child(4), #tbPlan tbody td:nth-child(7) { grid-column: 1 / -1; }
+  #tbPlan tbody td:nth-child(1)::before { content: "Vencimento"; }
+  #tbPlan tbody td:nth-child(2)::before { content: "Pregão"; }
+  #tbPlan tbody td:nth-child(3)::before { content: "Ger."; }
+  #tbPlan tbody td:nth-child(4)::before { content: "Objeto"; }
+  #tbPlan tbody td:nth-child(5)::before { content: "Itens"; }
+  #tbPlan tbody td:nth-child(6)::before { content: "Capacidade"; }
+  #tbPlan tbody td:nth-child(7)::before { content: "Fornecedor(es)"; }
+  /* SAG Gerenciados (#tbSagGer) */
+  #tbSagGer tbody td:nth-child(2) { grid-column: 1 / -1; }
+  #tbSagGer tbody td:nth-child(1)::before { content: "Pregão"; }
+  #tbSagGer tbody td:nth-child(2)::before { content: "Objeto"; }
+  #tbSagGer tbody td:nth-child(3)::before { content: "Itens"; }
+  #tbSagGer tbody td:nth-child(4)::before { content: "Total Homologado"; }
+  #tbSagGer tbody td:nth-child(5)::before { content: "Vigência"; }
+  #tbSagGer tbody td:nth-child(6)::before { content: "Status"; }
+  #tbSagGer tbody td:nth-child(7)::before { content: "Copiar"; }
+  /* SAG Participados (#tbSagPart) */
+  #tbSagPart tbody td:nth-child(3) { grid-column: 1 / -1; }
+  #tbSagPart tbody td:nth-child(1)::before { content: "Pregão"; }
+  #tbSagPart tbody td:nth-child(2)::before { content: "Gerenciador"; }
+  #tbSagPart tbody td:nth-child(3)::before { content: "Objeto"; }
+  #tbSagPart tbody td:nth-child(4)::before { content: "Itens Cota"; }
+  #tbSagPart tbody td:nth-child(5)::before { content: "Cota OM"; }
+  #tbSagPart tbody td:nth-child(6)::before { content: "Vigência"; }
+  #tbSagPart tbody td:nth-child(7)::before { content: "Status"; }
+  #tbSagPart tbody td:nth-child(8)::before { content: "Copiar"; }
+  /* Ranqueamento (#tbRanking) */
+  #tbRanking tbody td:nth-child(2), #tbRanking tbody td:nth-child(9) { grid-column: 1 / -1; }
+  #tbRanking tbody td:nth-child(1)::before { content: "Pos."; }
+  #tbRanking tbody td:nth-child(2)::before { content: "Organização Militar"; }
+  #tbRanking tbody td:nth-child(3)::before { content: "UASG"; }
+  #tbRanking tbody td:nth-child(4)::before { content: "Capacidade Total"; }
+  #tbRanking tbody td:nth-child(5)::before { content: "Volume SAG"; }
+  #tbRanking tbody td:nth-child(6)::before { content: "Pregões"; }
+  #tbRanking tbody td:nth-child(7)::before { content: "Itens Saldo"; }
+  #tbRanking tbody td:nth-child(8)::before { content: "Vencendo ≤30d"; }
+  #tbRanking tbody td:nth-child(9)::before { content: "Ação"; }
+  /* Tabela Vencendo em 60d */
+  .grid2 table {
+    font-size: 0.72rem;
+  }
+  .grid2 table th, .grid2 table td {
+    padding: 0.35rem 0.25rem;
+  }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  #tb tbody tr, #tbPlan tbody tr, #tbSagGer tbody tr, #tbSagPart tbody tr, #tbRanking tbody tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
   border-radius: 999px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.72rem;
+  padding: 0.14rem 0.48rem;
+  font-size: 0.69rem;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -1037,6 +1252,10 @@ td.cat, td.nd {
 .tag-v30 { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
 .tag-venc { background: rgba(239, 68, 68, 0.18); color: #fb7185; border: 1px solid rgba(239, 68, 68, 0.35); }
 .tag-semata, .tag-semdados { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+html[data-theme="light"] .tag-vig { background: rgba(16, 185, 129, 0.12); color: #047857; border-color: rgba(5, 150, 105, 0.35); }
+html[data-theme="light"] .tag-v30 { background: rgba(245, 158, 11, 0.14); color: #92400e; border-color: rgba(217, 119, 6, 0.4); }
+html[data-theme="light"] .tag-venc { background: rgba(239, 68, 68, 0.12); color: #be123c; border-color: rgba(225, 29, 72, 0.35); }
+html[data-theme="light"] .tag-semata, html[data-theme="light"] .tag-semdados { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 
 .tbl-foot {
   display: flex;
@@ -1083,7 +1302,7 @@ td.cat, td.nd {
 .pl-card.b-180 { --bc: #38bdf8; }
 .pl-card.b-max { --bc: var(--success-fill); }
 .pl-card-n {
-  font-size: 1.85rem;
+  font-size: 1.4rem;
   font-weight: 800;
   line-height: 1;
   font-family: var(--font-mono);
@@ -1117,7 +1336,7 @@ td.cat, td.nd {
   background: var(--bg-card);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r-sm);
-  padding: 1.15rem 1.35rem;
+  padding: 0.9rem 1.05rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -1130,16 +1349,16 @@ td.cat, td.nd {
 .sag-kpi-card.sag-kpi-part { border-left: 4.5px solid #0ea5e9; }
 .sag-kpi-card:hover { background: rgba(255, 255, 255, 0.05); }
 .sag-kpi-card[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--unit-accent); }
-.sag-kpi-val { font-size: 1.75rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-primary); }
-.sag-kpi-lb { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
+.sag-kpi-val { font-size: 1.38rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-primary); }
+.sag-kpi-lb { font-size: 0.76rem; font-weight: 700; color: var(--text-muted); }
 .sag-kpi-sub { font-size: 0.72rem; color: var(--text-muted); }
 
 .sag-bloco {
   background: var(--bg-card);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r-sm);
-  padding: 1.25rem 1.35rem;
-  margin-bottom: 1.25rem;
+  padding: 0.95rem 1.1rem;
+  margin-bottom: 1rem;
 }
 .sag-bloco-hdr {
   display: flex;
@@ -1199,9 +1418,9 @@ td.cat, td.nd {
    ========================================================================== */
 .ranking-leaderboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 1.15rem;
-  margin-bottom: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
 }
 .rank-item-card {
   position: relative;
@@ -1210,10 +1429,10 @@ td.cat, td.nd {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.25rem 1.35rem;
+  padding: 0.95rem 1.05rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.65rem;
   cursor: pointer;
   min-width: 0;
   overflow: hidden;
@@ -1289,17 +1508,18 @@ td.cat, td.nd {
 .rank-current-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.65rem;
+  gap: 0.3rem;
+  font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.22rem 0.65rem;
+  letter-spacing: 0.04em;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
   background: var(--unit-accent);
   color: #030712;
   box-shadow: 0 2px 8px var(--unit-glow);
   white-space: nowrap;
+  max-width: 100%;
   flex-shrink: 0;
 }
 html[data-theme="light"] .rank-current-tag {
@@ -1364,8 +1584,6 @@ html[data-theme="light"] .rank-current-tag {
   height: 8px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
-  overflow: hidden;
-}
   overflow: hidden;
 }
 .rank-track-bar {
@@ -3659,23 +3877,23 @@ footer {
           <table id="tbSagGer">
             <thead>
               <tr>
-                <th style="width:130px">Pregão</th>
+                <th style="width:98px">Pregão</th>
                 <th>Objeto do Pregão</th>
-                <th class="num" style="width:85px">Itens</th>
-                <th class="num" style="width:175px">Total Homologado (R$)</th>
-                <th style="width:115px">Vigência</th>
-                <th style="width:110px">Status</th>
-                <th style="width:55px;text-align:center">Copiar</th>
+                <th class="num" style="width:62px">Itens</th>
+                <th class="num" style="width:142px">Total Homologado (R$)</th>
+                <th style="width:92px">Vigência</th>
+                <th style="width:94px">Status</th>
+                <th style="width:52px;text-align:center">Copiar</th>
               </tr>
             </thead>
             <tbody>
 <tr data-key="160329 · 90007/2026" data-pregao="90007/2026" data-papel="ger" data-ano="2026" data-valor="26530000.00" data-ger="160329" data-search="90007/2026 160329 2026 aquisição de peças genuínas específicas da marca/fabricante idv brasil p... idv brasil ltda." tabindex="0" aria-label="Pregão gerenciado 90007/2026"><td><b>90007/2026</b></td><td class="pl-obj" title="Aquisição de peças genuínas específicas da marca/fabricante IDV BRASIL para manutenção da Viatura Blindada de Transporte Pessoal Média Sobre Rodas (VBTP MSR) 6x6 Guarani, utilizando o critério de julgamento de MAIOR DESCONTO sobre a tabela…">Aquisição de peças genuínas específicas da marca/fabricante…</td><td class="num" data-v="1">1</td><td class="num" data-v="26530000.00"><strong>R$ 26.530.000,00</strong></td><td style="white-space:nowrap">07/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90007/2026	Gerenciador	160329	Aquisição de peças genuínas específicas da marca/fabricante IDV BRASIL p...	1	26530000.00	07/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160329 · 90010/2026" data-pregao="90010/2026" data-papel="ger" data-ano="2026" data-valor="2000000.00" data-ger="160329" data-search="90010/2026 160329 2026 aquisição de peças genuínas e insumos da marca/fabricante agrale para ma... universal importacao exportacao e comercio limitada" tabindex="0" aria-label="Pregão gerenciado 90010/2026"><td><b>90010/2026</b></td><td class="pl-obj" title="Aquisição de peças genuínas e insumos da marca/fabricante AGRALE para manutenção da Viatura Agrale Marruá, utilizando o critério de julgamento de MAIOR DESCONTO sobre a tabela do FABRICANTE">Aquisição de peças genuínas e insumos da marca/fabricante A…</td><td class="num" data-v="1">1</td><td class="num" data-v="2000000.00"><strong>R$ 2.000.000,00</strong></td><td style="white-space:nowrap">14/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90010/2026	Gerenciador	160329	Aquisição de peças genuínas e insumos da marca/fabricante AGRALE para ma...	1	2000000.00	14/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160329 · 90004/2026" data-pregao="90004/2026" data-papel="ger" data-ano="2026" data-valor="128605.61" data-ger="160329" data-search="90004/2026 160329 2026 aquisição de insumos para as oficinas de carpintaria e serralheria do bcms atrium industria e comercio de ferragens ltda; triunfal maquinas e ferramentas ltda; fergavi comercial ltda; marcelo sousa goncalves; agra comercio de ferramentas ltda; daniel comercio atacadista de ma…" tabindex="0" aria-label="Pregão gerenciado 90004/2026"><td><b>90004/2026</b></td><td class="pl-obj" title="Aquisição de insumos para as oficinas de carpintaria e serralheria do BCMS">Aquisição de insumos para as oficinas de carpintaria e serr…</td><td class="num" data-v="82">82</td><td class="num" data-v="128605.61"><strong>R$ 128.605,61</strong></td><td style="white-space:nowrap">09/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2026	Gerenciador	160329	Aquisição de insumos para as oficinas de carpintaria e serralheria do BCMS	82	128605.61	09/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160329 · 90001/2026" data-pregao="90001/2026" data-papel="ger" data-ano="2026" data-valor="92761.67" data-ger="160329" data-search="90001/2026 160329 2026 a presente licitação tem por objeto a aquisição de insumos e materiais d... marcelo sousa goncalves; goldem distribuidora e representacao ltda; raridade comercio e servico ltda; madewest industria e comercio de madeiras ltda; tt material de construcao ltda" tabindex="0" aria-label="Pregão gerenciado 90001/2026"><td><b>90001/2026</b></td><td class="pl-obj" title="A presente licitação tem por objeto a aquisição de insumos e materiais diversos destinados à fabricação de armários de 2 (duas) e 4 (quatro) portas, destinados à estruturação e melhoria dos alojamentos">A presente licitação tem por objeto a aquisição de insumos …</td><td class="num" data-v="24">24</td><td class="num" data-v="92761.67"><strong>R$ 92.761,67</strong></td><td style="white-space:nowrap">23/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Gerenciador	160329	A presente licitação tem por objeto a aquisição de insumos e materiais d...	24	92761.67	23/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160329 · 90009/2025" data-pregao="90009/2025" data-papel="ger" data-ano="2025" data-valor="3045078.60" data-ger="160329" data-search="90009/2025 160329 2025 a presente licitação tem por objeto a contratação de serviços especializ... carioca solution ltda; mecanica nova wgd ltda; r l p comercio e servicos ltda; leandro neves ferreira; tiju maquinas servicos ltda; gelar da vila refrigeracao e servicos ltda" tabindex="0" aria-label="Pregão gerenciado 90009/2025"><td><b>90009/2025</b></td><td class="pl-obj" title="A presente licitação tem por objeto a contratação de Serviços Especializados em Manutenção de Equipamentos de Cozinha Industrial e Câmaras Frigoríficas para o Batalhão Central de Manutenção e Suprimento (BCMS) e Unidades Participantes do G…">A presente licitação tem por objeto a contratação de Serviç…</td><td class="num" data-v="42">42</td><td class="num" data-v="3045078.60"><strong>R$ 3.045.078,60</strong></td><td style="white-space:nowrap">30/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90009/2025	Gerenciador	160329	A presente licitação tem por objeto a contratação de Serviços Especializ...	42	3045078.60	30/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160329 · 90008/2025" data-pregao="90008/2025" data-papel="ger" data-ano="2025" data-valor="1468037.73" data-ger="160329" data-search="90008/2025 160329 2025 aquisição de ferramental, utensílios e insumos de uso geral, destinados ... vitoria maquinas e ferramentas ltda; luthor comercio ltda; 59.343.967 gilmara de souza fernandes; c. s. p autopecas ltda; genesis global ltda; angra luz comercio e distribuidora de materiais eletricos…" tabindex="0" aria-label="Pregão gerenciado 90008/2025"><td><b>90008/2025</b></td><td class="pl-obj" title="Aquisição de ferramental, utensílios e insumos de uso geral, destinados à manutenção, conservação, reparos e atividades rotineiras indispensáveis ao regular funcionamento das instalações das organizações militares subordinadas à Base de Ap…">Aquisição de ferramental, utensílios e insumos de uso geral…</td><td class="num" data-v="112">112</td><td class="num" data-v="1468037.73"><strong>R$ 1.468.037,73</strong></td><td style="white-space:nowrap">01/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90008/2025	Gerenciador	160329	Aquisição de ferramental, utensílios e insumos de uso geral, destinados ...	112	1468037.73	01/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160329 · 90003/2025" data-pregao="90003/2025" data-papel="ger" data-ano="2025" data-valor="530000.00" data-ger="160329" data-search="90003/2025 160329 2025 o objetivo da presente aquisição de material para manutenção de bens imó... opportunity comercio e servicos ltda; luthor comercio ltda; gentileza comercio de materiais e servicos ltda; jta assessoria e materiais ltda" tabindex="0" aria-label="Pregão gerenciado 90003/2025"><td><b>90003/2025</b></td><td class="pl-obj" title="O objetivo da presente aquisição de material para manutenção de bens imóveis (SINAPI), sob responsabilidade desta Organização Militar.">O objetivo da presente aquisição de material para manutençã…</td><td class="num" data-v="13">13</td><td class="num" data-v="530000.00"><strong>R$ 530.000,00</strong></td><td style="white-space:nowrap">18/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2025	Gerenciador	160329	O objetivo da presente aquisição de material para manutenção de bens imó...	13	530000.00	18/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90004/2026" data-pregao="90004/2026" data-papel="ger" data-ano="2026" data-valor="128605.61" data-ger="160329" data-search="90004/2026 160329 2026 aquisição de insumos para as oficinas de carpintaria e serralheria do bcms reobot comercio e servicos ltda; gr distribuicao e servicos ltda; triunfal maquinas e ferramentas ltda; daniel comercio atacadista de madeiras e material de construcao limitada; marcelo sousa goncalves…" tabindex="0" aria-label="Pregão gerenciado 90004/2026"><td><b>90004/2026</b></td><td class="pl-obj" title="Aquisição de insumos para as oficinas de carpintaria e serralheria do BCMS">Aquisição de insumos para as oficinas de carpintaria e serr…</td><td class="num" data-v="82">82</td><td class="num" data-v="128605.61"><strong>R$ 128.605,61</strong></td><td style="white-space:nowrap">09/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2026	Gerenciador	160329	Aquisição de insumos para as oficinas de carpintaria e serralheria do BCMS	82	128605.61	09/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90001/2026" data-pregao="90001/2026" data-papel="ger" data-ano="2026" data-valor="92761.67" data-ger="160329" data-search="90001/2026 160329 2026 a presente licitação tem por objeto a aquisição de insumos e materiais d... marcelo sousa goncalves; tt material de construcao ltda; goldem distribuidora e representacao ltda; raridade comercio e servico ltda; madewest industria e comercio de madeiras ltda" tabindex="0" aria-label="Pregão gerenciado 90001/2026"><td><b>90001/2026</b></td><td class="pl-obj" title="A presente licitação tem por objeto a aquisição de insumos e materiais diversos destinados à fabricação de armários de 2 (duas) e 4 (quatro) portas, destinados à estruturação e melhoria dos alojamentos">A presente licitação tem por objeto a aquisição de insumos …</td><td class="num" data-v="24">24</td><td class="num" data-v="92761.67"><strong>R$ 92.761,67</strong></td><td style="white-space:nowrap">23/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Gerenciador	160329	A presente licitação tem por objeto a aquisição de insumos e materiais d...	24	92761.67	23/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90009/2025" data-pregao="90009/2025" data-papel="ger" data-ano="2025" data-valor="3045078.60" data-ger="160329" data-search="90009/2025 160329 2025 a presente licitação tem por objeto a contratação de serviços especializ... leandro neves ferreira; carioca solution ltda; tiju maquinas servicos ltda; r l p comercio e servicos ltda; gelar da vila refrigeracao e servicos ltda; mecanica nova wgd ltda" tabindex="0" aria-label="Pregão gerenciado 90009/2025"><td><b>90009/2025</b></td><td class="pl-obj" title="A presente licitação tem por objeto a contratação de Serviços Especializados em Manutenção de Equipamentos de Cozinha Industrial e Câmaras Frigoríficas para o Batalhão Central de Manutenção e Suprimento (BCMS) e Unidades Participantes do G…">A presente licitação tem por objeto a contratação de Serviç…</td><td class="num" data-v="42">42</td><td class="num" data-v="3045078.60"><strong>R$ 3.045.078,60</strong></td><td style="white-space:nowrap">30/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90009/2025	Gerenciador	160329	A presente licitação tem por objeto a contratação de Serviços Especializ...	42	3045078.60	30/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90008/2025" data-pregao="90008/2025" data-papel="ger" data-ano="2025" data-valor="1468037.73" data-ger="160329" data-search="90008/2025 160329 2025 aquisição de ferramental, utensílios e insumos de uso geral, destinados ... comercial vanguardeira ltda; genesis global ltda; slyweb sistemas ltda; vitoria maquinas e ferramentas ltda; licitmais e intermediacao de negocios ltda; pallet rio industria e comercio ltda; luthor co…" tabindex="0" aria-label="Pregão gerenciado 90008/2025"><td><b>90008/2025</b></td><td class="pl-obj" title="Aquisição de ferramental, utensílios e insumos de uso geral, destinados à manutenção, conservação, reparos e atividades rotineiras indispensáveis ao regular funcionamento das instalações das organizações militares subordinadas à Base de Ap…">Aquisição de ferramental, utensílios e insumos de uso geral…</td><td class="num" data-v="112">112</td><td class="num" data-v="1468037.73"><strong>R$ 1.468.037,73</strong></td><td style="white-space:nowrap">01/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90008/2025	Gerenciador	160329	Aquisição de ferramental, utensílios e insumos de uso geral, destinados ...	112	1468037.73	01/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160329 · 90003/2025" data-pregao="90003/2025" data-papel="ger" data-ano="2025" data-valor="530000.00" data-ger="160329" data-search="90003/2025 160329 2025 o objetivo da presente aquisição de material para manutenção de bens imó... opportunity comercio e servicos ltda; gentileza comercio de materiais e servicos ltda; jta assessoria e materiais ltda; luthor comercio ltda" tabindex="0" aria-label="Pregão gerenciado 90003/2025"><td><b>90003/2025</b></td><td class="pl-obj" title="O objetivo da presente aquisição de material para manutenção de bens imóveis (SINAPI), sob responsabilidade desta Organização Militar.">O objetivo da presente aquisição de material para manutençã…</td><td class="num" data-v="13">13</td><td class="num" data-v="530000.00"><strong>R$ 530.000,00</strong></td><td style="white-space:nowrap">18/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2025	Gerenciador	160329	O objetivo da presente aquisição de material para manutenção de bens imó...	13	530000.00	18/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
             </tbody>
           </table>
         </div>
@@ -3694,54 +3912,54 @@ footer {
           <table id="tbSagPart">
             <thead>
               <tr>
-                <th style="width:130px">Pregão</th>
-                <th style="width:150px">Gerenciador</th>
+                <th style="width:98px">Pregão</th>
+                <th style="width:115px">Gerenciador</th>
                 <th>Objeto do Pregão</th>
-                <th class="num" style="width:85px">Itens Cota</th>
-                <th class="num" style="width:175px">Cota OM (R$)</th>
-                <th style="width:115px">Vigência</th>
-                <th style="width:110px">Status</th>
-                <th style="width:55px;text-align:center">Copiar</th>
+                <th class="num" style="width:64px">Itens Cota</th>
+                <th class="num" style="width:136px">Cota OM (R$)</th>
+                <th style="width:92px">Vigência</th>
+                <th style="width:94px">Status</th>
+                <th style="width:52px;text-align:center">Copiar</th>
               </tr>
             </thead>
             <tbody>
 <tr data-key="160301 · 90002/2026" data-pregao="90002/2026" data-papel="part" data-ano="2026" data-valor="3871894.00" data-ger="160301" data-om="" data-search="90002/2026 160301   2026 registro de preços para a contratação de serviços comuns de manutenção, ... triangulo construtora e servicos ltda" tabindex="0" aria-label="Pregão participante 90002/2026"><td><b>90002/2026</b></td><td class="pl-ger" title=""><b>160301</b></td><td class="pl-obj" title="Registro de preços para a Contratação de serviços comuns de manutenção, preservação e recuperação de bens imóveis, com fornecimento integral dos insumos, equipamentos e mão de obra necessários à execução.">Registro de preços para a Contratação de serviços com…</td><td class="num" data-v="1">1</td><td class="num" data-v="3871894.00"><strong>R$ 3.871.894,00</strong></td><td style="white-space:nowrap">15/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2026	Participante	160301 	Registro de preços para a Contratação de serviços comuns de manutenção, ...	1	3871894.00	15/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160200 · 32/2026" data-pregao="32/2026" data-papel="part" data-ano="2026" data-valor="2150000.00" data-ger="160200" data-om="" data-search="32/2026 160200   2026 ferramentas e equipamentos para oficina de manutenção universal importacao exportacao e comercio limitada" tabindex="0" aria-label="Pregão participante 32/2026"><td><b>32/2026</b></td><td class="pl-ger" title=""><b>160200</b></td><td class="pl-obj" title="Acessórios / Equipamentos Oficina Manutenção - tipo: carro esteira, material: aço">Ferramentas e Equipamentos para Oficina de Manutenção</td><td class="num" data-v="1">1</td><td class="num" data-v="2150000.00"><strong>R$ 2.150.000,00</strong></td><td style="white-space:nowrap">10/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="32/2026	Participante	160200 	Ferramentas e Equipamentos para Oficina de Manutenção	1	2150000.00	10/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160304 · 90003/2026" data-pregao="90003/2026" data-papel="part" data-ano="2026" data-valor="1648339.00" data-ger="160304" data-om="BMSA" data-search="90003/2026 160304 bmsa batalhão de manutenção e suprimento de armamento 2026 fardamento e vestuário · serviços - pessoa jurídica (manutenção / reforma predial) vertico arquitetura e construcao ltda.; diretriz servico e comercio geral ltda; real forte manutencao predial ltda; af produtos e servicos …" tabindex="0" aria-label="Pregão participante 90003/2026"><td><b>90003/2026</b></td><td class="pl-ger" title="Batalhão de Manutenção e Suprimento de Armamento"><b>160304</b><span class="pl-om" title="Batalhão de Manutenção e Suprimento de Armamento">BMSA</span></td><td class="pl-obj" title="Fardamento e Vestuário · Serviços - Pessoa Jurídica · Principais itens: Manutenção / Reforma Predial">Fardamento e Vestuário · Serviços - Pessoa Jurídica (…</td><td class="num" data-v="9">9</td><td class="num" data-v="1648339.00"><strong>R$ 1.648.339,00</strong></td><td style="white-space:nowrap">30/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2026	Participante	160304 BMSA	Fardamento e Vestuário · Serviços - Pessoa Jurídica (Manutenção / Reforma Predial)	9	1648339.00	30/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160274 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="1178385.73" data-ger="160274" data-om="" data-search="90001/2026 160274   2026 aquisição de óleos lubrificantes rpf comercial ltda; raridade comercio e servico ltda; patricia cristina de abreu; 62.528.261 wallace danilo pereira francisco; gabigold distribuidora ltda; aman distribuidora ltda; somark distribuidora de pecas e servicos de manutencao ltda" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title=""><b>160274</b></td><td class="pl-obj" title="Aquisição de óleos Lubrificantes">Aquisição de óleos Lubrificantes</td><td class="num" data-v="15">15</td><td class="num" data-v="1178385.73"><strong>R$ 1.178.385,73</strong></td><td style="white-space:nowrap">01/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	160274 	Aquisição de óleos Lubrificantes	15	1178385.73	01/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160318 · 16/2026" data-pregao="16/2026" data-papel="part" data-ano="2026" data-valor="913588.53" data-ger="160318" data-om="" data-search="16/2026 160318   2026 eventual aquisição de equipamentos (materiais permanentes) para o progra... mundo inox comercio e manutencao ltda; 62.015.316 leonardo ribeiro sanazaro marin; jm licitacoes ltda; b10 licita ltda; lovrim comercio ltda; sora scientific brasil comercial ltda; tlk comercio e servi…" tabindex="0" aria-label="Pregão participante 16/2026"><td><b>16/2026</b></td><td class="pl-ger" title=""><b>160318</b></td><td class="pl-obj" title="Eventual aquisição de equipamentos (materiais permanentes) para o Programa de Auditoria em Segurança Alimentar - PASA para atender as necessidades da EsSLog/CMVM, CEADEx, CCOPAB e Unidades integrantes do GCALC 1ª DE">Eventual aquisição de equipamentos (materiais permane…</td><td class="num" data-v="52">52</td><td class="num" data-v="913588.53"><strong>R$ 913.588,53</strong></td><td style="white-space:nowrap">06/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="16/2026	Participante	160318 	Eventual aquisição de equipamentos (materiais permanentes) para o Progra...	52	913588.53	06/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160304 · 90003/2026" data-pregao="90003/2026" data-papel="part" data-ano="2026" data-valor="1648339.00" data-ger="160304" data-om="BMSA" data-search="90003/2026 160304 bmsa batalhão de manutenção e suprimento de armamento 2026 fardamento e vestuário · serviços - pessoa jurídica (manutenção / reforma predial) af produtos e servicos ltda; diretriz servico e comercio geral ltda; vertico arquitetura e construcao ltda.; real forte manutencao predial …" tabindex="0" aria-label="Pregão participante 90003/2026"><td><b>90003/2026</b></td><td class="pl-ger" title="Batalhão de Manutenção e Suprimento de Armamento"><b>160304</b><span class="pl-om" title="Batalhão de Manutenção e Suprimento de Armamento">BMSA</span></td><td class="pl-obj" title="Fardamento e Vestuário · Serviços - Pessoa Jurídica · Principais itens: Manutenção / Reforma Predial">Fardamento e Vestuário · Serviços - Pessoa Jurídica (…</td><td class="num" data-v="9">9</td><td class="num" data-v="1648339.00"><strong>R$ 1.648.339,00</strong></td><td style="white-space:nowrap">30/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2026	Participante	160304 BMSA	Fardamento e Vestuário · Serviços - Pessoa Jurídica (Manutenção / Reforma Predial)	9	1648339.00	30/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160274 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="1178385.73" data-ger="160274" data-om="" data-search="90001/2026 160274   2026 aquisição de óleos lubrificantes somark distribuidora de pecas e servicos de manutencao ltda; aman distribuidora ltda; patricia cristina de abreu; 62.528.261 wallace danilo pereira francisco; rpf comercial ltda; raridade comercio e servico ltda; gabigold distribuidora ltda" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title=""><b>160274</b></td><td class="pl-obj" title="Aquisição de óleos Lubrificantes">Aquisição de óleos Lubrificantes</td><td class="num" data-v="15">15</td><td class="num" data-v="1178385.73"><strong>R$ 1.178.385,73</strong></td><td style="white-space:nowrap">01/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	160274 	Aquisição de óleos Lubrificantes	15	1178385.73	01/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160318 · 16/2026" data-pregao="16/2026" data-papel="part" data-ano="2026" data-valor="913588.53" data-ger="160318" data-om="" data-search="16/2026 160318   2026 eventual aquisição de equipamentos (materiais permanentes) para o progra... microtecnica informatica ltda; artinox cozinhas industriais ltda; h2o comercio e representacao de bebedouros ltda; andrade solucoes em bens e servicos ltda; m b costa acessorios ltda; refinar empresari…" tabindex="0" aria-label="Pregão participante 16/2026"><td><b>16/2026</b></td><td class="pl-ger" title=""><b>160318</b></td><td class="pl-obj" title="Eventual aquisição de equipamentos (materiais permanentes) para o Programa de Auditoria em Segurança Alimentar - PASA para atender as necessidades da EsSLog/CMVM, CEADEx, CCOPAB e Unidades integrantes do GCALC 1ª DE">Eventual aquisição de equipamentos (materiais permane…</td><td class="num" data-v="52">52</td><td class="num" data-v="913588.53"><strong>R$ 913.588,53</strong></td><td style="white-space:nowrap">06/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="16/2026	Participante	160318 	Eventual aquisição de equipamentos (materiais permanentes) para o Progra...	52	913588.53	06/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160238 · 223/2026" data-pregao="223/2026" data-papel="part" data-ano="2026" data-valor="726892.98" data-ger="160238" data-om="Ba Ap Log" data-search="223/2026 160238 ba ap log base de apoio logístico do exército 2026 contratação de serviços comuns de de instalação, desinstalação, w i n s marques distribuidora de produtos e servicos; r l p comercio e servicos ltda" tabindex="0" aria-label="Pregão participante 223/2026"><td><b>223/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="contratação de serviços comuns de de instalação, desinstalação,
 manutenção preventiva e corretiva de condicionadores de ar, incluindo o fornecimento de material e peças de
 reposição pela Contratada, quando necessários, a fim de atender as …">contratação de serviços comuns de de instalação, desi…</td><td class="num" data-v="65">65</td><td class="num" data-v="726892.98"><strong>R$ 726.892,98</strong></td><td style="white-space:nowrap">01/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="223/2026	Participante	160238 Ba Ap Log	contratação de serviços comuns de de instalação, desinstalação,	65	726892.98	01/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160238 · 90012/2026" data-pregao="90012/2026" data-papel="part" data-ano="2026" data-valor="361905.48" data-ger="160238" data-om="Ba Ap Log" data-search="90012/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de microcomputadores, notebooks, monitores e infraestrutura de... luthor comercio ltda; movinseg tecnologia comercio e servicos ltda; sgmax tecnologia e comercio ltda; salestech solucoes em ti ltda; ar imports ltda; taci…" tabindex="0" aria-label="Pregão participante 90012/2026"><td><b>90012/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de datacenter">Aquisição de Microcomputadores, Notebooks, Monitores …</td><td class="num" data-v="63">63</td><td class="num" data-v="361905.48"><strong>R$ 361.905,48</strong></td><td style="white-space:nowrap">29/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90012/2026	Participante	160238 Ba Ap Log	Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de...	63	361905.48	29/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160238 · 90315/2026" data-pregao="90315/2026" data-papel="part" data-ano="2026" data-valor="344276.55" data-ger="160238" data-om="Ba Ap Log" data-search="90315/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de materiais gráficos para o grupo de coordenação e acompanham... vtprint outdoor e grafica ltda; robertson daniel rauter da silva filho; grafica magnifico ltda; casa varejao artigos desportivos ltda; bruno siegbert kutt…" tabindex="0" aria-label="Pregão participante 90315/2026"><td><b>90315/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanhamento de Licitações e Contratos da Base de Apoio Logístico.">Aquisição de materiais gráficos para o Grupo de Coord…</td><td class="num" data-v="78">78</td><td class="num" data-v="344276.55"><strong>R$ 344.276,55</strong></td><td style="white-space:nowrap">25/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90315/2026	Participante	160238 Ba Ap Log	Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanham...	78	344276.55	25/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160238 · 90012/2026" data-pregao="90012/2026" data-papel="part" data-ano="2026" data-valor="361905.48" data-ger="160238" data-om="Ba Ap Log" data-search="90012/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de microcomputadores, notebooks, monitores e infraestrutura de... 33.622.151 isabel alves de souza; ar imports ltda; amilton guimaraes e cia ltda; repremig representacao e comercio de minas gerais ltda; npr comercio e se…" tabindex="0" aria-label="Pregão participante 90012/2026"><td><b>90012/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de datacenter">Aquisição de Microcomputadores, Notebooks, Monitores …</td><td class="num" data-v="63">63</td><td class="num" data-v="361905.48"><strong>R$ 361.905,48</strong></td><td style="white-space:nowrap">29/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90012/2026	Participante	160238 Ba Ap Log	Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de...	63	361905.48	29/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160238 · 90315/2026" data-pregao="90315/2026" data-papel="part" data-ano="2026" data-valor="344276.55" data-ger="160238" data-om="Ba Ap Log" data-search="90315/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de materiais gráficos para o grupo de coordenação e acompanham... ingrafoto reproducoes em fotolito ltda; agencia impero ltda; b21 solucoes graficas ltda; grafica e editora alianca ltda; bruno siegbert kuttner; 52.853.43…" tabindex="0" aria-label="Pregão participante 90315/2026"><td><b>90315/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanhamento de Licitações e Contratos da Base de Apoio Logístico.">Aquisição de materiais gráficos para o Grupo de Coord…</td><td class="num" data-v="78">78</td><td class="num" data-v="344276.55"><strong>R$ 344.276,55</strong></td><td style="white-space:nowrap">25/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90315/2026	Participante	160238 Ba Ap Log	Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanham...	78	344276.55	25/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160040 · 31/2026" data-pregao="31/2026" data-papel="part" data-ano="2026" data-valor="260114.10" data-ger="160040" data-om="" data-search="31/2026 160040   2026 aquisição de lonas para cobertura de viaturas medicam servicos e tecnologia de gestao ltda" tabindex="0" aria-label="Pregão participante 31/2026"><td><b>31/2026</b></td><td class="pl-ger" title=""><b>160040</b></td><td class="pl-obj" title="Lona - material: tecido vinil sintético, aplicação: cobertura de caminhões e carretas carga, cor: verde · Lona - material: poliamida antifungos e antichamas, aplicação: cobertura caminhão, cor: verde oliva, tamanho: 6,25 x 4,80, tipo: cobe…">Aquisição de Lonas para Cobertura de Viaturas</td><td class="num" data-v="3">3</td><td class="num" data-v="260114.10"><strong>R$ 260.114,10</strong></td><td style="white-space:nowrap">10/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="31/2026	Participante	160040 	Aquisição de Lonas para Cobertura de Viaturas	3	260114.10	10/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160298 · 9/2026" data-pregao="9/2026" data-papel="part" data-ano="2026" data-valor="174664.80" data-ger="160298" data-om="" data-search="9/2026 160298   2026 gênero alimentício · limpeza e conservação (refrigerante, molho de mesa) alk comercio e servicos de alimentacao ltda; isupry comercial e servicos ltda; rojao comercial de alimentos ltda; n s fatima distribuidora de produtos alimenticios ltda; j d distribuidora de produtos alime…" tabindex="0" aria-label="Pregão participante 9/2026"><td><b>9/2026</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Gênero Alimentício · Limpeza e Conservação · Principais itens: Refrigerante, Molho De Mesa, Condimento, Suco, Frios, Doce Não Confeitado, Tempero, Massa Alimentícia">Gênero Alimentício · Limpeza e Conservação (Refrigera…</td><td class="num" data-v="39">39</td><td class="num" data-v="174664.80"><strong>R$ 174.664,80</strong></td><td style="white-space:nowrap">06/11/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="9/2026	Participante	160298 	Gênero Alimentício · Limpeza e Conservação (Refrigerante, Molho De Mesa)	39	174664.80	06/11/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160298 · 9/2026" data-pregao="9/2026" data-papel="part" data-ano="2026" data-valor="174664.80" data-ger="160298" data-om="" data-search="9/2026 160298   2026 gênero alimentício · limpeza e conservação (refrigerante, molho de mesa) j d distribuidora de produtos alimenticios ltda; n s fatima distribuidora de produtos alimenticios ltda; isupry comercial e servicos ltda; rojao comercial de alimentos ltda; alk comercio e servicos de alim…" tabindex="0" aria-label="Pregão participante 9/2026"><td><b>9/2026</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Gênero Alimentício · Limpeza e Conservação · Principais itens: Refrigerante, Molho De Mesa, Condimento, Suco, Frios, Doce Não Confeitado, Tempero, Massa Alimentícia">Gênero Alimentício · Limpeza e Conservação (Refrigera…</td><td class="num" data-v="39">39</td><td class="num" data-v="174664.80"><strong>R$ 174.664,80</strong></td><td style="white-space:nowrap">06/11/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="9/2026	Participante	160298 	Gênero Alimentício · Limpeza e Conservação (Refrigerante, Molho De Mesa)	39	174664.80	06/11/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160298 · 90005/2026" data-pregao="90005/2026" data-papel="part" data-ano="2026" data-valor="145945.00" data-ger="160298" data-om="" data-search="90005/2026 160298   2026 aquisição de gás liquefeito de petróleo ( glp ) p.s.t. gaz comercio e transportes ltda" tabindex="0" aria-label="Pregão participante 90005/2026"><td><b>90005/2026</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Gás Liquefeito de Petróleo ( GLP )">Aquisição de Gás Liquefeito de Petróleo ( GLP )</td><td class="num" data-v="2">2</td><td class="num" data-v="145945.00"><strong>R$ 145.945,00</strong></td><td style="white-space:nowrap">17/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2026	Participante	160298 	Aquisição de Gás Liquefeito de Petróleo ( GLP )	2	145945.00	17/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="762400 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="81103.00" data-ger="762400" data-om="" data-search="90001/2026 762400   2026 aquisição de materiais, ferramentas e equipamentos com base no maior des... raridade comercio e servico ltda" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title=""><b>762400</b></td><td class="pl-obj" title="Aquisição de materiais, ferramentas e equipamentos com base no maior desconto na tabela não desonerada SINAPI-RJ.">Aquisição de materiais, ferramentas e equipamentos co…</td><td class="num" data-v="1">1</td><td class="num" data-v="81103.00"><strong>R$ 81.103,00</strong></td><td style="white-space:nowrap">09/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	762400 	Aquisição de materiais, ferramentas e equipamentos com base no maior des...	1	81103.00	09/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160270 · 31/2026" data-pregao="31/2026" data-papel="part" data-ano="2026" data-valor="77539.62" data-ger="160270" data-om="" data-search="31/2026 160270   2026 aquisição de material de manobra e patrulhamento no contexto do gcalc da... genial produtos e servicos em geral ltda; plano ferramentas e epi ltda; amj digigraf solucoes ltda; dna tech comercio atacadista de equipamentos ltda; l c l comercio de alvos ltda.; comercial ejm medse…" tabindex="0" aria-label="Pregão participante 31/2026"><td><b>31/2026</b></td><td class="pl-ger" title=""><b>160270</b></td><td class="pl-obj" title="Aquisição de material de manobra e patrulhamento no contexto do GCALC da 1ª Divisão de Exército.">Aquisição de material de manobra e patrulhamento no c…</td><td class="num" data-v="23">23</td><td class="num" data-v="77539.62"><strong>R$ 77.539,62</strong></td><td style="white-space:nowrap">28/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="31/2026	Participante	160270 	Aquisição de material de manobra e patrulhamento no contexto do GCALC da...	23	77539.62	28/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160307 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="35005.40" data-ger="160307" data-om="1º D Sup" data-search="90001/2026 160307 1º d sup 1º depósito de suprimento 2026 aquisição de medicamentos, insumos hospitalares e materiais odontológico... conquista distribuidora de medicamentos e produtos hospitalares ltda; dbv comercio importacao e exportacao do brasil ltda; oeste sul cirurgica ltda; rf leite distrib…" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title="1º Depósito de Suprimento"><b>160307</b><span class="pl-om" title="1º Depósito de Suprimento">1º D Sup</span></td><td class="pl-obj" title="Aquisição de medicamentos, insumos hospitalares e materiais odontológicos para o Classe VIII ( Seção de saúde) do 1º Depósito de Suprimento.">Aquisição de medicamentos, insumos hospitalares e mat…</td><td class="num" data-v="34">34</td><td class="num" data-v="35005.40"><strong>R$ 35.005,40</strong></td><td style="white-space:nowrap">30/04/2028</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	160307 1º D Sup	Aquisição de medicamentos, insumos hospitalares e materiais odontológico...	34	35005.40	30/04/2028	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160270 · 31/2026" data-pregao="31/2026" data-papel="part" data-ano="2026" data-valor="77539.62" data-ger="160270" data-om="" data-search="31/2026 160270   2026 aquisição de material de manobra e patrulhamento no contexto do gcalc da... amj digigraf solucoes ltda; v - seg comercio de produtos militares ltda; 66.861.132 daniel heringer carlos aires; dna tech comercio atacadista de equipamentos ltda; epinet comercio de equipamentos de p…" tabindex="0" aria-label="Pregão participante 31/2026"><td><b>31/2026</b></td><td class="pl-ger" title=""><b>160270</b></td><td class="pl-obj" title="Aquisição de material de manobra e patrulhamento no contexto do GCALC da 1ª Divisão de Exército.">Aquisição de material de manobra e patrulhamento no c…</td><td class="num" data-v="23">23</td><td class="num" data-v="77539.62"><strong>R$ 77.539,62</strong></td><td style="white-space:nowrap">28/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="31/2026	Participante	160270 	Aquisição de material de manobra e patrulhamento no contexto do GCALC da...	23	77539.62	28/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160307 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="35005.40" data-ger="160307" data-om="1º D Sup" data-search="90001/2026 160307 1º d sup 1º depósito de suprimento 2026 aquisição de medicamentos, insumos hospitalares e materiais odontológico... rf leite distribuidora de medicamentos e produtos para saude ltda; laboratorio teuto brasileiro s/a; j r g distribuidora de medicamentos hospitalares ltda; oeste sul…" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title="1º Depósito de Suprimento"><b>160307</b><span class="pl-om" title="1º Depósito de Suprimento">1º D Sup</span></td><td class="pl-obj" title="Aquisição de medicamentos, insumos hospitalares e materiais odontológicos para o Classe VIII ( Seção de saúde) do 1º Depósito de Suprimento.">Aquisição de medicamentos, insumos hospitalares e mat…</td><td class="num" data-v="34">34</td><td class="num" data-v="35005.40"><strong>R$ 35.005,40</strong></td><td style="white-space:nowrap">30/04/2028</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	160307 1º D Sup	Aquisição de medicamentos, insumos hospitalares e materiais odontológico...	34	35005.40	30/04/2028	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160410 · 90001/2026" data-pregao="90001/2026" data-papel="part" data-ano="2026" data-valor="610.00" data-ger="160410" data-om="" data-search="90001/2026 160410   2026 insumos de borracharia e vulcanização ferramentas e pneumaticos 1001 ltda" tabindex="0" aria-label="Pregão participante 90001/2026"><td><b>90001/2026</b></td><td class="pl-ger" title=""><b>160410</b></td><td class="pl-obj" title="COLA, COMPOSIÇÃO CIMENTO VULCANIZANTE, APLICAÇÃO REMENDO EM CÂMARAS DE AR A FRIO, TIPO PASTOSA">Insumos de Borracharia e Vulcanização</td><td class="num" data-v="1">1</td><td class="num" data-v="610.00"><strong>R$ 610,00</strong></td><td style="white-space:nowrap">11/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2026	Participante	160410 	Insumos de Borracharia e Vulcanização	1	610.00	11/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160228 · 90004/2026" data-pregao="90004/2026" data-papel="part" data-ano="2026" data-valor="555.00" data-ger="160228" data-om="" data-search="90004/2026 160228   2026 aquisição de materiais de consumo para a seção de saúde do 26° grupo de ... e k c de a guimaraes ltda" tabindex="0" aria-label="Pregão participante 90004/2026"><td><b>90004/2026</b></td><td class="pl-ger" title=""><b>160228</b></td><td class="pl-obj" title="Aquisição de materiais de consumo para a seção de saúde do 26° Grupo de Artilharia de Campanha">Aquisição de materiais de consumo para a seção de saú…</td><td class="num" data-v="2">2</td><td class="num" data-v="555.00"><strong>R$ 555,00</strong></td><td style="white-space:nowrap">11/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2026	Participante	160228 	Aquisição de materiais de consumo para a seção de saúde do 26° Grupo de ...	2	555.00	11/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160200 · 90005/2025" data-pregao="90005/2025" data-papel="part" data-ano="2025" data-valor="1983640.00" data-ger="160200" data-om="" data-search="90005/2025 160200   2025 tintas, esmaltes e insumos de pintura r.a.j. gestao de negocios ltda" tabindex="0" aria-label="Pregão participante 90005/2025"><td><b>90005/2025</b></td><td class="pl-ger" title=""><b>160200</b></td><td class="pl-obj" title="PIGMENTO DE COLORIR TINTA, APRESENTAÇÃO LÍQUIDO, FORMULAÇÃO A BASE D&#x27;ÁGUA, COR VARIADA, USO TINTA E PASTA SERIGRÁFICA · PIGMENTO DE COLORIR TINTA, APRESENTAÇÃO LÍQUIDO, FORMULAÇÃO A BASE D&#x27;ÁGUA, COR VARIADA, USO TINTA E PASTA SERIGRÁFICA ·…">Tintas, Esmaltes e Insumos de Pintura</td><td class="num" data-v="11">11</td><td class="num" data-v="1983640.00"><strong>R$ 1.983.640,00</strong></td><td style="white-space:nowrap">07/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2025	Participante	160200 	Tintas, Esmaltes e Insumos de Pintura	11	1983640.00	07/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160450 · 90008/2025" data-pregao="90008/2025" data-papel="part" data-ano="2025" data-valor="1743214.00" data-ger="160450" data-om="" data-search="90008/2025 160450   2025 ferramentas e equipamentos para oficina de manutenção universal importacao exportacao e comercio limitada" tabindex="0" aria-label="Pregão participante 90008/2025"><td><b>90008/2025</b></td><td class="pl-ger" title=""><b>160450</b></td><td class="pl-obj" title="ACESSÓRIOS / EQUIPAMENTOS OFICINA MANUTENÇÃO, TIPO CARRO ESTEIRA, MATERIAL AÇO · ACESSÓRIOS / EQUIPAMENTOS OFICINA MANUTENÇÃO, TIPO CARRO ESTEIRA, MATERIAL AÇO">Ferramentas e Equipamentos para Oficina de Manutenção</td><td class="num" data-v="10">10</td><td class="num" data-v="1743214.00"><strong>R$ 1.743.214,00</strong></td><td style="white-space:nowrap">28/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90008/2025	Participante	160450 	Ferramentas e Equipamentos para Oficina de Manutenção	10	1743214.00	28/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160069 · 90007/2025" data-pregao="90007/2025" data-papel="part" data-ano="2025" data-valor="1176235.00" data-ger="160069" data-om="" data-search="90007/2025 160069   2025 aquisição de veículos operacionais pick-up diesel stellantis automoveis brasil ltda." tabindex="0" aria-label="Pregão participante 90007/2025"><td><b>90007/2025</b></td><td class="pl-ger" title=""><b>160069</b></td><td class="pl-obj" title="VEÍCULO PICK-UP, TIPO MOTOR DIESEL, TIPO DIREÇÃO HIDRÁULICA, POTÊNCIA MOTOR MÍNIMA 160 CV, CAPACIDADE PASSAGEIRO 5, CARGA ÚTIL 1000 L, QUANTIDADE PORTAS 4 , CARACTERÍSTICAS ADICIONAIS TRIO ELÉTRICO (VIDRO,TRAVA,ALARME),FARÓIS DE NEBL I, MO…">Aquisição de Veículos Operacionais Pick-Up Diesel</td><td class="num" data-v="1">1</td><td class="num" data-v="1176235.00"><strong>R$ 1.176.235,00</strong></td><td style="white-space:nowrap">09/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90007/2025	Participante	160069 	Aquisição de Veículos Operacionais Pick-Up Diesel	1	1176235.00	09/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160297 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="918632.00" data-ger="160297" data-om="" data-search="90002/2025 160297   2025 eventual contratação de serviços de confecção de móveis, tipo planejado ... marcenaria sular ltda" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160297</b></td><td class="pl-obj" title="Eventual contratação de serviços de confecção de móveis, tipo planejado com elaboração de projeto, fornecimento, instalação e montagem.">Eventual contratação de serviços de confecção de móve…</td><td class="num" data-v="1">1</td><td class="num" data-v="918632.00"><strong>R$ 918.632,00</strong></td><td style="white-space:nowrap">04/02/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160297 	Eventual contratação de serviços de confecção de móveis, tipo planejado ...	1	918632.00	04/02/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160251 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="873015.06" data-ger="160251" data-om="" data-search="90002/2025 160251   2025 aquisição de material permanente de tecnologia da informação i.r. comercio e materiais eletricos ltda; qualyteck tecnologia e informatica ltda; lifebits equipamentos e servicos de informatica ltda; crossing comercio e servicos de tecnologia ltda; 4u digital comercio e servi…" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160251</b></td><td class="pl-obj" title="Aquisição de Material Permanente de Tecnologia da Informação">Aquisição de Material Permanente de Tecnologia da Inf…</td><td class="num" data-v="28">28</td><td class="num" data-v="873015.06"><strong>R$ 873.015,06</strong></td><td style="white-space:nowrap">26/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160251 	Aquisição de Material Permanente de Tecnologia da Informação	28	873015.06	26/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160298 · 90004/2025" data-pregao="90004/2025" data-papel="part" data-ano="2025" data-valor="484725.70" data-ger="160298" data-om="" data-search="90004/2025 160298   2025 aquisição de generos alimenticios quantittativo de rancho (qr) comalta comercio de alimentos ltda; frismar ltda; alk comercio e servicos de alimentacao ltda; comsup comercial de alimentos ltda; galeria hort comercio de produtos alimenticios ltda; refiservi refeicoes industr…" tabindex="0" aria-label="Pregão participante 90004/2025"><td><b>90004/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)">Aquisição de Generos Alimenticios Quantittativo de Ra…</td><td class="num" data-v="118">118</td><td class="num" data-v="484725.70"><strong>R$ 484.725,70</strong></td><td style="white-space:nowrap">15/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2025	Participante	160298 	Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)	118	484725.70	15/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160251 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="873015.06" data-ger="160251" data-om="" data-search="90002/2025 160251   2025 aquisição de material permanente de tecnologia da informação mg service computadores e informatica ltda; lifebits equipamentos e servicos de informatica ltda; i.r. comercio e materiais eletricos ltda; f. l. santos solucoes integradas ltda; augusto torres nedel; select comer…" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160251</b></td><td class="pl-obj" title="Aquisição de Material Permanente de Tecnologia da Informação">Aquisição de Material Permanente de Tecnologia da Inf…</td><td class="num" data-v="28">28</td><td class="num" data-v="873015.06"><strong>R$ 873.015,06</strong></td><td style="white-space:nowrap">26/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160251 	Aquisição de Material Permanente de Tecnologia da Informação	28	873015.06	26/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160298 · 90004/2025" data-pregao="90004/2025" data-papel="part" data-ano="2025" data-valor="484725.70" data-ger="160298" data-om="" data-search="90004/2025 160298   2025 aquisição de generos alimenticios quantittativo de rancho (qr) comsup comercial de alimentos ltda; galeria hort comercio de produtos alimenticios ltda; refiservi refeicoes industriais ltda; virtus comercio e servicos de maquinas e equipamentos ltda; n s aparecida distribuid…" tabindex="0" aria-label="Pregão participante 90004/2025"><td><b>90004/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)">Aquisição de Generos Alimenticios Quantittativo de Ra…</td><td class="num" data-v="118">118</td><td class="num" data-v="484725.70"><strong>R$ 484.725,70</strong></td><td style="white-space:nowrap">15/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2025	Participante	160298 	Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)	118	484725.70	15/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160265 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="350000.00" data-ger="160265" data-om="" data-search="90002/2025 160265   2025 aquisição de peças originais/ genuínas (abnt nbr 15296) de viaturas blin... universal importacao exportacao e comercio limitada" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160265</b></td><td class="pl-obj" title="Aquisição de peças originais/ genuínas (ABNT NBR 15296) de viaturas blindadas">Aquisição de peças originais/ genuínas (ABNT NBR 1529…</td><td class="num" data-v="1">1</td><td class="num" data-v="350000.00"><strong>R$ 350.000,00</strong></td><td style="white-space:nowrap">16/12/2026</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160265 	Aquisição de peças originais/ genuínas (ABNT NBR 15296) de viaturas blin...	1	350000.00	16/12/2026	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160298 · 90019/2025" data-pregao="90019/2025" data-papel="part" data-ano="2025" data-valor="348740.25" data-ger="160298" data-om="" data-search="90019/2025 160298   2025 aquisição de gêneros alimenticios quantitativo de rancho (qr) alk comercio e servicos de alimentacao ltda; comsup comercial de alimentos ltda; btm distribuidora de produtos alimenticios ltda; galeria hort comercio de produtos alimenticios ltda; f m deodoro de cereais ltda; …" tabindex="0" aria-label="Pregão participante 90019/2025"><td><b>90019/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)">Aquisição de Gêneros Alimenticios Quantitativo de Ran…</td><td class="num" data-v="117">117</td><td class="num" data-v="348740.25"><strong>R$ 348.740,25</strong></td><td style="white-space:nowrap">08/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90019/2025	Participante	160298 	Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)	117	348740.25	08/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160246 · 90023/2025" data-pregao="90023/2025" data-papel="part" data-ano="2025" data-valor="327207.35" data-ger="160246" data-om="D C Mun" data-search="90023/2025 160246 d c mun depósito central de munição 2025 aquisição de materiais de expediente e limpeza, destinados a atender às ... 3t comercio de materiais e servicos ltda; ps plataforma digital ltda; amar transportes de cargas e comercio de armarinhos em geral ltda; conexao papelaria e informa…" tabindex="0" aria-label="Pregão participante 90023/2025"><td><b>90023/2025</b></td><td class="pl-ger" title="Depósito Central de Munição"><b>160246</b><span class="pl-om" title="Depósito Central de Munição">D C Mun</span></td><td class="pl-obj" title="Aquisição de materiais de expediente e limpeza, destinados a atender às necessidades do Depósito Central de Munição e Unidades da GCALC/B Ap Log Ex">Aquisição de materiais de expediente e limpeza, desti…</td><td class="num" data-v="187">187</td><td class="num" data-v="327207.35"><strong>R$ 327.207,35</strong></td><td style="white-space:nowrap">08/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90023/2025	Participante	160246 D C Mun	Aquisição de materiais de expediente e limpeza, destinados a atender às ...	187	327207.35	08/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160296 · 90034/2025" data-pregao="90034/2025" data-papel="part" data-ano="2025" data-valor="278755.75" data-ger="160296" data-om="" data-search="90034/2025 160296   2025 aquisição de materiais de limpeza para atender às necessidades da brigad... dmgr comercio de maquinas e equipamentos industriais ltda; fatal comercio de material de informatica e servicos ltda; prospera distribuidora comercio e servicos ltda; limp desc comercio de materiais…" tabindex="0" aria-label="Pregão participante 90034/2025"><td><b>90034/2025</b></td><td class="pl-ger" title=""><b>160296</b></td><td class="pl-obj" title="Aquisição de Materiais de Limpeza para atender às necessidades da Brigada de Infantaria Pára-quedista e Organizações Militares do GCALC / 1ª DE - RJ.">Aquisição de Materiais de Limpeza para atender às nec…</td><td class="num" data-v="116">116</td><td class="num" data-v="278755.75"><strong>R$ 278.755,75</strong></td><td style="white-space:nowrap">20/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90034/2025	Participante	160296 	Aquisição de Materiais de Limpeza para atender às necessidades da Brigad...	116	278755.75	20/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160279 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="168242.27" data-ger="160279" data-om="" data-search="90002/2025 160279   2025 eventual aquisição de material permanente para organizações militares pa... vitoria maquinas e ferramentas ltda; lucas ricardo manieri de almeida ltda; alma da terra comercio de produtos diversos limitada; vinicius chaves dos santos; global solucoes integradas ltda; litimax…" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160279</b></td><td class="pl-obj" title="Eventual aquisição de material permanente para Organizações Militares participantes do grupo de Coordenação e Acompanhamento das Licitações e Contratos (GCALC), da 1ª Divisão de Exército - 1ª DE, através do sistema de registro de preços - …">Eventual aquisição de material permanente para Organi…</td><td class="num" data-v="26">26</td><td class="num" data-v="168242.27"><strong>R$ 168.242,27</strong></td><td style="white-space:nowrap">25/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160279 	Eventual aquisição de material permanente para Organizações Militares pa...	26	168242.27	25/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160277 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="168242.27" data-ger="160277" data-om="" data-search="90002/2025 160277   2025 registro de preços para aquisição de aparelhos de ar condicionado para o... vitoria maquinas e ferramentas ltda; lucas ricardo manieri de almeida ltda; alma da terra comercio de produtos diversos limitada; vinicius chaves dos santos; global solucoes integradas ltda; litimax…" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160277</b></td><td class="pl-obj" title="Registro de preços para aquisição de aparelhos de ar condicionado para o 31º GAC (Es) e demais Organizações Militares participantes do Grupo de Coordenação e Acompanhamento de Licitações e Contratos da 1ª Divisão de Exército e Guarnição da…">Registro de preços para aquisição de aparelhos de ar …</td><td class="num" data-v="26">26</td><td class="num" data-v="168242.27"><strong>R$ 168.242,27</strong></td><td style="white-space:nowrap">25/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160277 	Registro de preços para aquisição de aparelhos de ar condicionado para o...	26	168242.27	25/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160274 · 90001/2025" data-pregao="90001/2025" data-papel="part" data-ano="2025" data-valor="134807.90" data-ger="160274" data-om="" data-search="90001/2025 160274   2025 aquisição de baterias automotivas para o 25° blog e unidades apoiadas. autoluk - comercio de pneumaticos e pecas ltda; edbat e s comercio de baterias ltda; brimax comercio e representacoes ltda" tabindex="0" aria-label="Pregão participante 90001/2025"><td><b>90001/2025</b></td><td class="pl-ger" title=""><b>160274</b></td><td class="pl-obj" title="Aquisição de baterias automotivas para o 25° BLog e unidades apoiadas.">Aquisição de baterias automotivas para o 25° BLog e u…</td><td class="num" data-v="5">5</td><td class="num" data-v="134807.90"><strong>R$ 134.807,90</strong></td><td style="white-space:nowrap">16/12/2026</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2025	Participante	160274 	Aquisição de baterias automotivas para o 25° BLog e unidades apoiadas.	5	134807.90	16/12/2026	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160296 · 90028/2025" data-pregao="90028/2025" data-papel="part" data-ano="2025" data-valor="133653.50" data-ger="160296" data-om="" data-search="90028/2025 160296   2025 aquisição de materiais de expediente para atender às necessidades da bri... 41.177.760 rosenir costa dos santos; polo distribuidora e prestadora de servicos ltda; limp desc comercio de materiais de limpeza e descartaveis em geral ltda; rbx xavier comercio e servicos de info…" tabindex="0" aria-label="Pregão participante 90028/2025"><td><b>90028/2025</b></td><td class="pl-ger" title=""><b>160296</b></td><td class="pl-obj" title="Aquisição de Materiais de Expediente para atender às necessidades da Brigada de Infantaria Pára-quedista e Organizações Militares pertencentes ao GCALC - 1ª DE/RJ">Aquisição de Materiais de Expediente para atender às …</td><td class="num" data-v="108">108</td><td class="num" data-v="133653.50"><strong>R$ 133.653,50</strong></td><td style="white-space:nowrap">12/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90028/2025	Participante	160296 	Aquisição de Materiais de Expediente para atender às necessidades da Bri...	108	133653.50	12/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160298 · 90019/2025" data-pregao="90019/2025" data-papel="part" data-ano="2025" data-valor="348740.25" data-ger="160298" data-om="" data-search="90019/2025 160298   2025 aquisição de gêneros alimenticios quantitativo de rancho (qr) btm distribuidora de produtos alimenticios ltda; comsup comercial de alimentos ltda; galeria hort comercio de produtos alimenticios ltda; refiservi refeicoes industriais ltda; rl alimentos e laticinios comercio l…" tabindex="0" aria-label="Pregão participante 90019/2025"><td><b>90019/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)">Aquisição de Gêneros Alimenticios Quantitativo de Ran…</td><td class="num" data-v="117">117</td><td class="num" data-v="348740.25"><strong>R$ 348.740,25</strong></td><td style="white-space:nowrap">08/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90019/2025	Participante	160298 	Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)	117	348740.25	08/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160246 · 90023/2025" data-pregao="90023/2025" data-papel="part" data-ano="2025" data-valor="327207.35" data-ger="160246" data-om="D C Mun" data-search="90023/2025 160246 d c mun depósito central de munição 2025 aquisição de materiais de expediente e limpeza, destinados a atender às ... la - vita distribuidora e multi servicos ltda; ajurdy distribuidora de produtos ltda; l c l comercio de alvos ltda.; rcb solucoes.com comercio e servicos ltda me; g…" tabindex="0" aria-label="Pregão participante 90023/2025"><td><b>90023/2025</b></td><td class="pl-ger" title="Depósito Central de Munição"><b>160246</b><span class="pl-om" title="Depósito Central de Munição">D C Mun</span></td><td class="pl-obj" title="Aquisição de materiais de expediente e limpeza, destinados a atender às necessidades do Depósito Central de Munição e Unidades da GCALC/B Ap Log Ex">Aquisição de materiais de expediente e limpeza, desti…</td><td class="num" data-v="187">187</td><td class="num" data-v="327207.35"><strong>R$ 327.207,35</strong></td><td style="white-space:nowrap">08/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90023/2025	Participante	160246 D C Mun	Aquisição de materiais de expediente e limpeza, destinados a atender às ...	187	327207.35	08/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160296 · 90034/2025" data-pregao="90034/2025" data-papel="part" data-ano="2025" data-valor="278755.75" data-ger="160296" data-om="" data-search="90034/2025 160296   2025 aquisição de materiais de limpeza para atender às necessidades da brigad... supry office distribuidora de materiais e servicos ltda; pallet rio industria e comercio ltda; labutar distribuidora e prestadora de servico ltda; hero comercio e distribuicao ltda; nova vida comerc…" tabindex="0" aria-label="Pregão participante 90034/2025"><td><b>90034/2025</b></td><td class="pl-ger" title=""><b>160296</b></td><td class="pl-obj" title="Aquisição de Materiais de Limpeza para atender às necessidades da Brigada de Infantaria Pára-quedista e Organizações Militares do GCALC / 1ª DE - RJ.">Aquisição de Materiais de Limpeza para atender às nec…</td><td class="num" data-v="116">116</td><td class="num" data-v="278755.75"><strong>R$ 278.755,75</strong></td><td style="white-space:nowrap">20/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90034/2025	Participante	160296 	Aquisição de Materiais de Limpeza para atender às necessidades da Brigad...	116	278755.75	20/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160279 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="168242.27" data-ger="160279" data-om="" data-search="90002/2025 160279   2025 eventual aquisição de material permanente para organizações militares pa... jhp ar condicionado ltda; 47.301.913 ezequiel santana ferreira; 7 comercio e servicos administrativos ltda; lucas ricardo manieri de almeida ltda; vitoria maquinas e ferramentas ltda; alma da terra …" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160279</b></td><td class="pl-obj" title="Eventual aquisição de material permanente para Organizações Militares participantes do grupo de Coordenação e Acompanhamento das Licitações e Contratos (GCALC), da 1ª Divisão de Exército - 1ª DE, através do sistema de registro de preços - …">Eventual aquisição de material permanente para Organi…</td><td class="num" data-v="26">26</td><td class="num" data-v="168242.27"><strong>R$ 168.242,27</strong></td><td style="white-space:nowrap">25/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160279 	Eventual aquisição de material permanente para Organizações Militares pa...	26	168242.27	25/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160277 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="168242.27" data-ger="160277" data-om="" data-search="90002/2025 160277   2025 registro de preços para aquisição de aparelhos de ar condicionado para o... jhp ar condicionado ltda; 47.301.913 ezequiel santana ferreira; 7 comercio e servicos administrativos ltda; lucas ricardo manieri de almeida ltda; vitoria maquinas e ferramentas ltda; alma da terra …" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160277</b></td><td class="pl-obj" title="Registro de preços para aquisição de aparelhos de ar condicionado para o 31º GAC (Es) e demais Organizações Militares participantes do Grupo de Coordenação e Acompanhamento de Licitações e Contratos da 1ª Divisão de Exército e Guarnição da…">Registro de preços para aquisição de aparelhos de ar …</td><td class="num" data-v="26">26</td><td class="num" data-v="168242.27"><strong>R$ 168.242,27</strong></td><td style="white-space:nowrap">25/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160277 	Registro de preços para aquisição de aparelhos de ar condicionado para o...	26	168242.27	25/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160274 · 90001/2025" data-pregao="90001/2025" data-papel="part" data-ano="2025" data-valor="134807.90" data-ger="160274" data-om="" data-search="90001/2025 160274   2025 aquisição de baterias automotivas para o 25° blog e unidades apoiadas. edbat e s comercio de baterias ltda; brimax comercio e representacoes ltda; autoluk - comercio de pneumaticos e pecas ltda" tabindex="0" aria-label="Pregão participante 90001/2025"><td><b>90001/2025</b></td><td class="pl-ger" title=""><b>160274</b></td><td class="pl-obj" title="Aquisição de baterias automotivas para o 25° BLog e unidades apoiadas.">Aquisição de baterias automotivas para o 25° BLog e u…</td><td class="num" data-v="5">5</td><td class="num" data-v="134807.90"><strong>R$ 134.807,90</strong></td><td style="white-space:nowrap">16/12/2026</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2025	Participante	160274 	Aquisição de baterias automotivas para o 25° BLog e unidades apoiadas.	5	134807.90	16/12/2026	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160296 · 90028/2025" data-pregao="90028/2025" data-papel="part" data-ano="2025" data-valor="133653.50" data-ger="160296" data-om="" data-search="90028/2025 160296   2025 aquisição de materiais de expediente para atender às necessidades da bri... vipe comercial ltda; supry office distribuidora de materiais e servicos ltda; hero comercio e distribuicao ltda; 41.177.760 rosenir costa dos santos; polo distribuidora e prestadora de servicos ltda…" tabindex="0" aria-label="Pregão participante 90028/2025"><td><b>90028/2025</b></td><td class="pl-ger" title=""><b>160296</b></td><td class="pl-obj" title="Aquisição de Materiais de Expediente para atender às necessidades da Brigada de Infantaria Pára-quedista e Organizações Militares pertencentes ao GCALC - 1ª DE/RJ">Aquisição de Materiais de Expediente para atender às …</td><td class="num" data-v="108">108</td><td class="num" data-v="133653.50"><strong>R$ 133.653,50</strong></td><td style="white-space:nowrap">12/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90028/2025	Participante	160296 	Aquisição de Materiais de Expediente para atender às necessidades da Bri...	108	133653.50	12/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160136 · 90015/2025" data-pregao="90015/2025" data-papel="part" data-ano="2025" data-valor="93340.00" data-ger="160136" data-om="" data-search="90015/2025 160136   2025 aquisição de lonas para cobertura de viaturas silva comercio e representacao ltda" tabindex="0" aria-label="Pregão participante 90015/2025"><td><b>90015/2025</b></td><td class="pl-ger" title=""><b>160136</b></td><td class="pl-obj" title="PNEU VEÍCULO AUTOMOTIVO, MATERIAL CARCAÇA LONAS ESTABILIZADORAS, MATERIAL TALÃO ARAME AÇO, MATERIAL BANDA RODAGEM BORRACHA ALTA RESISTÊNCIA E FLEXÍVEL, MATERIAL FLANCOS REVESTIDA POR UM COMPOSTO DE BORRACHA COM ALTA RE-, TIPO ESTRUTURA CAR…">Aquisição de Lonas para Cobertura de Viaturas</td><td class="num" data-v="1">1</td><td class="num" data-v="93340.00"><strong>R$ 93.340,00</strong></td><td style="white-space:nowrap">21/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90015/2025	Participante	160136 	Aquisição de Lonas para Cobertura de Viaturas	1	93340.00	21/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160311 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="73987.00" data-ger="160311" data-om="" data-search="90002/2025 160311   2025 aquisição de mobiliários em geral para o gcalc da 1º divisão de exército tecno2000 industria e comercio ltda; 35.631.227 andre jesus campos de souza; office max industria e comercio de moveis ltda; s4 comercio e distribuicao de moveis ltda" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160311</b></td><td class="pl-obj" title="Aquisição de mobiliários em Geral para o GCALC da 1º Divisão de Exército">Aquisição de mobiliários em Geral para o GCALC da 1º …</td><td class="num" data-v="32">32</td><td class="num" data-v="73987.00"><strong>R$ 73.987,00</strong></td><td style="white-space:nowrap">24/12/2026</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160311 	Aquisição de mobiliários em Geral para o GCALC da 1º Divisão de Exército	32	73987.00	24/12/2026	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160486 · 90003/2025" data-pregao="90003/2025" data-papel="part" data-ano="2025" data-valor="60699.53" data-ger="160486" data-om="" data-search="90003/2025 160486   2025 projetores multimídia e equipamentos audiovisuais licitamais comercio e servicos ltda; priscilla aparecida dos santos gomes; vgvirtual comercio eletronico ltda; kiai comercial - sociedade unipessoal ltda; inovabras produtos inteligentes ltda; eletroquip comercio e licitacoe…" tabindex="0" aria-label="Pregão participante 90003/2025"><td><b>90003/2025</b></td><td class="pl-ger" title=""><b>160486</b></td><td class="pl-obj" title="PROJETOR MULTIMÍDIA, VOLTAGEM 100/240 V, FREQÜÊNCIA 50 A 60 HZ, QUANTIDADE ENTRADA RGB 1 S-VÍDEO/1RCA UN, QUANTIDADE ENTRADAS VÍDEO 01: SVIDEO E 04 PINOS RCA UN, TIPO ZOOM MANUAL/DIGITAL, TIPO PORTÁTIL, CAPACIDADE PROJEÇÃO COR 1.07 BILHõES…">Projetores Multimídia e Equipamentos Audiovisuais</td><td class="num" data-v="18">18</td><td class="num" data-v="60699.53"><strong>R$ 60.699,53</strong></td><td style="white-space:nowrap">20/02/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2025	Participante	160486 	Projetores Multimídia e Equipamentos Audiovisuais	18	60699.53	20/02/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160279 · 90001/2025" data-pregao="90001/2025" data-papel="part" data-ano="2025" data-valor="57101.40" data-ger="160279" data-om="" data-search="90001/2025 160279   2025 eventual contratação de serviço de confecção de bandeiras e insígnias pa... n. f. grande &amp; cia ltda; alzenir confeccoes ltda; lider bandeiras e uniformes ltda" tabindex="0" aria-label="Pregão participante 90001/2025"><td><b>90001/2025</b></td><td class="pl-ger" title=""><b>160279</b></td><td class="pl-obj" title="Eventual contratação de Serviço de confecção de bandeiras e insígnias para o 57º Batalhão de Infantaria Motorizado (Escola) e demais Organizações Militares (OM) participantes do Grupo de Coordenação e Acompanhamento de Licitações e Contrat…">Eventual contratação de Serviço de confecção de bande…</td><td class="num" data-v="17">17</td><td class="num" data-v="57101.40"><strong>R$ 57.101,40</strong></td><td style="white-space:nowrap">11/11/2026</td><td><span class="tag tag-venc"><span aria-hidden="true">✕</span>Vencida</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2025	Participante	160279 	Eventual contratação de Serviço de confecção de bandeiras e insígnias pa...	17	57101.40	11/11/2026	Vencida" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160304 · 90005/2025" data-pregao="90005/2025" data-papel="part" data-ano="2025" data-valor="31694.85" data-ger="160304" data-om="BMSA" data-search="90005/2025 160304 bmsa batalhão de manutenção e suprimento de armamento 2025 aquisição de materiais gráficos para o grupo de coordenação e acompanham... n. f. grande &amp; cia ltda; bernargraf artes graficas ltda; norte industria grafica ltda; fatal comercio de material de informatica e servicos ltda; …" tabindex="0" aria-label="Pregão participante 90005/2025"><td><b>90005/2025</b></td><td class="pl-ger" title="Batalhão de Manutenção e Suprimento de Armamento"><b>160304</b><span class="pl-om" title="Batalhão de Manutenção e Suprimento de Armamento">BMSA</span></td><td class="pl-obj" title="Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanhamento de Licitações e Contratos (GCALC).">Aquisição de materiais gráficos para o Grupo de Coord…</td><td class="num" data-v="31">31</td><td class="num" data-v="31694.85"><strong>R$ 31.694,85</strong></td><td style="white-space:nowrap">03/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2025	Participante	160304 BMSA	Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanham...	31	31694.85	03/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160311 · 90002/2025" data-pregao="90002/2025" data-papel="part" data-ano="2025" data-valor="73987.00" data-ger="160311" data-om="" data-search="90002/2025 160311   2025 aquisição de mobiliários em geral para o gcalc da 1º divisão de exército s4 comercio e distribuicao de moveis ltda; tecno2000 industria e comercio ltda; office max industria e comercio de moveis ltda; 35.631.227 andre jesus campos de souza" tabindex="0" aria-label="Pregão participante 90002/2025"><td><b>90002/2025</b></td><td class="pl-ger" title=""><b>160311</b></td><td class="pl-obj" title="Aquisição de mobiliários em Geral para o GCALC da 1º Divisão de Exército">Aquisição de mobiliários em Geral para o GCALC da 1º …</td><td class="num" data-v="32">32</td><td class="num" data-v="73987.00"><strong>R$ 73.987,00</strong></td><td style="white-space:nowrap">24/12/2026</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2025	Participante	160311 	Aquisição de mobiliários em Geral para o GCALC da 1º Divisão de Exército	32	73987.00	24/12/2026	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160486 · 90003/2025" data-pregao="90003/2025" data-papel="part" data-ano="2025" data-valor="60699.53" data-ger="160486" data-om="" data-search="90003/2025 160486   2025 projetores multimídia e equipamentos audiovisuais a frente solucoes integradas ltda; licitamais comercio e servicos ltda; repremig representacao e comercio de minas gerais ltda; jovic comercial e servicos ltda; inovabras produtos inteligentes ltda; 40.142.976 ricardo rodrig…" tabindex="0" aria-label="Pregão participante 90003/2025"><td><b>90003/2025</b></td><td class="pl-ger" title=""><b>160486</b></td><td class="pl-obj" title="PROJETOR MULTIMÍDIA, VOLTAGEM 100/240 V, FREQÜÊNCIA 50 A 60 HZ, QUANTIDADE ENTRADA RGB 1 S-VÍDEO/1RCA UN, QUANTIDADE ENTRADAS VÍDEO 01: SVIDEO E 04 PINOS RCA UN, TIPO ZOOM MANUAL/DIGITAL, TIPO PORTÁTIL, CAPACIDADE PROJEÇÃO COR 1.07 BILHõES…">Projetores Multimídia e Equipamentos Audiovisuais</td><td class="num" data-v="18">18</td><td class="num" data-v="60699.53"><strong>R$ 60.699,53</strong></td><td style="white-space:nowrap">20/02/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2025	Participante	160486 	Projetores Multimídia e Equipamentos Audiovisuais	18	60699.53	20/02/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160279 · 90001/2025" data-pregao="90001/2025" data-papel="part" data-ano="2025" data-valor="57101.40" data-ger="160279" data-om="" data-search="90001/2025 160279   2025 eventual contratação de serviço de confecção de bandeiras e insígnias pa... alzenir confeccoes ltda; lider bandeiras e uniformes ltda; n. f. grande &amp; cia ltda" tabindex="0" aria-label="Pregão participante 90001/2025"><td><b>90001/2025</b></td><td class="pl-ger" title=""><b>160279</b></td><td class="pl-obj" title="Eventual contratação de Serviço de confecção de bandeiras e insígnias para o 57º Batalhão de Infantaria Motorizado (Escola) e demais Organizações Militares (OM) participantes do Grupo de Coordenação e Acompanhamento de Licitações e Contrat…">Eventual contratação de Serviço de confecção de bande…</td><td class="num" data-v="17">17</td><td class="num" data-v="57101.40"><strong>R$ 57.101,40</strong></td><td style="white-space:nowrap">11/11/2026</td><td><span class="tag tag-venc"><span aria-hidden="true">✕</span>Vencida</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2025	Participante	160279 	Eventual contratação de Serviço de confecção de bandeiras e insígnias pa...	17	57101.40	11/11/2026	Vencida" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160304 · 90005/2025" data-pregao="90005/2025" data-papel="part" data-ano="2025" data-valor="31694.85" data-ger="160304" data-om="BMSA" data-search="90005/2025 160304 bmsa batalhão de manutenção e suprimento de armamento 2025 aquisição de materiais gráficos para o grupo de coordenação e acompanham... norte industria grafica ltda; rb comunicacao visual ltda; comercial agata de artesanato ltda; n. f. grande &amp; cia ltda; bandeiras on line artefatos…" tabindex="0" aria-label="Pregão participante 90005/2025"><td><b>90005/2025</b></td><td class="pl-ger" title="Batalhão de Manutenção e Suprimento de Armamento"><b>160304</b><span class="pl-om" title="Batalhão de Manutenção e Suprimento de Armamento">BMSA</span></td><td class="pl-obj" title="Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanhamento de Licitações e Contratos (GCALC).">Aquisição de materiais gráficos para o Grupo de Coord…</td><td class="num" data-v="31">31</td><td class="num" data-v="31694.85"><strong>R$ 31.694,85</strong></td><td style="white-space:nowrap">03/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2025	Participante	160304 BMSA	Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanham...	31	31694.85	03/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160074 · 90012/2025" data-pregao="90012/2025" data-papel="part" data-ano="2025" data-valor="30160.00" data-ger="160074" data-om="" data-search="90012/2025 160074   2025 eventual aquisição de tintas automotivas e adesivos para identificação d... r.a.j. gestao de negocios ltda" tabindex="0" aria-label="Pregão participante 90012/2025"><td><b>90012/2025</b></td><td class="pl-ger" title=""><b>160074</b></td><td class="pl-obj" title="Eventual aquisição de tintas automotivas e adesivos para identificação de viaturas do 8° Batalhão de Manutenção de Selva e demais participantes.">Eventual aquisição de tintas automotivas e adesivos p…</td><td class="num" data-v="2">2</td><td class="num" data-v="30160.00"><strong>R$ 30.160,00</strong></td><td style="white-space:nowrap">07/02/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90012/2025	Participante	160074 	Eventual aquisição de tintas automotivas e adesivos para identificação d...	2	30160.00	07/02/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160292 · 90018/2025" data-pregao="90018/2025" data-papel="part" data-ano="2025" data-valor="22000.00" data-ger="160292" data-om="" data-search="90018/2025 160292   2025 aquisição de tintas e insumos para o colégio militar do rio de janeiro jta assessoria e materiais ltda" tabindex="0" aria-label="Pregão participante 90018/2025"><td><b>90018/2025</b></td><td class="pl-ger" title=""><b>160292</b></td><td class="pl-obj" title="Aquisição De Tintas E Insumos Para O Colégio Militar Do Rio De Janeiro">Aquisição De Tintas E Insumos Para O Colégio Militar …</td><td class="num" data-v="1">1</td><td class="num" data-v="22000.00"><strong>R$ 22.000,00</strong></td><td style="white-space:nowrap">09/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90018/2025	Participante	160292 	Aquisição De Tintas E Insumos Para O Colégio Militar Do Rio De Janeiro	1	22000.00	09/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160307 · 90013/2025" data-pregao="90013/2025" data-papel="part" data-ano="2025" data-valor="17400.00" data-ger="160307" data-om="1º D Sup" data-search="90013/2025 160307 1º d sup 1º depósito de suprimento 2025 contratação de serviços comuns de controle de vetores e pragas urbanas, ... dedefone servicos e controle de pragas ltda" tabindex="0" aria-label="Pregão participante 90013/2025"><td><b>90013/2025</b></td><td class="pl-ger" title="1º Depósito de Suprimento"><b>160307</b><span class="pl-om" title="1º Depósito de Suprimento">1º D Sup</span></td><td class="pl-obj" title="Contratação de serviços comuns de controle de vetores e pragas urbanas, incluindo desinsetização, desratização, descupinização, controle de mosquitos, controle de moscas e limpeza/higienização de reservatórios de água, com fornecimento de …">Contratação de serviços comuns de controle de vetores…</td><td class="num" data-v="6">6</td><td class="num" data-v="17400.00"><strong>R$ 17.400,00</strong></td><td style="white-space:nowrap">11/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90013/2025	Participante	160307 1º D Sup	Contratação de serviços comuns de controle de vetores e pragas urbanas, ...	6	17400.00	11/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
@@ -3760,12 +3978,12 @@ reposição pela Contratada, quando necessários, a fim de atender as …">contr
 <tr data-key="160030 · 90013/2025" data-pregao="90013/2025" data-papel="part" data-ano="2025" data-valor="439.50" data-ger="160030" data-om="" data-search="90013/2025 160030   2025 medicamentos e insumos farmacêuticos e k c de a guimaraes ltda" tabindex="0" aria-label="Pregão participante 90013/2025"><td><b>90013/2025</b></td><td class="pl-ger" title=""><b>160030</b></td><td class="pl-obj" title="NAPROXENO, DOSAGEM 550 MG · CETOPROFENO, CONCENTRAÇAO 150 MG, FORMA FARMACEUTICA LIBERAÇÃO PROLONGADA">Medicamentos e Insumos Farmacêuticos</td><td class="num" data-v="2">2</td><td class="num" data-v="439.50"><strong>R$ 439,50</strong></td><td style="white-space:nowrap">08/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90013/2025	Participante	160030 	Medicamentos e Insumos Farmacêuticos	2	439.50	08/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160040 · 90014/2024" data-pregao="90014/2024" data-papel="part" data-ano="2024" data-valor="3976807.55" data-ger="160040" data-om="" data-search="90014/2024 160040   2024 aquisição / fornecimento de filtro combustível alphaset pecas e servicos ltda" tabindex="0" aria-label="Pregão participante 90014/2024"><td><b>90014/2024</b></td><td class="pl-ger" title=""><b>160040</b></td><td class="pl-obj" title="FILTRO COMBUSTÍVEL, TIPO COMBUSTÍVEL DIESEL, TIPO BLINDADO, ALTURA 124 MM, TIPO CONEXÃO ROSQUEADA, DIÂMETRO EXTERNO 80 MM, TIPO ROSCA ENTRADA 16 X 1,50 · FILTRO COMBUSTÍVEL, TIPO COMBUSTÍVEL DIESEL, TIPO BLINDADO, ALTURA 124 MM, TIPO CONEX…">Aquisição / Fornecimento de Filtro Combustível</td><td class="num" data-v="45">45</td><td class="num" data-v="3976807.55"><strong>R$ 3.976.807,55</strong></td><td style="white-space:nowrap">28/03/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90014/2024	Participante	160040 	Aquisição / Fornecimento de Filtro Combustível	45	3976807.55	28/03/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160297 · 90003/2024" data-pregao="90003/2024" data-papel="part" data-ano="2024" data-valor="1759350.00" data-ger="160297" data-om="" data-search="90003/2024 160297   2024 eventual aquisição de de gabinetes em aço móveis, do tipo “arquivo desli... arqmax equipamentos para escritorio ltda." tabindex="0" aria-label="Pregão participante 90003/2024"><td><b>90003/2024</b></td><td class="pl-ger" title=""><b>160297</b></td><td class="pl-obj" title="Eventual aquisição de de gabinetes em Aço móveis, do tipo “arquivo deslizante”, para guarda de documentos e acondicionamento de material de emprego militar.">Eventual aquisição de de gabinetes em Aço móveis, do …</td><td class="num" data-v="12">12</td><td class="num" data-v="1759350.00"><strong>R$ 1.759.350,00</strong></td><td style="white-space:nowrap">23/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2024	Participante	160297 	Eventual aquisição de de gabinetes em Aço móveis, do tipo “arquivo desli...	12	1759350.00	23/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160264 · 90001/2024" data-pregao="90001/2024" data-papel="part" data-ano="2024" data-valor="304032.00" data-ger="160264" data-om="" data-search="90001/2024 160264   2024 aquisição / fornecimento de peça mecânica alianca carvalho comercio e servicos de produtos industriais e automotivos ltda; ms comercio e servicos de produtos industriais e automotivos ltda; scott servicos, comercio e distribuicao ltda" tabindex="0" aria-label="Pregão participante 90001/2024"><td><b>90001/2024</b></td><td class="pl-ger" title=""><b>160264</b></td><td class="pl-obj" title="PEÇA MECÂNICA/ELÉTRICA - VEÍCULO AUTOMOTIVO, TIPO FILTRO COMBUSTÍVEL, USO MOTOR DIESEL, TIPO 4 FILTRO DE COMBUSTÍVEL, REFERÊNCIA 13 REFERENCIA:580091077 · PEÇA MECÂNICA/ELÉTRICA - VEÍCULO AUTOMOTIVO, TIPO FILTRO COMBUSTÍVEL, USO MOTOR DIES…">Aquisição / Fornecimento de Peça Mecânica</td><td class="num" data-v="23">23</td><td class="num" data-v="304032.00"><strong>R$ 304.032,00</strong></td><td style="white-space:nowrap">06/01/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2024	Participante	160264 	Aquisição / Fornecimento de Peça Mecânica	23	304032.00	06/01/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160264 · 90001/2024" data-pregao="90001/2024" data-papel="part" data-ano="2024" data-valor="304032.00" data-ger="160264" data-om="" data-search="90001/2024 160264   2024 aquisição / fornecimento de peça mecânica scott servicos, comercio e distribuicao ltda; ms comercio e servicos de produtos industriais e automotivos ltda; alianca carvalho comercio e servicos de produtos industriais e automotivos ltda" tabindex="0" aria-label="Pregão participante 90001/2024"><td><b>90001/2024</b></td><td class="pl-ger" title=""><b>160264</b></td><td class="pl-obj" title="PEÇA MECÂNICA/ELÉTRICA - VEÍCULO AUTOMOTIVO, TIPO FILTRO COMBUSTÍVEL, USO MOTOR DIESEL, TIPO 4 FILTRO DE COMBUSTÍVEL, REFERÊNCIA 13 REFERENCIA:580091077 · PEÇA MECÂNICA/ELÉTRICA - VEÍCULO AUTOMOTIVO, TIPO FILTRO COMBUSTÍVEL, USO MOTOR DIES…">Aquisição / Fornecimento de Peça Mecânica</td><td class="num" data-v="23">23</td><td class="num" data-v="304032.00"><strong>R$ 304.032,00</strong></td><td style="white-space:nowrap">06/01/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90001/2024	Participante	160264 	Aquisição / Fornecimento de Peça Mecânica	23	304032.00	06/01/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160120 · 90003/2024" data-pregao="90003/2024" data-papel="part" data-ano="2024" data-valor="196476.28" data-ger="160120" data-om="" data-search="90003/2024 160120   2024 aquisição de lonas para cobertura de viaturas vitoria line comercio e representacao ltda" tabindex="0" aria-label="Pregão participante 90003/2024"><td><b>90003/2024</b></td><td class="pl-ger" title=""><b>160120</b></td><td class="pl-obj" title="PNEU VEÍCULO AUTOMOTIVO, MATERIAL CARCAÇA LONA POLIÉSTER, MATERIAL TALÃO ARAME AÇO, MATERIAL BANDA RODAGEM BORRACHA ALTA RESISTÊNCIA, MATERIAL FLANCOS BORRACHA ALTA RESISTÊNCIA E FLEXIBILIDADE, CARACTERÍSTICAS ADICIONAIS COM CÂMARA, DIMENS…">Aquisição de Lonas para Cobertura de Viaturas</td><td class="num" data-v="1">1</td><td class="num" data-v="196476.28"><strong>R$ 196.476,28</strong></td><td style="white-space:nowrap">14/11/2026</td><td><span class="tag tag-v30"><span aria-hidden="true">▲</span>≤30 dias</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2024	Participante	160120 	Aquisição de Lonas para Cobertura de Viaturas	1	196476.28	14/11/2026	≤30 dias" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="158658 · 90016/2024" data-pregao="90016/2024" data-papel="part" data-ano="2024" data-valor="116840.00" data-ger="158658" data-om="" data-search="90016/2024 158658   2024 instalação e manutenção de divisórias e persianas ajatto licitacoes e transportes ltda" tabindex="0" aria-label="Pregão participante 90016/2024"><td><b>90016/2024</b></td><td class="pl-ger" title=""><b>158658</b></td><td class="pl-obj" title="Instalação / Remoção de Divisória / Painel / Persiana / janela / porta / esqua dria em geral · Instalação / Remoção de Divisória / Painel / Persiana / janela / porta / esqua dria em geral">Instalação e Manutenção de Divisórias e Persianas</td><td class="num" data-v="2">2</td><td class="num" data-v="116840.00"><strong>R$ 116.840,00</strong></td><td style="white-space:nowrap">26/02/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90016/2024	Participante	158658 	Instalação e Manutenção de Divisórias e Persianas	2	116840.00	26/02/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160263 · 90010/2024" data-pregao="90010/2024" data-papel="part" data-ano="2024" data-valor="95459.00" data-ger="160263" data-om="" data-search="90010/2024 160263   2024 contratação de serviços de locação de ônibus, van e micro-ônibus eco polo brasil transportes ltda; br500 - transportes ltda; doce sonho turismo e lazer ltda" tabindex="0" aria-label="Pregão participante 90010/2024"><td><b>90010/2024</b></td><td class="pl-ger" title=""><b>160263</b></td><td class="pl-obj" title="Contratação de serviços de locação de ônibus, van e micro-ônibus">Contratação de serviços de locação de ônibus, van e m…</td><td class="num" data-v="7">7</td><td class="num" data-v="95459.00"><strong>R$ 95.459,00</strong></td><td style="white-space:nowrap">01/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90010/2024	Participante	160263 	Contratação de serviços de locação de ônibus, van e micro-ônibus	7	95459.00	01/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160263 · 90010/2024" data-pregao="90010/2024" data-papel="part" data-ano="2024" data-valor="95459.00" data-ger="160263" data-om="" data-search="90010/2024 160263   2024 contratação de serviços de locação de ônibus, van e micro-ônibus br500 - transportes ltda; doce sonho turismo e lazer ltda; eco polo brasil transportes ltda" tabindex="0" aria-label="Pregão participante 90010/2024"><td><b>90010/2024</b></td><td class="pl-ger" title=""><b>160263</b></td><td class="pl-obj" title="Contratação de serviços de locação de ônibus, van e micro-ônibus">Contratação de serviços de locação de ônibus, van e m…</td><td class="num" data-v="7">7</td><td class="num" data-v="95459.00"><strong>R$ 95.459,00</strong></td><td style="white-space:nowrap">01/08/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90010/2024	Participante	160263 	Contratação de serviços de locação de ônibus, van e micro-ônibus	7	95459.00	01/08/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160150 · 90005/2024" data-pregao="90005/2024" data-papel="part" data-ano="2024" data-valor="44000.00" data-ger="160150" data-om="" data-search="90005/2024 160150   2024 aquisição / fornecimento de peça mecânica mecanica nova wgd ltda" tabindex="0" aria-label="Pregão participante 90005/2024"><td><b>90005/2024</b></td><td class="pl-ger" title=""><b>160150</b></td><td class="pl-obj" title="PEÇA MECÂNICA/ELÉTRICA - VEÍCULO AUTOMOTIVO, TIPO PARAFUSO, APLICAÇÃO VEÍCULO AUTOMOTIVO, USO 1 RODA · Manutenção de Veículos Leves e Pesados">Aquisição / Fornecimento de Peça Mecânica</td><td class="num" data-v="2">2</td><td class="num" data-v="44000.00"><strong>R$ 44.000,00</strong></td><td style="white-space:nowrap">27/01/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2024	Participante	160150 	Aquisição / Fornecimento de Peça Mecânica	2	44000.00	27/01/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160315 · 90007/2024" data-pregao="90007/2024" data-papel="part" data-ano="2024" data-valor="42192.63" data-ger="160315" data-om="" data-search="90007/2024 160315   2024 aquisição de materiais esportivos para atender as necessidades do ccfex,... magazine tufick ltda; antonia dinair lima e silva; farias &amp; carvalho distribuidora ltda; casa varejao artigos desportivos ltda; ultra max comercial ltda; fonthora distribuidora ltda; fsg comercio e …" tabindex="0" aria-label="Pregão participante 90007/2024"><td><b>90007/2024</b></td><td class="pl-ger" title=""><b>160315</b></td><td class="pl-obj" title="Aquisição de materiais esportivos para atender as necessidades do CCFEx, de suas OMDS e das OM participantes do GCALC 1ª RM.">Aquisição de materiais esportivos para atender as nec…</td><td class="num" data-v="38">38</td><td class="num" data-v="42192.63"><strong>R$ 42.192,63</strong></td><td style="white-space:nowrap">08/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90007/2024	Participante	160315 	Aquisição de materiais esportivos para atender as necessidades do CCFEx,...	38	42192.63	08/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160315 · 90007/2024" data-pregao="90007/2024" data-papel="part" data-ano="2024" data-valor="42192.63" data-ger="160315" data-om="" data-search="90007/2024 160315   2024 aquisição de materiais esportivos para atender as necessidades do ccfex,... ingrafoto reproducoes em fotolito ltda; magazine tufick ltda; antonia dinair lima e silva; dsp brindes personalizados ltda; blu telhas ltda; ultra max comercial ltda; forbe suporte ilimitado ltda; m…" tabindex="0" aria-label="Pregão participante 90007/2024"><td><b>90007/2024</b></td><td class="pl-ger" title=""><b>160315</b></td><td class="pl-obj" title="Aquisição de materiais esportivos para atender as necessidades do CCFEx, de suas OMDS e das OM participantes do GCALC 1ª RM.">Aquisição de materiais esportivos para atender as nec…</td><td class="num" data-v="38">38</td><td class="num" data-v="42192.63"><strong>R$ 42.192,63</strong></td><td style="white-space:nowrap">08/04/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90007/2024	Participante	160315 	Aquisição de materiais esportivos para atender as necessidades do CCFEx,...	38	42192.63	08/04/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160292 · 90019/2024" data-pregao="90019/2024" data-papel="part" data-ano="2024" data-valor="4999.50" data-ger="160292" data-om="" data-search="90019/2024 160292   2024 eventual contratação de serviço comum de engenharia de segurança eletrôn... l pelle comercio de informatica ltda" tabindex="0" aria-label="Pregão participante 90019/2024"><td><b>90019/2024</b></td><td class="pl-ger" title=""><b>160292</b></td><td class="pl-obj" title="Eventual Contratação De Serviço Comum De Engenharia De Segurança Eletrônica Para Instalação, Configuração E Manutenção De Circuitos De Monitoramento E Gravação De Imagens De Segurança E Sensoriamento">Eventual Contratação De Serviço Comum De Engenharia D…</td><td class="num" data-v="2">2</td><td class="num" data-v="4999.50"><strong>R$ 4.999,50</strong></td><td style="white-space:nowrap">24/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90019/2024	Participante	160292 	Eventual Contratação De Serviço Comum De Engenharia De Segurança Eletrôn...	2	4999.50	24/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160402 · 90010/2024" data-pregao="90010/2024" data-papel="part" data-ano="2024" data-valor="4920.00" data-ger="160402" data-om="" data-search="90010/2024 160402   2024 aquisição / fornecimento de cinta suspensão carga delta ind. e com de cabos de aco ltda" tabindex="0" aria-label="Pregão participante 90010/2024"><td><b>90010/2024</b></td><td class="pl-ger" title=""><b>160402</b></td><td class="pl-obj" title="CINTA SUSPENSÃO CARGA, MATERIAL POLIÉSTER, COMPRIMENTO 10 M, LARGURA 300 MM, CAPACIDADE 10 T, APLICAÇÃO SUSPENSÃO E AMARRAÇÃO DE CARGAS, CARACTERÍSTICAS ADICIONAIS FATOR DE SEGURANÇA 7:1, TIPO SLING 300, COMPONENTES ADICIONAIS COM OLHAIS R…">Aquisição / Fornecimento de Cinta Suspensão Carga</td><td class="num" data-v="1">1</td><td class="num" data-v="4920.00"><strong>R$ 4.920,00</strong></td><td style="white-space:nowrap">07/01/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90010/2024	Participante	160402 	Aquisição / Fornecimento de Cinta Suspensão Carga	1	4920.00	07/01/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
             </tbody>
@@ -3809,7 +4027,7 @@ reposição pela Contratada, quando necessários, a fim de atender as …">contr
         <table id="tbRanking">
           <thead>
             <tr>
-              <th style="width:65px">Pos.</th>
+              <th style="width:48px">Pos.</th>
               <th>Organização Militar</th>
               <th>UASG</th>
               <th class="num">Capacidade Total</th>
@@ -3817,7 +4035,7 @@ reposição pela Contratada, quando necessários, a fim de atender as …">contr
               <th class="num">Pregões</th>
               <th class="num">Itens Saldo</th>
               <th class="num">Vencendo ≤30d</th>
-              <th style="width:90px;text-align:center">Ação</th>
+              <th style="width:74px;text-align:center">Ação</th>
             </tr>
           </thead>
           <tbody id="ranking-table-body">
@@ -3836,7 +4054,7 @@ reposição pela Contratada, quando necessários, a fim de atender as …">contr
   <!-- FOOTER GOVTECH -->
   <footer>
     Dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
-    Gerado em 11/11/2026 13:07 · SICOF 3.0 Design System · Capacidade = Qtd. Saldo × Valor Unitário das atas homologadas.<br>
+    Gerado em 11/11/2026 14:56 · SICOF 3.0 Design System · Capacidade = Qtd. Saldo × Valor Unitário das atas homologadas.<br>
     A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do CATMAT — confira antes de emitir a nota de empenho.
   </footer>
 </div><!-- /app-container -->

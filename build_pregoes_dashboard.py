@@ -635,7 +635,7 @@ table.pregoes-table th, table.pregoes-table td {{
   border-right: none !important;
   border-top: none !important;
   border-bottom: 1px solid var(--figma-border, #1E293B) !important;
-  padding: 0.75rem 0.95rem !important;
+  padding: 0.55rem 0.55rem !important;
   vertical-align: middle !important;
 }}
 
@@ -646,11 +646,50 @@ table.pregoes-table thead th {{
   background: var(--figma-bg-card, #111827) !important;
   color: var(--figma-text-secondary, #94A3B8) !important;
   font-weight: 700 !important;
-  font-size: var(--font-size-xs, 0.75rem) !important;
+  font-size: var(--font-size-xs, 0.72rem) !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.04em !important;
+  letter-spacing: 0.03em !important;
+  white-space: normal !important;
+  line-height: 1.2 !important;
   border-bottom: 1px solid var(--figma-border-strong, rgba(255,255,255,0.16)) !important;
   user-select: none !important;
+}}
+
+@media (max-width: 1320px) {{
+  table.pregoes-table {{
+    font-size: 0.74rem !important;
+  }}
+  table.pregoes-table th, table.pregoes-table td {{
+    padding: 0.45rem 0.36rem !important;
+  }}
+  table.pregoes-table thead th {{
+    font-size: 0.67rem !important;
+  }}
+  .objeto-clamp {{
+    max-width: 240px !important;
+  }}
+}}
+
+@media (max-width: 1120px) {{
+  table.pregoes-table {{
+    font-size: 0.7rem !important;
+  }}
+  table.pregoes-table th, table.pregoes-table td {{
+    padding: 0.38rem 0.24rem !important;
+  }}
+  table.pregoes-table thead th {{
+    font-size: 0.64rem !important;
+  }}
+  .badge-fase {{
+    font-size: 0.64rem !important;
+    padding: 0.2rem 0.45rem !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.15 !important;
+  }}
+  .objeto-clamp {{
+    max-width: 170px !important;
+  }}
 }}
 
 table.pregoes-table tbody tr.cel-row {{
@@ -834,6 +873,16 @@ table.pregoes-table td.num {{
   }}
 }}
 
+@media (max-width: 980px) {{
+  /* Oculta tabela desktop e revela cards inteligentes em tablets/mobile para evitar rolagem horizontal */
+  .table-container {{
+    display: none !important;
+  }}
+  .mobile-cards-grid {{
+    display: grid !important;
+  }}
+}}
+
 @media (max-width: 768px) {{
   /* Touch target mínimo 48px em mobile */
   button, .btn, .btn-primary, .btn-secondary, .btn-ghost, .flt-select, .flt-input {{
@@ -847,14 +896,6 @@ table.pregoes-table td.num {{
 
   .kpis-grid {{
     grid-template-columns: 1fr !important;
-  }}
-
-  /* Oculta tabela desktop e revela cards inteligentes */
-  .table-container {{
-    display: none !important;
-  }}
-  .mobile-cards-grid {{
-    display: grid !important;
   }}
 
   /* Modal em formato Bottom Sheet no Mobile */

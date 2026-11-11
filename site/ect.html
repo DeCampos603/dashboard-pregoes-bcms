@@ -108,6 +108,7 @@ html[data-theme="light"] {
 
 html {
   font-family: var(--font-sans);
+  font-size: clamp(13px, 12.2px + 0.12vw, 14.5px);
   background-color: var(--bg-deep);
   color: var(--text-primary);
   scroll-behavior: smooth;
@@ -164,9 +165,9 @@ html[data-theme="light"] #motion-canvas {
 }
 
 .app-container {
-  max-width: 1540px;
+  max-width: min(97vw, 1800px);
   margin: 0 auto;
-  padding: 1.25rem 2rem 5rem 2rem;
+  padding: 0.9rem 1.25rem 3.5rem 1.25rem;
   position: relative;
   z-index: 1;
 }
@@ -179,43 +180,43 @@ html[data-theme="light"] #motion-canvas {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem 1.75rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
   background: var(--bg-surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: var(--glass-shadow);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .header-branding {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 .brand-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   background: linear-gradient(135deg, rgba(var(--unit-accent-rgb), 0.25), rgba(16, 185, 129, 0.15));
   border: 1px solid var(--unit-border);
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--text-accent);
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1rem;
   box-shadow: 0 0 16px var(--unit-glow);
 }
 .brand-title h1 {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 .brand-title p {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 .header-actions {
@@ -277,34 +278,44 @@ html[data-theme="light"] .btn-theme-toggle {
   border: 1.5px solid #0f172a !important;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
 }
+html[data-theme="light"] .btn-secondary {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+html[data-theme="light"] .btn-secondary:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
 
 /* ==========================================================================
    VITRINE HERÁLDICA DE OMDS & BANNER DA UNIDADE ATIVA
    ========================================================================== */
 .omds-showcase-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 .showcase-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.65rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
 }
 .showcase-header h2 {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 .showcase-header p {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 .logos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 .logo-card {
   position: relative;
@@ -314,8 +325,8 @@ html[data-theme="light"] .btn-theme-toggle {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-top: 3.5px solid var(--om-accent, var(--text-accent));
-  border-radius: 18px;
-  padding: 1.25rem 1rem;
+  border-radius: 14px;
+  padding: 0.85rem 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -339,6 +350,10 @@ html[data-theme="light"] .btn-theme-toggle {
   box-shadow: 0 0 28px -2px rgba(var(--om-rgb, 56, 189, 248), 0.5), inset 0 0 14px rgba(var(--om-rgb, 56, 189, 248), 0.18) !important;
   transform: translateY(-2px);
 }
+html[data-theme="light"] .logo-card.is-active {
+  background: linear-gradient(145deg, rgba(var(--om-rgb, 56, 189, 248), 0.14), #ffffff) !important;
+  box-shadow: 0 6px 20px -2px rgba(var(--om-rgb, 56, 189, 248), 0.28) !important;
+}
 .logo-card.is-active::after {
   content: '';
   position: absolute;
@@ -355,12 +370,12 @@ html[data-theme="light"] .btn-theme-toggle {
   cursor: default;
 }
 .logo-img-wrap {
-  width: 76px;
-  height: 84px;
+  width: 56px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.5rem;
   transition: transform var(--motion-snappy) cubic-bezier(0.34, 1.56, 0.64, 1.0);
 }
 .logo-card:hover .logo-img-wrap {
@@ -405,19 +420,23 @@ html[data-theme="light"] .btn-theme-toggle {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--unit-border);
-  border-radius: 20px;
-  padding: 1.5rem 1.85rem;
+  border-radius: 16px;
+  padding: 0.95rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  box-shadow: 0 8px 32px var(--unit-glow);
+  gap: 1rem;
+  box-shadow: 0 8px 28px var(--unit-glow);
+}
+html[data-theme="light"] .unit-overview-banner {
+  background: linear-gradient(135deg, rgba(var(--unit-accent-rgb), 0.10), #ffffff);
+  box-shadow: 0 6px 20px var(--unit-glow);
 }
 .unit-banner-left {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.95rem;
   flex-wrap: wrap;
   min-width: 0;
   flex: 1;
@@ -427,17 +446,17 @@ html[data-theme="light"] .btn-theme-toggle {
   word-break: break-word;
 }
 .unit-banner-logo-wrap {
-  width: 82px;
-  height: 90px;
+  width: 60px;
+  height: 66px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   border: 1.5px solid var(--unit-border);
-  box-shadow: 0 0 20px var(--unit-glow);
-  padding: 0.4rem;
+  box-shadow: 0 0 18px var(--unit-glow);
+  padding: 0.3rem;
 }
 .unit-banner-logo-wrap img {
   max-width: 100%;
@@ -446,16 +465,16 @@ html[data-theme="light"] .btn-theme-toggle {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 .unit-banner-info h2 {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 .unit-banner-info p {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 .unit-tags-row {
   display: flex;
@@ -481,14 +500,14 @@ html[data-theme="light"] .btn-theme-toggle {
    ========================================================================== */
 .sicof-tabs-nav {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.45rem;
+  gap: 0.35rem;
+  padding: 0.35rem;
   background: var(--bg-surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  margin-bottom: 1.75rem;
+  border-radius: 14px;
+  margin-bottom: 1.15rem;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -497,14 +516,14 @@ html[data-theme="light"] .btn-theme-toggle {
 .sicof-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
   background: transparent;
   border: none;
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 0.88rem;
+  font-size: 0.83rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -541,10 +560,10 @@ html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
    ========================================================================== */
 .bento-hero-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-columns: 1.55fr 1fr 1fr;
   grid-template-rows: auto auto;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
 }
 @media (max-width: 1024px) {
   .bento-hero-grid {
@@ -565,7 +584,7 @@ html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.35rem 1.5rem;
+  padding: 0.95rem 1.15rem;
   box-shadow: var(--glass-shadow);
   display: flex;
   flex-direction: column;
@@ -595,21 +614,21 @@ html[data-theme="light"] .sicof-tab-btn[aria-selected="true"] {
   margin-bottom: 0.25rem;
 }
 .hero-big {
-  font-size: clamp(1.8rem, 4.2vw, 3.2rem);
+  font-size: clamp(1.4rem, 2vw, 2.05rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 .hero-cap {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  line-height: 1.45;
-  margin-bottom: 1.25rem;
+  line-height: 1.4;
+  margin-bottom: 0.95rem;
 }
 .meter {
   display: flex;
@@ -681,12 +700,12 @@ html[data-theme="light"] .pill { color: #ffffff; }
   gap: 0.4rem;
 }
 .bento-kpi-val {
-  font-size: 1.85rem;
+  font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  margin: 0.45rem 0 0.2rem 0;
+  margin: 0.3rem 0 0.15rem 0;
 }
 .bento-kpi-val.warn { color: var(--warning); }
 .bento-kpi-val.bad { color: var(--danger); }
@@ -701,8 +720,8 @@ html[data-theme="light"] .pill { color: #ffffff; }
 .grid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.85rem;
+  margin-bottom: 1.15rem;
 }
 @media (max-width: 900px) {
   .grid2 { grid-template-columns: 1fr; }
@@ -713,20 +732,20 @@ html[data-theme="light"] .pill { color: #ffffff; }
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.35rem 1.5rem;
+  padding: 0.95rem 1.1rem;
   box-shadow: var(--glass-shadow);
   min-width: 0;
 }
 .card h2 {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 .card .cap {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.85rem;
 }
 
 /* Barras Horizontais com Pódio Top 3 */
@@ -809,14 +828,14 @@ html[data-theme="light"] .pill { color: #ffffff; }
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.1rem;
   box-shadow: var(--glass-shadow);
 }
 .filtros-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 0.7rem;
 }
 .fl {
   display: flex;
@@ -924,9 +943,11 @@ html[data-theme="light"] .pill { color: #ffffff; }
 /* Segmented Switches */
 .seg {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-subtle);
-  border-radius: 999px;
+  border-radius: 16px;
   padding: 3px;
   gap: 2px;
 }
@@ -934,10 +955,10 @@ html[data-theme="light"] .pill { color: #ffffff; }
   background: transparent;
   border: none;
   border-radius: 999px;
-  padding: 0.4rem 0.95rem;
+  padding: 0.35rem 0.8rem;
   cursor: pointer;
   font-family: var(--font-sans);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-secondary);
   transition: all var(--motion-snappy) var(--motion-ease);
@@ -956,7 +977,7 @@ html[data-theme="light"] .seg button[aria-pressed="true"] {
 }
 
 /* ==========================================================================
-   TABELAS DE DADOS EXECUTIVAS (WCAG 2.2 AAA + STICKY HEADERS)
+   TABELAS DE DADOS EXECUTIVAS (WCAG 2.2 AAA + AJUSTE FULL-WIDTH RESPONSIVO)
    ========================================================================== */
 .tblwrap {
   overflow-x: auto;
@@ -968,11 +989,11 @@ html[data-theme="light"] .seg button[aria-pressed="true"] {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   text-align: left;
 }
 th, td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.48rem 0.42rem;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -982,11 +1003,12 @@ thead th {
   background: var(--bg-surface);
   z-index: 2;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.69rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  letter-spacing: 0.03em;
+  white-space: normal;
+  line-height: 1.2;
   cursor: pointer;
   user-select: none;
   border-bottom: 1.5px solid var(--border-strong);
@@ -1004,32 +1026,225 @@ tbody tr:hover {
 td.num, th.num {
   text-align: right;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 td.desc {
-  max-width: 320px;
+  min-width: 120px;
+  max-width: 280px;
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.3;
+  overflow-wrap: break-word;
 }
 td.forn {
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 95px;
+  max-width: 170px;
+  white-space: normal;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  font-size: 0.74rem;
   color: var(--text-secondary);
 }
-td.cat, td.nd {
-  white-space: nowrap;
-  font-size: 0.78rem;
+td.cat {
+  white-space: normal;
+  line-height: 1.25;
+  max-width: 120px;
+  overflow-wrap: break-word;
+  font-size: 0.74rem;
   color: var(--text-muted);
+}
+td.nd {
+  white-space: nowrap;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+.pl-obj {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+#tb {
+  font-size: 0.76rem;
+}
+#tb th, #tb td {
+  padding: 0.44rem 0.32rem;
+}
+#tb td:nth-child(1),
+#tb td:nth-child(2),
+#tb td:nth-child(3),
+#tb td:nth-child(8),
+#tb td:nth-child(13) {
+  white-space: nowrap;
+}
+@media (max-width: 1380px) and (min-width: 900px) {
+  #tb {
+    font-size: 0.71rem;
+  }
+  #tb th, #tb td {
+    padding: 0.38rem 0.22rem;
+  }
+  #tb thead th {
+    font-size: 0.65rem;
+    letter-spacing: 0.015em;
+  }
+  #tb td.desc {
+    min-width: 105px;
+    max-width: 195px;
+  }
+  #tb td.cat {
+    max-width: 92px;
+    font-size: 0.69rem;
+  }
+  #tb td.forn {
+    min-width: 82px;
+    max-width: 128px;
+    font-size: 0.69rem;
+  }
+  #tb td.nd {
+    font-size: 0.69rem;
+  }
+  #tb .tag {
+    padding: 0.1rem 0.36rem;
+    font-size: 0.64rem;
+    gap: 0.2rem;
+  }
+  #tbSagGer th, #tbSagGer td,
+  #tbSagPart th, #tbSagPart td,
+  #tbPlan th, #tbPlan td,
+  #tbRanking th, #tbRanking td {
+    padding: 0.4rem 0.28rem;
+    font-size: 0.73rem;
+  }
+}
+@media (max-width: 899px) {
+  #tb, #tbPlan, #tbSagGer, #tbSagPart, #tbRanking {
+    display: block;
+  }
+  #tb thead, #tbPlan thead, #tbSagGer thead, #tbSagPart thead, #tbRanking thead {
+    display: none;
+  }
+  #tb tbody, #tbPlan tbody, #tbSagGer tbody, #tbSagPart tbody, #tbRanking tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.5rem;
+  }
+  #tb tbody tr, #tbPlan tbody tr, #tbSagGer tbody tr, #tbSagPart tbody tr, #tbRanking tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.65rem;
+    padding: 0.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+  }
+  #tb tbody td, #tbPlan tbody td, #tbSagGer tbody td, #tbSagPart tbody td, #tbRanking tbody td {
+    border: none;
+    padding: 0;
+    text-align: left !important;
+    white-space: normal !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere;
+  }
+  #tb tbody td::before, #tbPlan tbody td::before, #tbSagGer tbody td::before, #tbSagPart tbody td::before, #tbRanking tbody td::before {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 0.1rem;
+  }
+  #tb tbody td[colspan]::before, #tbPlan tbody td[colspan]::before,
+  #tbSagGer tbody td[colspan]::before, #tbSagPart tbody td[colspan]::before,
+  #tbRanking tbody td[colspan]::before {
+    display: none;
+  }
+  #tb tbody td[colspan], #tbPlan tbody td[colspan],
+  #tbSagGer tbody td[colspan], #tbSagPart tbody td[colspan],
+  #tbRanking tbody td[colspan] {
+    grid-column: 1 / -1;
+    text-align: center !important;
+    padding: 0.5rem 0;
+  }
+  /* Itens (#tb) */
+  #tb tbody td:nth-child(4), #tb tbody td:nth-child(7) { grid-column: 1 / -1; }
+  #tb tbody td:nth-child(1)::before { content: "Pregão"; }
+  #tb tbody td:nth-child(2)::before { content: "Ger."; }
+  #tb tbody td:nth-child(3)::before { content: "Item"; }
+  #tb tbody td:nth-child(4)::before { content: "Descrição do Item"; }
+  #tb tbody td:nth-child(5)::before { content: "Categoria"; }
+  #tb tbody td:nth-child(6)::before { content: "ND sug."; }
+  #tb tbody td:nth-child(7)::before { content: "Fornecedor"; }
+  #tb tbody td:nth-child(8)::before { content: "Fim vig."; }
+  #tb tbody td:nth-child(9)::before { content: "Situação"; }
+  #tb tbody td:nth-child(10)::before { content: "Saldo"; }
+  #tb tbody td:nth-child(11)::before { content: "Vlr. unit."; }
+  #tb tbody td:nth-child(12)::before { content: "Valor total"; }
+  #tb tbody td:nth-child(13)::before { content: "Compras.gov"; }
+  /* Planejamento (#tbPlan) */
+  #tbPlan tbody td:nth-child(4), #tbPlan tbody td:nth-child(7) { grid-column: 1 / -1; }
+  #tbPlan tbody td:nth-child(1)::before { content: "Vencimento"; }
+  #tbPlan tbody td:nth-child(2)::before { content: "Pregão"; }
+  #tbPlan tbody td:nth-child(3)::before { content: "Ger."; }
+  #tbPlan tbody td:nth-child(4)::before { content: "Objeto"; }
+  #tbPlan tbody td:nth-child(5)::before { content: "Itens"; }
+  #tbPlan tbody td:nth-child(6)::before { content: "Capacidade"; }
+  #tbPlan tbody td:nth-child(7)::before { content: "Fornecedor(es)"; }
+  /* SAG Gerenciados (#tbSagGer) */
+  #tbSagGer tbody td:nth-child(2) { grid-column: 1 / -1; }
+  #tbSagGer tbody td:nth-child(1)::before { content: "Pregão"; }
+  #tbSagGer tbody td:nth-child(2)::before { content: "Objeto"; }
+  #tbSagGer tbody td:nth-child(3)::before { content: "Itens"; }
+  #tbSagGer tbody td:nth-child(4)::before { content: "Total Homologado"; }
+  #tbSagGer tbody td:nth-child(5)::before { content: "Vigência"; }
+  #tbSagGer tbody td:nth-child(6)::before { content: "Status"; }
+  #tbSagGer tbody td:nth-child(7)::before { content: "Copiar"; }
+  /* SAG Participados (#tbSagPart) */
+  #tbSagPart tbody td:nth-child(3) { grid-column: 1 / -1; }
+  #tbSagPart tbody td:nth-child(1)::before { content: "Pregão"; }
+  #tbSagPart tbody td:nth-child(2)::before { content: "Gerenciador"; }
+  #tbSagPart tbody td:nth-child(3)::before { content: "Objeto"; }
+  #tbSagPart tbody td:nth-child(4)::before { content: "Itens Cota"; }
+  #tbSagPart tbody td:nth-child(5)::before { content: "Cota OM"; }
+  #tbSagPart tbody td:nth-child(6)::before { content: "Vigência"; }
+  #tbSagPart tbody td:nth-child(7)::before { content: "Status"; }
+  #tbSagPart tbody td:nth-child(8)::before { content: "Copiar"; }
+  /* Ranqueamento (#tbRanking) */
+  #tbRanking tbody td:nth-child(2), #tbRanking tbody td:nth-child(9) { grid-column: 1 / -1; }
+  #tbRanking tbody td:nth-child(1)::before { content: "Pos."; }
+  #tbRanking tbody td:nth-child(2)::before { content: "Organização Militar"; }
+  #tbRanking tbody td:nth-child(3)::before { content: "UASG"; }
+  #tbRanking tbody td:nth-child(4)::before { content: "Capacidade Total"; }
+  #tbRanking tbody td:nth-child(5)::before { content: "Volume SAG"; }
+  #tbRanking tbody td:nth-child(6)::before { content: "Pregões"; }
+  #tbRanking tbody td:nth-child(7)::before { content: "Itens Saldo"; }
+  #tbRanking tbody td:nth-child(8)::before { content: "Vencendo ≤30d"; }
+  #tbRanking tbody td:nth-child(9)::before { content: "Ação"; }
+  /* Tabela Vencendo em 60d */
+  .grid2 table {
+    font-size: 0.72rem;
+  }
+  .grid2 table th, .grid2 table td {
+    padding: 0.35rem 0.25rem;
+  }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  #tb tbody tr, #tbPlan tbody tr, #tbSagGer tbody tr, #tbSagPart tbody tr, #tbRanking tbody tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
   border-radius: 999px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.72rem;
+  padding: 0.14rem 0.48rem;
+  font-size: 0.69rem;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -1037,6 +1252,10 @@ td.cat, td.nd {
 .tag-v30 { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
 .tag-venc { background: rgba(239, 68, 68, 0.18); color: #fb7185; border: 1px solid rgba(239, 68, 68, 0.35); }
 .tag-semata, .tag-semdados { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+html[data-theme="light"] .tag-vig { background: rgba(16, 185, 129, 0.12); color: #047857; border-color: rgba(5, 150, 105, 0.35); }
+html[data-theme="light"] .tag-v30 { background: rgba(245, 158, 11, 0.14); color: #92400e; border-color: rgba(217, 119, 6, 0.4); }
+html[data-theme="light"] .tag-venc { background: rgba(239, 68, 68, 0.12); color: #be123c; border-color: rgba(225, 29, 72, 0.35); }
+html[data-theme="light"] .tag-semata, html[data-theme="light"] .tag-semdados { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 
 .tbl-foot {
   display: flex;
@@ -1083,7 +1302,7 @@ td.cat, td.nd {
 .pl-card.b-180 { --bc: #38bdf8; }
 .pl-card.b-max { --bc: var(--success-fill); }
 .pl-card-n {
-  font-size: 1.85rem;
+  font-size: 1.4rem;
   font-weight: 800;
   line-height: 1;
   font-family: var(--font-mono);
@@ -1117,7 +1336,7 @@ td.cat, td.nd {
   background: var(--bg-card);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r-sm);
-  padding: 1.15rem 1.35rem;
+  padding: 0.9rem 1.05rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -1130,16 +1349,16 @@ td.cat, td.nd {
 .sag-kpi-card.sag-kpi-part { border-left: 4.5px solid #0ea5e9; }
 .sag-kpi-card:hover { background: rgba(255, 255, 255, 0.05); }
 .sag-kpi-card[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--unit-accent); }
-.sag-kpi-val { font-size: 1.75rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-primary); }
-.sag-kpi-lb { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
+.sag-kpi-val { font-size: 1.38rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-primary); }
+.sag-kpi-lb { font-size: 0.76rem; font-weight: 700; color: var(--text-muted); }
 .sag-kpi-sub { font-size: 0.72rem; color: var(--text-muted); }
 
 .sag-bloco {
   background: var(--bg-card);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r-sm);
-  padding: 1.25rem 1.35rem;
-  margin-bottom: 1.25rem;
+  padding: 0.95rem 1.1rem;
+  margin-bottom: 1rem;
 }
 .sag-bloco-hdr {
   display: flex;
@@ -1199,9 +1418,9 @@ td.cat, td.nd {
    ========================================================================== */
 .ranking-leaderboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 1.15rem;
-  margin-bottom: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
 }
 .rank-item-card {
   position: relative;
@@ -1210,10 +1429,10 @@ td.cat, td.nd {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--r);
-  padding: 1.25rem 1.35rem;
+  padding: 0.95rem 1.05rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.65rem;
   cursor: pointer;
   min-width: 0;
   overflow: hidden;
@@ -1289,17 +1508,18 @@ td.cat, td.nd {
 .rank-current-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.65rem;
+  gap: 0.3rem;
+  font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.22rem 0.65rem;
+  letter-spacing: 0.04em;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
   background: var(--unit-accent);
   color: #030712;
   box-shadow: 0 2px 8px var(--unit-glow);
   white-space: nowrap;
+  max-width: 100%;
   flex-shrink: 0;
 }
 html[data-theme="light"] .rank-current-tag {
@@ -1364,8 +1584,6 @@ html[data-theme="light"] .rank-current-tag {
   height: 8px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
-  overflow: hidden;
-}
   overflow: hidden;
 }
 .rank-track-bar {
@@ -2344,13 +2562,13 @@ footer {
           <table id="tbSagGer">
             <thead>
               <tr>
-                <th style="width:130px">Pregão</th>
+                <th style="width:98px">Pregão</th>
                 <th>Objeto do Pregão</th>
-                <th class="num" style="width:85px">Itens</th>
-                <th class="num" style="width:175px">Total Homologado (R$)</th>
-                <th style="width:115px">Vigência</th>
-                <th style="width:110px">Status</th>
-                <th style="width:55px;text-align:center">Copiar</th>
+                <th class="num" style="width:62px">Itens</th>
+                <th class="num" style="width:142px">Total Homologado (R$)</th>
+                <th style="width:92px">Vigência</th>
+                <th style="width:94px">Status</th>
+                <th style="width:52px;text-align:center">Copiar</th>
               </tr>
             </thead>
             <tbody>
@@ -2373,26 +2591,26 @@ footer {
           <table id="tbSagPart">
             <thead>
               <tr>
-                <th style="width:130px">Pregão</th>
-                <th style="width:150px">Gerenciador</th>
+                <th style="width:98px">Pregão</th>
+                <th style="width:115px">Gerenciador</th>
                 <th>Objeto do Pregão</th>
-                <th class="num" style="width:85px">Itens Cota</th>
-                <th class="num" style="width:175px">Cota OM (R$)</th>
-                <th style="width:115px">Vigência</th>
-                <th style="width:110px">Status</th>
-                <th style="width:55px;text-align:center">Copiar</th>
+                <th class="num" style="width:64px">Itens Cota</th>
+                <th class="num" style="width:136px">Cota OM (R$)</th>
+                <th style="width:92px">Vigência</th>
+                <th style="width:94px">Status</th>
+                <th style="width:52px;text-align:center">Copiar</th>
               </tr>
             </thead>
             <tbody>
-<tr data-key="160304 · 90003/2026" data-pregao="90003/2026" data-papel="part" data-ano="2026" data-valor="1805004.00" data-ger="160304" data-om="BMSA" data-search="90003/2026 160304 bmsa batalhão de manutenção e suprimento de armamento 2026 fardamento e vestuário · serviços - pessoa jurídica (manutenção / reforma predial) vertico arquitetura e construcao ltda.; diretriz servico e comercio geral ltda; real forte manutencao predial ltda; af produtos e servicos …" tabindex="0" aria-label="Pregão participante 90003/2026"><td><b>90003/2026</b></td><td class="pl-ger" title="Batalhão de Manutenção e Suprimento de Armamento"><b>160304</b><span class="pl-om" title="Batalhão de Manutenção e Suprimento de Armamento">BMSA</span></td><td class="pl-obj" title="Fardamento e Vestuário · Serviços - Pessoa Jurídica · Principais itens: Manutenção / Reforma Predial">Fardamento e Vestuário · Serviços - Pessoa Jurídica (…</td><td class="num" data-v="9">9</td><td class="num" data-v="1805004.00"><strong>R$ 1.805.004,00</strong></td><td style="white-space:nowrap">30/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2026	Participante	160304 BMSA	Fardamento e Vestuário · Serviços - Pessoa Jurídica (Manutenção / Reforma Predial)	9	1805004.00	30/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160304 · 90003/2026" data-pregao="90003/2026" data-papel="part" data-ano="2026" data-valor="1805004.00" data-ger="160304" data-om="BMSA" data-search="90003/2026 160304 bmsa batalhão de manutenção e suprimento de armamento 2026 fardamento e vestuário · serviços - pessoa jurídica (manutenção / reforma predial) af produtos e servicos ltda; diretriz servico e comercio geral ltda; vertico arquitetura e construcao ltda.; real forte manutencao predial …" tabindex="0" aria-label="Pregão participante 90003/2026"><td><b>90003/2026</b></td><td class="pl-ger" title="Batalhão de Manutenção e Suprimento de Armamento"><b>160304</b><span class="pl-om" title="Batalhão de Manutenção e Suprimento de Armamento">BMSA</span></td><td class="pl-obj" title="Fardamento e Vestuário · Serviços - Pessoa Jurídica · Principais itens: Manutenção / Reforma Predial">Fardamento e Vestuário · Serviços - Pessoa Jurídica (…</td><td class="num" data-v="9">9</td><td class="num" data-v="1805004.00"><strong>R$ 1.805.004,00</strong></td><td style="white-space:nowrap">30/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90003/2026	Participante	160304 BMSA	Fardamento e Vestuário · Serviços - Pessoa Jurídica (Manutenção / Reforma Predial)	9	1805004.00	30/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160301 · 90002/2026" data-pregao="90002/2026" data-papel="part" data-ano="2026" data-valor="1200503.00" data-ger="160301" data-om="" data-search="90002/2026 160301   2026 registro de preços para a contratação de serviços comuns de manutenção, ... real refor servicos tecnicos e manutencao predial ltda" tabindex="0" aria-label="Pregão participante 90002/2026"><td><b>90002/2026</b></td><td class="pl-ger" title=""><b>160301</b></td><td class="pl-obj" title="Registro de preços para a Contratação de serviços comuns de manutenção, preservação e recuperação de bens imóveis, com fornecimento integral dos insumos, equipamentos e mão de obra necessários à execução.">Registro de preços para a Contratação de serviços com…</td><td class="num" data-v="1">1</td><td class="num" data-v="1200503.00"><strong>R$ 1.200.503,00</strong></td><td style="white-space:nowrap">20/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90002/2026	Participante	160301 	Registro de preços para a Contratação de serviços comuns de manutenção, ...	1	1200503.00	20/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160318 · 16/2026" data-pregao="16/2026" data-papel="part" data-ano="2026" data-valor="335003.47" data-ger="160318" data-om="" data-search="16/2026 160318   2026 eventual aquisição de equipamentos (materiais permanentes) para o progra... mundo inox comercio e manutencao ltda; 62.015.316 leonardo ribeiro sanazaro marin; jm licitacoes ltda; b10 licita ltda; lovrim comercio ltda; sora scientific brasil comercial ltda; tlk comercio e servi…" tabindex="0" aria-label="Pregão participante 16/2026"><td><b>16/2026</b></td><td class="pl-ger" title=""><b>160318</b></td><td class="pl-obj" title="Eventual aquisição de equipamentos (materiais permanentes) para o Programa de Auditoria em Segurança Alimentar - PASA para atender as necessidades da EsSLog/CMVM, CEADEx, CCOPAB e Unidades integrantes do GCALC 1ª DE">Eventual aquisição de equipamentos (materiais permane…</td><td class="num" data-v="52">52</td><td class="num" data-v="335003.47"><strong>R$ 335.003,47</strong></td><td style="white-space:nowrap">06/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="16/2026	Participante	160318 	Eventual aquisição de equipamentos (materiais permanentes) para o Progra...	52	335003.47	06/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160238 · 90012/2026" data-pregao="90012/2026" data-papel="part" data-ano="2026" data-valor="242816.86" data-ger="160238" data-om="Ba Ap Log" data-search="90012/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de microcomputadores, notebooks, monitores e infraestrutura de... luthor comercio ltda; movinseg tecnologia comercio e servicos ltda; sgmax tecnologia e comercio ltda; salestech solucoes em ti ltda; ar imports ltda; taci…" tabindex="0" aria-label="Pregão participante 90012/2026"><td><b>90012/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de datacenter">Aquisição de Microcomputadores, Notebooks, Monitores …</td><td class="num" data-v="63">63</td><td class="num" data-v="242816.86"><strong>R$ 242.816,86</strong></td><td style="white-space:nowrap">29/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90012/2026	Participante	160238 Ba Ap Log	Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de...	63	242816.86	29/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160238 · 90315/2026" data-pregao="90315/2026" data-papel="part" data-ano="2026" data-valor="89321.80" data-ger="160238" data-om="Ba Ap Log" data-search="90315/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de materiais gráficos para o grupo de coordenação e acompanham... kopu textil ltda; ingrafoto reproducoes em fotolito ltda; roger andre braun; agencia impero ltda; tvc daflon comunicacao visual ltda; grafica e editora al…" tabindex="0" aria-label="Pregão participante 90315/2026"><td><b>90315/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanhamento de Licitações e Contratos da Base de Apoio Logístico.">Aquisição de materiais gráficos para o Grupo de Coord…</td><td class="num" data-v="21">21</td><td class="num" data-v="89321.80"><strong>R$ 89.321,80</strong></td><td style="white-space:nowrap">22/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90315/2026	Participante	160238 Ba Ap Log	Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanham...	21	89321.80	22/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160318 · 16/2026" data-pregao="16/2026" data-papel="part" data-ano="2026" data-valor="335003.47" data-ger="160318" data-om="" data-search="16/2026 160318   2026 eventual aquisição de equipamentos (materiais permanentes) para o progra... microtecnica informatica ltda; artinox cozinhas industriais ltda; h2o comercio e representacao de bebedouros ltda; andrade solucoes em bens e servicos ltda; m b costa acessorios ltda; refinar empresari…" tabindex="0" aria-label="Pregão participante 16/2026"><td><b>16/2026</b></td><td class="pl-ger" title=""><b>160318</b></td><td class="pl-obj" title="Eventual aquisição de equipamentos (materiais permanentes) para o Programa de Auditoria em Segurança Alimentar - PASA para atender as necessidades da EsSLog/CMVM, CEADEx, CCOPAB e Unidades integrantes do GCALC 1ª DE">Eventual aquisição de equipamentos (materiais permane…</td><td class="num" data-v="52">52</td><td class="num" data-v="335003.47"><strong>R$ 335.003,47</strong></td><td style="white-space:nowrap">06/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="16/2026	Participante	160318 	Eventual aquisição de equipamentos (materiais permanentes) para o Progra...	52	335003.47	06/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160238 · 90012/2026" data-pregao="90012/2026" data-papel="part" data-ano="2026" data-valor="242816.86" data-ger="160238" data-om="Ba Ap Log" data-search="90012/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de microcomputadores, notebooks, monitores e infraestrutura de... 33.622.151 isabel alves de souza; ar imports ltda; amilton guimaraes e cia ltda; repremig representacao e comercio de minas gerais ltda; npr comercio e se…" tabindex="0" aria-label="Pregão participante 90012/2026"><td><b>90012/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de datacenter">Aquisição de Microcomputadores, Notebooks, Monitores …</td><td class="num" data-v="63">63</td><td class="num" data-v="242816.86"><strong>R$ 242.816,86</strong></td><td style="white-space:nowrap">29/09/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90012/2026	Participante	160238 Ba Ap Log	Aquisição de Microcomputadores, Notebooks, Monitores e infraestrutura de...	63	242816.86	29/09/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160238 · 90315/2026" data-pregao="90315/2026" data-papel="part" data-ano="2026" data-valor="89321.80" data-ger="160238" data-om="Ba Ap Log" data-search="90315/2026 160238 ba ap log base de apoio logístico do exército 2026 aquisição de materiais gráficos para o grupo de coordenação e acompanham... grafica e editora alianca ltda; ingrafoto reproducoes em fotolito ltda; gomes silva comunicacao visual e grafica ltda; roger andre braun; lc los costas ar…" tabindex="0" aria-label="Pregão participante 90315/2026"><td><b>90315/2026</b></td><td class="pl-ger" title="Base de Apoio Logístico do Exército"><b>160238</b><span class="pl-om" title="Base de Apoio Logístico do Exército">Ba Ap Log</span></td><td class="pl-obj" title="Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanhamento de Licitações e Contratos da Base de Apoio Logístico.">Aquisição de materiais gráficos para o Grupo de Coord…</td><td class="num" data-v="21">21</td><td class="num" data-v="89321.80"><strong>R$ 89.321,80</strong></td><td style="white-space:nowrap">22/06/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90315/2026	Participante	160238 Ba Ap Log	Aquisição de materiais gráficos para o Grupo de Coordenação e Acompanham...	21	89321.80	22/06/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="160298 · 90005/2026" data-pregao="90005/2026" data-papel="part" data-ano="2026" data-valor="46670.00" data-ger="160298" data-om="" data-search="90005/2026 160298   2026 aquisição de gás liquefeito de petróleo ( glp ) p.s.t. gaz comercio e transportes ltda" tabindex="0" aria-label="Pregão participante 90005/2026"><td><b>90005/2026</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Gás Liquefeito de Petróleo ( GLP )">Aquisição de Gás Liquefeito de Petróleo ( GLP )</td><td class="num" data-v="1">1</td><td class="num" data-v="46670.00"><strong>R$ 46.670,00</strong></td><td style="white-space:nowrap">17/07/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90005/2026	Participante	160298 	Aquisição de Gás Liquefeito de Petróleo ( GLP )	1	46670.00	17/07/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160298 · 9/2026" data-pregao="9/2026" data-papel="part" data-ano="2026" data-valor="33325.30" data-ger="160298" data-om="" data-search="9/2026 160298   2026 gênero alimentício · limpeza e conservação (refrigerante, molho de mesa) alk comercio e servicos de alimentacao ltda; isupry comercial e servicos ltda; rojao comercial de alimentos ltda; n s fatima distribuidora de produtos alimenticios ltda; j d distribuidora de produtos alime…" tabindex="0" aria-label="Pregão participante 9/2026"><td><b>9/2026</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Gênero Alimentício · Limpeza e Conservação · Principais itens: Refrigerante, Molho De Mesa, Condimento, Suco, Frios, Gelatina Alimentícia, Doce Não Confeitado, Tempero">Gênero Alimentício · Limpeza e Conservação (Refrigera…</td><td class="num" data-v="42">42</td><td class="num" data-v="33325.30"><strong>R$ 33.325,30</strong></td><td style="white-space:nowrap">06/11/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="9/2026	Participante	160298 	Gênero Alimentício · Limpeza e Conservação (Refrigerante, Molho De Mesa)	42	33325.30	06/11/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160298 · 90004/2025" data-pregao="90004/2025" data-papel="part" data-ano="2025" data-valor="398475.45" data-ger="160298" data-om="" data-search="90004/2025 160298   2025 aquisição de generos alimenticios quantittativo de rancho (qr) comalta comercio de alimentos ltda; frismar ltda; alk comercio e servicos de alimentacao ltda; comsup comercial de alimentos ltda; galeria hort comercio de produtos alimenticios ltda; refiservi refeicoes industr…" tabindex="0" aria-label="Pregão participante 90004/2025"><td><b>90004/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)">Aquisição de Generos Alimenticios Quantittativo de Ra…</td><td class="num" data-v="107">107</td><td class="num" data-v="398475.45"><strong>R$ 398.475,45</strong></td><td style="white-space:nowrap">10/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2025	Participante	160298 	Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)	107	398475.45	10/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
-<tr data-key="160298 · 90019/2025" data-pregao="90019/2025" data-papel="part" data-ano="2025" data-valor="114899.34" data-ger="160298" data-om="" data-search="90019/2025 160298   2025 aquisição de gêneros alimenticios quantitativo de rancho (qr) alk comercio e servicos de alimentacao ltda; comsup comercial de alimentos ltda; btm distribuidora de produtos alimenticios ltda; staff distribuidora e panificadora ltda; galeria hort comercio de produtos aliment…" tabindex="0" aria-label="Pregão participante 90019/2025"><td><b>90019/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)">Aquisição de Gêneros Alimenticios Quantitativo de Ran…</td><td class="num" data-v="125">125</td><td class="num" data-v="114899.34"><strong>R$ 114.899,34</strong></td><td style="white-space:nowrap">08/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90019/2025	Participante	160298 	Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)	125	114899.34	08/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160298 · 9/2026" data-pregao="9/2026" data-papel="part" data-ano="2026" data-valor="33325.30" data-ger="160298" data-om="" data-search="9/2026 160298   2026 gênero alimentício · limpeza e conservação (refrigerante, molho de mesa) j d distribuidora de produtos alimenticios ltda; n s fatima distribuidora de produtos alimenticios ltda; isupry comercial e servicos ltda; rojao comercial de alimentos ltda; alk comercio e servicos de alim…" tabindex="0" aria-label="Pregão participante 9/2026"><td><b>9/2026</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Gênero Alimentício · Limpeza e Conservação · Principais itens: Refrigerante, Molho De Mesa, Condimento, Suco, Frios, Gelatina Alimentícia, Doce Não Confeitado, Tempero">Gênero Alimentício · Limpeza e Conservação (Refrigera…</td><td class="num" data-v="42">42</td><td class="num" data-v="33325.30"><strong>R$ 33.325,30</strong></td><td style="white-space:nowrap">06/11/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="9/2026	Participante	160298 	Gênero Alimentício · Limpeza e Conservação (Refrigerante, Molho De Mesa)	42	33325.30	06/11/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160298 · 90004/2025" data-pregao="90004/2025" data-papel="part" data-ano="2025" data-valor="398475.45" data-ger="160298" data-om="" data-search="90004/2025 160298   2025 aquisição de generos alimenticios quantittativo de rancho (qr) comsup comercial de alimentos ltda; galeria hort comercio de produtos alimenticios ltda; refiservi refeicoes industriais ltda; virtus comercio e servicos de maquinas e equipamentos ltda; n s aparecida distribuid…" tabindex="0" aria-label="Pregão participante 90004/2025"><td><b>90004/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)">Aquisição de Generos Alimenticios Quantittativo de Ra…</td><td class="num" data-v="107">107</td><td class="num" data-v="398475.45"><strong>R$ 398.475,45</strong></td><td style="white-space:nowrap">10/10/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90004/2025	Participante	160298 	Aquisição de Generos Alimenticios Quantittativo de Rancho (QR)	107	398475.45	10/10/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
+<tr data-key="160298 · 90019/2025" data-pregao="90019/2025" data-papel="part" data-ano="2025" data-valor="114899.34" data-ger="160298" data-om="" data-search="90019/2025 160298   2025 aquisição de gêneros alimenticios quantitativo de rancho (qr) btm distribuidora de produtos alimenticios ltda; comsup comercial de alimentos ltda; galeria hort comercio de produtos alimenticios ltda; staff distribuidora e panificadora ltda; refiservi refeicoes industriais l…" tabindex="0" aria-label="Pregão participante 90019/2025"><td><b>90019/2025</b></td><td class="pl-ger" title=""><b>160298</b></td><td class="pl-obj" title="Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)">Aquisição de Gêneros Alimenticios Quantitativo de Ran…</td><td class="num" data-v="125">125</td><td class="num" data-v="114899.34"><strong>R$ 114.899,34</strong></td><td style="white-space:nowrap">08/05/2027</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90019/2025	Participante	160298 	Aquisição de Gêneros Alimenticios Quantitativo de Rancho (QR)	125	114899.34	08/05/2027	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
 <tr data-key="153149 · 90011/2025" data-pregao="90011/2025" data-papel="part" data-ano="2025" data-valor="82503.37" data-ger="153149" data-om="" data-search="90011/2025 153149   2025 serviços de desinsetização, desratização e controle de pragas ambiental tec 2006 tecnologia em controle de pragas ltda" tabindex="0" aria-label="Pregão participante 90011/2025"><td><b>90011/2025</b></td><td class="pl-ger" title=""><b>153149</b></td><td class="pl-obj" title="Desinsetização / Desratização / Dedetização">Serviços de Desinsetização, Desratização e Controle d…</td><td class="num" data-v="4">4</td><td class="num" data-v="82503.37"><strong>R$ 82.503,37</strong></td><td style="white-space:nowrap">27/01/2028</td><td><span class="tag tag-vig"><span aria-hidden="true">●</span>Vigente</span></td><td style="text-align:center"><button type="button" class="btn-copiar-linha" data-copia="90011/2025	Participante	153149 	Serviços de Desinsetização, Desratização e Controle de Pragas	4	82503.37	27/01/2028	Vigente" title="Copiar dados desta linha para o SAG">📋</button></td></tr>
             </tbody>
           </table>
@@ -2435,7 +2653,7 @@ footer {
         <table id="tbRanking">
           <thead>
             <tr>
-              <th style="width:65px">Pos.</th>
+              <th style="width:48px">Pos.</th>
               <th>Organização Militar</th>
               <th>UASG</th>
               <th class="num">Capacidade Total</th>
@@ -2443,7 +2661,7 @@ footer {
               <th class="num">Pregões</th>
               <th class="num">Itens Saldo</th>
               <th class="num">Vencendo ≤30d</th>
-              <th style="width:90px;text-align:center">Ação</th>
+              <th style="width:74px;text-align:center">Ação</th>
             </tr>
           </thead>
           <tbody id="ranking-table-body">
@@ -2462,7 +2680,7 @@ footer {
   <!-- FOOTER GOVTECH -->
   <footer>
     Dados extraídos do Compras.gov.br pelo Robô Extrator de Pregões.<br>
-    Gerado em 11/11/2026 13:07 · SICOF 3.0 Design System · Capacidade = Qtd. Saldo × Valor Unitário das atas homologadas.<br>
+    Gerado em 11/11/2026 14:56 · SICOF 3.0 Design System · Capacidade = Qtd. Saldo × Valor Unitário das atas homologadas.<br>
     A Natureza de Despesa é <b>sugerida automaticamente</b> pela descrição do CATMAT — confira antes de emitir a nota de empenho.
   </footer>
 </div><!-- /app-container -->
