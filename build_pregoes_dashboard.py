@@ -23,8 +23,8 @@ SITE_DIR = ROOT_DIR / "site"
 DATA_DIR = ROOT_DIR.parent / "Requisicoes-Empenho-BCMS" / "dados"
 
 LOCAL_DATA = ROOT_DIR / "data"
-PNCP_PATH = LOCAL_DATA / "pncp_cache.json" if (LOCAL_DATA / "pncp_cache.json").exists() else (DATA_DIR / "pncp_cache.json")
-PREGOES_PATH = LOCAL_DATA / "pregoes.json" if (LOCAL_DATA / "pregoes.json").exists() else (DATA_DIR / "pregoes.json")
+PNCP_PATH = (DATA_DIR / "pncp_cache.json") if (DATA_DIR / "pncp_cache.json").exists() else (LOCAL_DATA / "pncp_cache.json")
+PREGOES_PATH = (DATA_DIR / "pregoes.json") if (DATA_DIR / "pregoes.json").exists() else (LOCAL_DATA / "pregoes.json")
 TOKENS_PATH = SITE_DIR / "design-tokens.css"
 INDEX_PATH = SITE_DIR / "index.html"
 PREGOES_HTML_PATH = SITE_DIR / "pregoes.html"
@@ -33,7 +33,12 @@ def safe_float(v):
     if v is None: return 0.0
     if isinstance(v, (int, float)): return float(v)
     try:
-        s = str(v).replace("R$", "").replace(".", "").replace(",", ".").strip()
+        s = str(v).replace("R$", "").strip()
+        if not s: return 0.0
+        if "," in s:
+            s = s.replace(".", "").replace(",", ".")
+        elif s.count(".") > 1:
+            s = s.replace(".", "")
         return float(s)
     except Exception:
         return 0.0
@@ -41,8 +46,9 @@ def safe_float(v):
 def safe_int(v):
     if v is None: return 0
     if isinstance(v, int): return v
+    if isinstance(v, float): return int(v)
     try:
-        return int(float(str(v).replace(".", "").replace(",", ".").strip()))
+        return int(safe_float(v))
     except Exception:
         return 0
 
@@ -142,6 +148,9 @@ def carregar_dados_consolidados():
             desc = it.get("descricao") or it.get("catmat_nome") or "Item de fornecimento"
             qtd = safe_int(it.get("qtd_homologada") or it.get("quantidade") or 1)
             vu = safe_float(it.get("valor_unitario"))
+            # Auto-correção de anomalia de extração (Item 1 de 90010/2024 - Locação de ônibus)
+            if vu == 10520 and ("90010" in str(full_num) or "ônibus" in str(desc).lower()):
+                vu = 10.52
             vt = round(qtd * vu, 2)
             formatted_itens.append({
                 "item": it.get("item", len(formatted_itens)+1),
@@ -1284,13 +1293,16 @@ table.pregoes-table td.num {{
     print(f"✓ Gerado {PREGOES_HTML_PATH} ({PREGOES_HTML_PATH.stat().st_size:,} bytes)")
 
 def atualizar_index_html(pregoes_data, kpis, tokens_css):
-    print("3. Atualizando site/index.html (Design Tokens, Botões & Filtros acima dos Itens)...")
+    print("3. Verificando site/index.html...")
     if not INDEX_PATH.exists():
         print(f"Aviso: {INDEX_PATH} não encontrado!")
         return
 
     orig_html = INDEX_PATH.read_text(encoding="utf-8")
-    
+    if "SICOF 3.0" in orig_html or "sicof-tabs-nav" in orig_html:
+        print("  ✓ site/index.html está governado e estruturado na arquitetura SICOF 3.0.")
+        return
+
     # 1. Injetar link design-tokens.css se não existir
     if 'href="design-tokens.css"' not in orig_html:
         orig_html = orig_html.replace('</head>', '  <link rel="stylesheet" href="design-tokens.css">\n</head>')
